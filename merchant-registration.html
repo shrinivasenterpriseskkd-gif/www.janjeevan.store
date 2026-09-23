@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>TRIBES | Merchant Registration</title>
+    <meta name="description" content="Register as a merchant with TRIBES and download your registration PDF agreement.">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="merchant-page">
+    <header class="store-header">
+        <a class="store-brand" href="index.html"><img src="TribesLogo.jpg" alt="TRIBES logo"><span>TRIBES</span></a>
+        <nav aria-label="Main navigation">
+            <a href="index.html">Shop</a>
+            <a href="cart.html">Cart</a>
+            <a class="active" href="merchant-registration.html">Merchant Registration</a>
+        </nav>
+    </header>
+
+    <main class="merchant-wrap">
+        <section class="merchant-card">
+            <div class="merchant-header">
+                <p class="store-kicker">TRIBES partnership</p>
+                <h1>Merchant Registration</h1>
+            </div>
+
+            <form id="merchant-form" novalidate>
+                <div class="field-row">
+                    <label>
+                        Full Name of the Merchant
+                        <input id="fullName" name="fullName" type="text" placeholder="Enter full name" required>
+                    </label>
+
+                    <label>
+                        Phone No
+                        <input id="phoneNo" name="phoneNo" type="tel" placeholder="Enter phone number" required>
+                    </label>
+                </div>
+
+                <div class="field-row single">
+                    <label>
+                        Full Address
+                        <textarea id="address" name="address" rows="4" placeholder="Enter full residential or business address" required></textarea>
+                    </label>
+                </div>
+
+                <div class="field-row">
+                    <label>
+                        Aadhar Number
+                        <input id="aadharNumber" name="aadharNumber" type="text" placeholder="Enter 12-digit Aadhar Number" required>
+                    </label>
+                </div>
+
+                <div class="upload-grid">
+                    <label class="upload-box" for="merchantPhoto">
+                        <span>Merchant Photo Upload</span>
+                        <input id="merchantPhoto" name="merchantPhoto" type="file" accept="image/*" required>
+                        <img id="merchantPreview" alt="Merchant preview" hidden>
+                    </label>
+
+                    <label class="upload-box" for="aadharPhoto">
+                        <span>Aadhar Photo Upload</span>
+                        <input id="aadharPhoto" name="aadharPhoto" type="file" accept="image/*" required>
+                        <img id="aadharPreview" alt="Aadhar preview" hidden>
+                    </label>
+                </div>
+
+                <div class="terms-box">
+                    <h3>TRIBES Terms & Conditions</h3>
+                    <ul>
+                        <li>The merchant agrees to provide accurate identity and address information.</li>
+                        <li>TRIBES may verify submitted identity documents as required for onboarding.</li>
+                        <li>All submitted products, pricing, and catalog details must comply with applicable rules and community standards.</li>
+                        <li>TRIBES reserves the right to approve, reject, or pause merchant onboarding at its discretion.</li>
+                        <li>By submitting this form, the merchant agrees to comply with all TRIBES policies and procedures.</li>
+                    </ul>
+                </div>
+
+                <label class="terms-checkbox">
+                    <input id="agreeTerms" type="checkbox" required>
+                    <span>I agree to the TRIBES terms and conditions.</span>
+                </label>
+
+                <button type="submit" class="submit-btn">Complete Registration</button>
+            </form>
+
+            <div id="status" class="status-message" aria-live="polite"></div>
+        </section>
+    </main>
+
+    <footer class="store-footer">
+        <div class="footer-brand">
+            <img src="TribesLogo.jpg" alt="TRIBES logo">
+            <div>
+                <span>TRIBES</span>
+                <small>Made for everyday living</small>
+            </div>
+        </div>
+        <div class="social-links" aria-label="Social media links">
+            <a href="https://wa.me/?text=Discover%20TRIBES" target="_blank" rel="noopener" aria-label="WhatsApp"><span class="social-symbol whatsapp">WA</span><span>WhatsApp</span></a>
+            <a href="https://www.facebook.com/sharer/sharer.php" target="_blank" rel="noopener" aria-label="Facebook"><span class="social-symbol facebook">f</span><span>Facebook</span></a>
+            <a href="https://www.instagram.com/" target="_blank" rel="noopener" aria-label="Instagram"><span class="social-symbol instagram">◎</span><span>Instagram</span></a>
+        </div>
+        <div class="footer-meta">
+            <a href="mailto:comtribes@gmail.com">Contact us: comtribes@gmail.com</a>
+            <small>© 2026 TRIBES. All rights reserved.</small>
+        </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.0/jspdf.umd.min.js"></script>
+    <script src="js/merchant-registration.js"></script>
+</body>
+</html>

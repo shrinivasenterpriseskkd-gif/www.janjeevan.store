@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Cart | TRIBES</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+</head>
+
+<body class="store-page cart-page">
+    <header class="store-header"><a class="store-brand" href="index.html"><span
+                class="store-brand-mark">T</span>TRIBES</a>
+        <nav aria-label="Store navigation"><a href="index.html">Shop</a><a class="active" href="cart.html">Cart</a>
+        </nav>
+    </header>
+    <main class="cart-main"><a class="back-link" href="index.html">← Continue shopping</a>
+        <div class="cart-heading">
+            <div>
+                <p class="store-kicker">Your selection</p>
+                <h1>Shopping cart</h1>
+            </div><span id="cart-count"></span>
+        </div>
+        <div id="cart" class="cart-list"></div>
+        <section class="checkout-panel">
+            <div><span>Total</span><strong id="cart-total">₹0</strong></div><button id="pay" class="hero-button">Pay
+                securely with Razorpay <span>→</span></button>
+            <p id="status" role="status"></p>
+        </section>
+    </main>
+    <script src="js/api-config.js"></script>
+    <script type="module" src="js/cart.js"></script>
+</body>
+
+</html>

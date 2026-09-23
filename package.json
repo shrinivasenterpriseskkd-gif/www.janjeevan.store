@@ -1,0 +1,12 @@
+{
+  "dependencies": {
+    "dotenv": "^16.6.1",
+    "express": "^5.1.0",
+    "firebase": "^12.19.0",
+    "razorpay": "^2.9.6"
+  },
+  "allowScripts": {
+    "@firebase/util@1.15.3": true,
+    "protobufjs@7.6.6": true
+  }
+}
