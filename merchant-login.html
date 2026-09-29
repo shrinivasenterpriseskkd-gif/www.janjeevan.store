@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>TRIBES | Merchant Sign In</title>
+    <meta name="description" content="Sign in to your TRIBES merchant account.">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body class="merchant-page">
+    <header class="store-header">
+        <a class="store-brand" href="index.html"><img src="TribesLogo.jpg" alt="TRIBES logo"><span>TRIBES</span></a>
+        <nav aria-label="Main navigation">
+            <a href="index.html">Shop</a>
+            <a href="cart.html">Cart</a>
+            <a class="active" href="merchant-login.html">Merchant Sign In</a>
+        </nav>
+    </header>
+
+    <main class="merchant-wrap">
+        <div class="merchant-auth-layout">
+            <aside class="merchant-hero" aria-label="Merchant benefits overview">
+                <div class="merchant-hero-badge">TRIBES Merchant Portal</div>
+                <h2>Grow your store with confidence.</h2>
+                <p>Manage products, update your catalog, and serve your customers with a stronger local business
+                    presence.</p>
+
+                <ul class="merchant-benefits">
+                    <li>Quick product updates</li>
+                    <li>Smart local inventory control</li>
+                    <li>Daily sales and store insights</li>
+                </ul>
+
+                <div class="merchant-mini-card">
+                    <div>
+                        <span class="mini-label">Store performance</span>
+                        <strong>+24.8% this month</strong>
+                    </div>
+                    <span class="mini-icon">↗</span>
+                </div>
+            </aside>
+
+            <section class="merchant-card merchant-form-panel">
+                <div class="merchant-header">
+                    <p class="store-kicker">Welcome back</p>
+                    <h1>Sign In</h1>
+                </div>
+
+                <form id="merchant-login-form" novalidate>
+                    <div class="field-row">
+                        <label>
+                            Merchant ID
+                            <input id="merchantId" name="merchantId" type="text" placeholder="Enter your merchant ID"
+                                required>
+                        </label>
+                    </div>
+
+                    <div class="field-row single">
+                        <label>
+                            Password
+                            <div class="password-field">
+                                <input id="password" name="password" type="password" placeholder="Example: Tribes@123!"
+                                    required>
+                                <button type="button" class="password-toggle" aria-label="Show password"
+                                    data-target="password">👁</button>
+                            </div>
+                        </label>
+                    </div>
+
+                    <button type="submit" class="submit-btn">Sign In</button>
+                </form>
+
+                <button type="button" class="reset-link" id="show-reset">Forgot password?</button>
+
+                <form id="password-reset-form" class="password-reset-form" hidden novalidate>
+                    <div class="merchant-header reset-header">
+                        <p class="store-kicker">Account recovery</p>
+                        <h2>Reset password</h2>
+                    </div>
+                    <label>
+                        Merchant ID
+                        <input id="resetMerchantId" type="text" placeholder="Enter your merchant ID" required>
+                    </label>
+                    <label>
+                        Registered Email
+                        <input id="resetEmail" type="email" placeholder="Enter your registered email" required>
+                    </label>
+                    <label>
+                        New Password
+                        <input id="resetPassword" type="password" minlength="8" pattern="(?=.*[^A-Za-z0-9]).{8,}"
+                            placeholder="Example: Tribes@123!" required>
+                    </label>
+                    <label>
+                        Confirm New Password
+                        <input id="resetConfirmPassword" type="password" minlength="8" pattern="(?=.*[^A-Za-z0-9]).{8,}"
+                            placeholder="Repeat: Tribes@123!" required>
+                    </label>
+                    <div class="reset-actions">
+                        <button type="submit" class="submit-btn">Reset password</button>
+                        <button type="button" class="secondary-btn" id="cancel-reset">Cancel</button>
+                    </div>
+                </form>
+
+                <div id="status" class="status-message" aria-live="polite"></div>
+
+                <p class="merchant-helper-text">
+                    New merchant? <a href="merchant-registration.html">Create account</a>
+                </p>
+            </section>
+        </div>
+    </main>
+
+    <footer class="store-footer">
+        <div class="footer-brand">
+            <img src="TribesLogo.jpg" alt="TRIBES logo">
+            <div>
+                <span>TRIBES</span>
+                <small>Made for everyday living</small>
+            </div>
+        </div>
+        <div class="social-links" aria-label="Social media links">
+            <a href="https://wa.me/?text=Discover%20TRIBES" target="_blank" rel="noopener" aria-label="WhatsApp"><span
+                    class="social-symbol whatsapp">WA</span><span>WhatsApp</span></a>
+            <a href="https://www.facebook.com/sharer/sharer.php" target="_blank" rel="noopener"
+                aria-label="Facebook"><span class="social-symbol facebook">f</span><span>Facebook</span></a>
+            <a href="https://www.instagram.com/" target="_blank" rel="noopener" aria-label="Instagram"><span
+                    class="social-symbol instagram">◎</span><span>Instagram</span></a>
+        </div>
+        <div class="footer-meta">
+            <a href="mailto:comtribes@gmail.com">Contact us: comtribes@gmail.com</a>
+            <small>© 2026 TRIBES. All rights reserved.</small>
+        </div>
+    </footer>
+
+    <script src="js/merchant-login.js"></script>
+    <script src="js/chatbot.js"></script>
+</body>
+
+</html>

@@ -7,6 +7,8 @@
 3. Run `npm start` and open `http://localhost:5500/cart.html`.
 4. Use Razorpay test payment details while testing. Never commit `.env` or production secrets.
 
+Publish both `firestore.rules` and `storage.rules` to the `tribes-c55f4` Firebase project before adding products from the admin dashboard. Storage accepts image files smaller than 5 MB; product writes are limited to the required catalog fields.
+
 ## Free GitHub Pages hosting
 
 1. Create or open a GitHub repository and upload this project.
@@ -21,6 +23,6 @@ The checkout uses `/api/orders` to create an order and `/api/payments/verify` to
 2. Put Firebase Web App configuration in js/firebase-config.js.
 3. Configure Authentication and Firebase Security Rules before production.
 4. Upload this folder to GitHub and enable GitHub Pages.
-5. Connect your owned www.tribes.com domain in GitHub Pages.
+5. Connect your owned www.tribes.info domain in GitHub Pages.
 6. Razorpay secret keys must NEVER be placed in frontend/GitHub. Use a secure backend (Cloud Functions/Cloud Run/server) to create Razorpay orders and verify signatures/webhooks.
 Fields: Product Name, UOM, Quantity, AVLB Stk, Price, Image URL.

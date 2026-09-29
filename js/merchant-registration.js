@@ -1,5 +1,26 @@
 const form = document.getElementById('merchant-form');
 const statusBox = document.getElementById('status');
+const donationInput = document.getElementById('donation');
+const apiBase = (window.TRIBES_API_BASE_URL || '').replace(/\/$/, '');
+
+const getStoredMerchantIds = () => new Set(JSON.parse(localStorage.getItem('tribesMerchants') || '[]').map(merchant => merchant.merchantId));
+
+const generateMerchantId = () => {
+    const existingIds = getStoredMerchantIds();
+    let merchantId;
+    do {
+        merchantId = `TRIBES-${Math.random().toString(36).slice(2, 8).toUpperCase()}`;
+    } while (existingIds.has(merchantId));
+    return merchantId;
+};
+
+const generatePassword = () => {
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%';
+    const specialChars = '!@#$%';
+    const password = [specialChars[Math.floor(Math.random() * specialChars.length)]];
+    while (password.length < 10) password.push(chars[Math.floor(Math.random() * chars.length)]);
+    return password.sort(() => Math.random() - 0.5).join('');
+};
 
 const previewImage = (inputId, previewId) => {
     const input = document.getElementById(inputId);
@@ -24,10 +45,25 @@ const previewImage = (inputId, previewId) => {
 
 previewImage('merchantPhoto', 'merchantPreview');
 previewImage('aadharPhoto', 'aadharPreview');
+previewImage('shopPhoto', 'shopPreview');
 
 const showStatus = (message, type) => {
     statusBox.textContent = message;
     statusBox.className = `status-message ${type}`;
+};
+
+const downloadCredentialsCsv = (merchantId, password) => {
+    const escapeCsv = value => `"${String(value).replace(/"/g, '""')}"`;
+    const csv = [
+        ['Merchant ID', 'Password'],
+        [merchantId, password]
+    ].map(row => row.map(escapeCsv).join(',')).join('\r\n');
+    const url = URL.createObjectURL(new Blob(['\uFEFF', csv], { type: 'text/csv;charset=utf-8' }));
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `tribes-merchant-credentials-${merchantId}.csv`;
+    link.click();
+    window.setTimeout(() => URL.revokeObjectURL(url), 1000);
 };
 
 const readAsDataURL = (file) => new Promise((resolve, reject) => {
@@ -36,6 +72,60 @@ const readAsDataURL = (file) => new Promise((resolve, reject) => {
     reader.onerror = () => reject(new Error('Unable to read the selected file.'));
     reader.readAsDataURL(file);
 });
+
+const collectRegistrationData = () => ({
+    merchantId: '',
+    password: '',
+    fullName: document.getElementById('fullName').value.trim(),
+    phoneNo: document.getElementById('phoneNo').value.trim(),
+    email: document.getElementById('email').value.trim(),
+    state: document.getElementById('state').value.trim(),
+    language: document.getElementById('language').value.trim(),
+    aadharNumber: document.getElementById('aadharNumber').value.trim()
+});
+
+const collectDonationPayment = async (registration) => {
+    if (!donationInput.checked) return;
+    if (!apiBase || typeof window.Razorpay !== 'function') {
+        throw new Error('Secure donation checkout is unavailable. Start the local server and try again.');
+    }
+
+    const orderResponse = await fetch(`${apiBase}/api/merchant-registration-order`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ merchantId: registration.merchantId })
+    });
+    const order = await orderResponse.json();
+    if (!orderResponse.ok) throw new Error(order.error || 'Could not start the donation checkout.');
+
+    await new Promise((resolve, reject) => {
+        const checkout = new window.Razorpay({
+            key: order.keyId,
+            amount: order.amount,
+            currency: order.currency,
+            name: 'TRIBES',
+            description: '₹1 community donation with merchant registration',
+            order_id: order.orderId,
+            prefill: { name: registration.fullName, email: registration.email, contact: registration.phoneNo },
+            theme: { color: '#ef6b3f' },
+            handler: async payment => {
+                try {
+                    const verificationResponse = await fetch(`${apiBase}/api/payments/verify`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payment)
+                    });
+                    if (!verificationResponse.ok) throw new Error('Donation verification failed.');
+                    resolve();
+                } catch (error) {
+                    reject(error);
+                }
+            }
+        });
+        checkout.on('payment.failed', failure => reject(new Error(failure.error?.description || 'Donation payment failed.')));
+        checkout.open();
+    });
+};
 
 form.addEventListener('submit', async (event) => {
     event.preventDefault();
@@ -47,22 +137,47 @@ form.addEventListener('submit', async (event) => {
 
     const fullName = document.getElementById('fullName').value.trim();
     const phoneNo = document.getElementById('phoneNo').value.trim();
+    const email = document.getElementById('email').value.trim();
     const address = document.getElementById('address').value.trim();
+    const state = document.getElementById('state').value.trim();
+    const language = document.getElementById('language').value.trim();
     const aadharNumber = document.getElementById('aadharNumber').value.trim();
     const merchantPhoto = document.getElementById('merchantPhoto').files[0];
     const aadharPhoto = document.getElementById('aadharPhoto').files[0];
+    const shopPhoto = document.getElementById('shopPhoto').files[0];
 
-    if (!merchantPhoto || !aadharPhoto) {
-        showStatus('Please upload both merchant and Aadhar photos.', 'error');
+    if (!merchantPhoto || !aadharPhoto || !shopPhoto) {
+        showStatus('Please upload merchant, Aadhar, and shop photos.', 'error');
         return;
     }
 
     try {
+        const registration = collectRegistrationData();
+        if (!/^\d{10}$/.test(registration.phoneNo)) {
+            showStatus('Phone number must contain exactly 10 digits.', 'error');
+            return;
+        }
+        registration.merchantId = generateMerchantId();
+        if (donationInput.checked) showStatus('Opening secure ₹1 donation checkout...', 'pending');
+        await collectDonationPayment(registration);
+
+        const merchantId = registration.merchantId;
+        const password = generatePassword();
+        registration.password = password;
+
+        const merchantStore = JSON.parse(localStorage.getItem('tribesMerchants') || '[]');
+        merchantStore.push({
+            ...registration,
+            createdAt: new Date().toISOString()
+        });
+        localStorage.setItem('tribesMerchants', JSON.stringify(merchantStore));
+
         showStatus('Generating your TRIBES registration PDF...', 'pending');
 
-        const [merchantPhotoData, aadharPhotoData] = await Promise.all([
+        const [merchantPhotoData, aadharPhotoData, shopPhotoData] = await Promise.all([
             readAsDataURL(merchantPhoto),
-            readAsDataURL(aadharPhoto)
+            readAsDataURL(aadharPhoto),
+            readAsDataURL(shopPhoto)
         ]);
 
         if (!window.jspdf || !window.jspdf.jsPDF) {
@@ -87,9 +202,14 @@ form.addEventListener('submit', async (event) => {
 
         let y = 52;
         const lines = [
+            `Merchant ID: ${merchantId}`,
+            `Password: ${password}`,
             `Full Name: ${fullName}`,
             `Phone No: ${phoneNo}`,
+            `Email: ${email}`,
             `Address: ${address}`,
+            `State: ${state}`,
+            `Language: ${language}`,
             `Aadhar Number: ${aadharNumber}`
         ];
 
@@ -107,6 +227,8 @@ form.addEventListener('submit', async (event) => {
         try {
             doc.addImage(merchantPhotoData, 'JPEG', 14, y, 45, 45);
             doc.addImage(aadharPhotoData, 'JPEG', 105, y, 45, 45);
+            y += 52;
+            doc.addImage(shopPhotoData, 'JPEG', 14, y, 45, 45);
             y += 52;
         } catch (imageError) {
             console.warn('Image embedding warning:', imageError);
@@ -137,12 +259,15 @@ form.addEventListener('submit', async (event) => {
         doc.text('Authorized Signature: _______________________   Date: _______________________', 14, 270);
 
         doc.save('TRIBES-Merchant-Registration.pdf');
+        downloadCredentialsCsv(merchantId, password);
         form.reset();
+        donationInput.checked = true;
         document.getElementById('merchantPreview').hidden = true;
         document.getElementById('aadharPreview').hidden = true;
-        showStatus('Registration completed successfully. The TRIBES PDF has been downloaded.', 'success');
+        document.getElementById('shopPreview').hidden = true;
+        showStatus(`Registration completed. Your Merchant ID and password were downloaded as a CSV. Store the file securely.`, 'success');
     } catch (error) {
         console.error(error);
-        showStatus('Something went wrong while creating the PDF. Please try again.', 'error');
+        showStatus(error.message || 'Registration could not be completed. Please try again.', 'error');
     }
 });

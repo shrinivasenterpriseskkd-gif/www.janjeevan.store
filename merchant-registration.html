@@ -1,5 +1,6 @@
 <!doctype html>
 <html lang="en">
+
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -7,6 +8,7 @@
     <meta name="description" content="Register as a merchant with TRIBES and download your registration PDF agreement.">
     <link rel="stylesheet" href="css/style.css">
 </head>
+
 <body class="merchant-page">
     <header class="store-header">
         <a class="store-brand" href="index.html"><img src="TribesLogo.jpg" alt="TRIBES logo"><span>TRIBES</span></a>
@@ -33,21 +35,95 @@
 
                     <label>
                         Phone No
-                        <input id="phoneNo" name="phoneNo" type="tel" placeholder="Enter phone number" required>
+                        <input id="phoneNo" name="phoneNo" type="tel" placeholder="Enter 10-digit phone number"
+                            inputmode="numeric" minlength="10" maxlength="10" pattern="[0-9]{10}" required>
+                    </label>
+                </div>
+
+                <div class="field-row single">
+                    <label>
+                        Email Address
+                        <input id="email" name="email" type="email" placeholder="Enter email address"
+                            autocomplete="email" required>
                     </label>
                 </div>
 
                 <div class="field-row single">
                     <label>
                         Full Address
-                        <textarea id="address" name="address" rows="4" placeholder="Enter full residential or business address" required></textarea>
+                        <textarea id="address" name="address" rows="4"
+                            placeholder="Enter full residential or business address" required></textarea>
+                    </label>
+                </div>
+
+                <div class="field-row">
+                    <label>
+                        State
+                        <select id="state" name="state" required>
+                            <option value="">Select state</option>
+                            <option value="Andhra Pradesh">Andhra Pradesh</option>
+                            <option value="Arunachal Pradesh">Arunachal Pradesh</option>
+                            <option value="Assam">Assam</option>
+                            <option value="Bihar">Bihar</option>
+                            <option value="Chhattisgarh">Chhattisgarh</option>
+                            <option value="Goa">Goa</option>
+                            <option value="Gujarat">Gujarat</option>
+                            <option value="Haryana">Haryana</option>
+                            <option value="Himachal Pradesh">Himachal Pradesh</option>
+                            <option value="Jharkhand">Jharkhand</option>
+                            <option value="Karnataka">Karnataka</option>
+                            <option value="Kerala">Kerala</option>
+                            <option value="Madhya Pradesh">Madhya Pradesh</option>
+                            <option value="Maharashtra">Maharashtra</option>
+                            <option value="Manipur">Manipur</option>
+                            <option value="Meghalaya">Meghalaya</option>
+                            <option value="Mizoram">Mizoram</option>
+                            <option value="Nagaland">Nagaland</option>
+                            <option value="Odisha">Odisha</option>
+                            <option value="Punjab">Punjab</option>
+                            <option value="Rajasthan">Rajasthan</option>
+                            <option value="Sikkim">Sikkim</option>
+                            <option value="Tamil Nadu">Tamil Nadu</option>
+                            <option value="Telangana">Telangana</option>
+                            <option value="Tripura">Tripura</option>
+                            <option value="Uttar Pradesh">Uttar Pradesh</option>
+                            <option value="Uttarakhand">Uttarakhand</option>
+                            <option value="West Bengal">West Bengal</option>
+                            <option value="Andaman and Nicobar Islands">Andaman and Nicobar Islands</option>
+                            <option value="Chandigarh">Chandigarh</option>
+                            <option value="Dadra and Nagar Haveli and Daman and Diu">Dadra and Nagar Haveli and Daman
+                                and Diu</option>
+                            <option value="Delhi">Delhi</option>
+                            <option value="Jammu and Kashmir">Jammu and Kashmir</option>
+                            <option value="Ladakh">Ladakh</option>
+                            <option value="Lakshadweep">Lakshadweep</option>
+                            <option value="Puducherry">Puducherry</option>
+                        </select>
+                    </label>
+
+                    <label>
+                        Language
+                        <select id="language" name="language" required>
+                            <option value="">Select language</option>
+                            <option value="English">English</option>
+                            <option value="Hindi">Hindi</option>
+                            <option value="Kannada">Kannada</option>
+                            <option value="Tamil">Tamil</option>
+                            <option value="Telugu">Telugu</option>
+                            <option value="Malayalam">Malayalam</option>
+                            <option value="Marathi">Marathi</option>
+                            <option value="Gujarati">Gujarati</option>
+                            <option value="Punjabi">Punjabi</option>
+                            <option value="Bengali">Bengali</option>
+                        </select>
                     </label>
                 </div>
 
                 <div class="field-row">
                     <label>
                         Aadhar Number
-                        <input id="aadharNumber" name="aadharNumber" type="text" placeholder="Enter 12-digit Aadhar Number" required>
+                        <input id="aadharNumber" name="aadharNumber" type="text"
+                            placeholder="Enter 12-digit Aadhar Number" required>
                     </label>
                 </div>
 
@@ -63,6 +139,12 @@
                         <input id="aadharPhoto" name="aadharPhoto" type="file" accept="image/*" required>
                         <img id="aadharPreview" alt="Aadhar preview" hidden>
                     </label>
+
+                    <label class="upload-box" for="shopPhoto">
+                        <span>Merchant Shop Photo Upload</span>
+                        <input id="shopPhoto" name="shopPhoto" type="file" accept="image/*" required>
+                        <img id="shopPreview" alt="Shop preview" hidden>
+                    </label>
                 </div>
 
                 <div class="terms-box">
@@ -70,9 +152,12 @@
                     <ul>
                         <li>The merchant agrees to provide accurate identity and address information.</li>
                         <li>TRIBES may verify submitted identity documents as required for onboarding.</li>
-                        <li>All submitted products, pricing, and catalog details must comply with applicable rules and community standards.</li>
-                        <li>TRIBES reserves the right to approve, reject, or pause merchant onboarding at its discretion.</li>
-                        <li>By submitting this form, the merchant agrees to comply with all TRIBES policies and procedures.</li>
+                        <li>All submitted products, pricing, and catalog details must comply with applicable rules and
+                            community standards.</li>
+                        <li>TRIBES reserves the right to approve, reject, or pause merchant onboarding at its
+                            discretion.</li>
+                        <li>By submitting this form, the merchant agrees to comply with all TRIBES policies and
+                            procedures.</li>
                     </ul>
                 </div>
 
@@ -81,8 +166,17 @@
                     <span>I agree to the TRIBES terms and conditions.</span>
                 </label>
 
+                <label class="terms-checkbox donation-option">
+                    <input id="donation" type="checkbox" checked>
+                    <span>Add a voluntary ₹1 donation to support the TRIBES community.</span>
+                </label>
+
                 <button type="submit" class="submit-btn">Complete Registration</button>
             </form>
+
+            <p class="merchant-helper-text">
+                Already have a merchant account? <a href="merchant-login.html">Sign In</a>
+            </p>
 
             <div id="status" class="status-message" aria-live="polite"></div>
         </section>
@@ -97,17 +191,26 @@
             </div>
         </div>
         <div class="social-links" aria-label="Social media links">
-            <a href="https://wa.me/?text=Discover%20TRIBES" target="_blank" rel="noopener" aria-label="WhatsApp"><span class="social-symbol whatsapp">WA</span><span>WhatsApp</span></a>
-            <a href="https://www.facebook.com/sharer/sharer.php" target="_blank" rel="noopener" aria-label="Facebook"><span class="social-symbol facebook">f</span><span>Facebook</span></a>
-            <a href="https://www.instagram.com/" target="_blank" rel="noopener" aria-label="Instagram"><span class="social-symbol instagram">◎</span><span>Instagram</span></a>
+            <a href="https://wa.me/?text=Discover%20TRIBES" target="_blank" rel="noopener" aria-label="WhatsApp"><span
+                    class="social-symbol whatsapp">WA</span><span>WhatsApp</span></a>
+            <a href="https://www.facebook.com/sharer/sharer.php" target="_blank" rel="noopener"
+                aria-label="Facebook"><span class="social-symbol facebook">f</span><span>Facebook</span></a>
+            <a href="https://www.instagram.com/" target="_blank" rel="noopener" aria-label="Instagram"><span
+                    class="social-symbol instagram">◎</span><span>Instagram</span></a>
         </div>
         <div class="footer-meta">
             <a href="mailto:comtribes@gmail.com">Contact us: comtribes@gmail.com</a>
+            <div class="viewer-pill"><span class="viewer-label">Viewers</span><strong id="viewer-count">0</strong></div>
             <small>© 2026 TRIBES. All rights reserved.</small>
         </div>
     </footer>
 
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.0/jspdf.umd.min.js"></script>
+    <script src="js/api-config.js"></script>
+    <script type="module" src="js/viewers.js"></script>
     <script src="js/merchant-registration.js"></script>
+    <script src="js/chatbot.js"></script>
 </body>
+
 </html>

@@ -12,8 +12,11 @@
 <body class="store-page cart-page">
     <header class="store-header"><a class="store-brand" href="index.html"><span
                 class="store-brand-mark">T</span>TRIBES</a>
-        <nav aria-label="Store navigation"><a href="index.html">Shop</a><a class="active" href="cart.html">Cart</a>
-        </nav>
+        <div class="header-actions">
+            <nav aria-label="Store navigation"><a href="index.html">Shop</a><a class="active" href="cart.html">Cart</a>
+            </nav>
+            <a class="header-signin" href="merchant-login.html">Sign In</a>
+        </div>
     </header>
     <main class="cart-main"><a class="back-link" href="index.html">← Continue shopping</a>
         <div class="cart-heading">
@@ -29,8 +32,33 @@
             <p id="status" role="status"></p>
         </section>
     </main>
+    <footer class="store-footer">
+        <div class="footer-brand">
+            <img src="TribesLogo.jpg" alt="TRIBES logo">
+            <div>
+                <span>TRIBES</span>
+                <small>Made for everyday living</small>
+            </div>
+        </div>
+        <div class="social-links" aria-label="Social media links">
+            <a href="https://wa.me/?text=Discover%20TRIBES" target="_blank" rel="noopener" aria-label="WhatsApp"><span
+                    class="social-symbol whatsapp">WA</span><span>WhatsApp</span></a>
+            <a href="https://www.facebook.com/sharer/sharer.php" target="_blank" rel="noopener"
+                aria-label="Facebook"><span class="social-symbol facebook">f</span><span>Facebook</span></a>
+            <a href="https://www.instagram.com/" target="_blank" rel="noopener" aria-label="Instagram"><span
+                    class="social-symbol instagram">◎</span><span>Instagram</span></a>
+        </div>
+        <div class="footer-meta">
+            <a href="mailto:comtribes@gmail.com">Contact us: comtribes@gmail.com</a>
+            <a href="index.html">Back to shop ↗</a>
+            <div class="viewer-pill"><span class="viewer-label">Viewers</span><strong id="viewer-count">0</strong></div>
+            <small>© 2026 TRIBES. All rights reserved.</small>
+        </div>
+    </footer>
     <script src="js/api-config.js"></script>
     <script type="module" src="js/cart.js"></script>
+    <script type="module" src="js/viewers.js"></script>
+    <script src="js/chatbot.js"></script>
 </body>
 
 </html>

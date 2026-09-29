@@ -2,7 +2,7 @@ name: Deploy TRIBES to GitHub Pages
 
 on:
   push:
-    branches: [master, main]
+    branches: [master, main, CNAME]
   workflow_dispatch:
 
 permissions:

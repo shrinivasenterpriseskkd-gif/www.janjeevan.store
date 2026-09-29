@@ -31,7 +31,7 @@
             <header class="admin-topbar">
                 <div>
                     <p class="eyebrow">Workspace / Overview</p>
-                    <h1>Good morning, Somesh</h1>
+                    <h1>Good morning, <span id="merchant-name">Merchant</span></h1>
                 </div>
                 <a class="store-link" href="../index.html">Open storefront <span>↗</span></a>
             </header>
@@ -84,43 +84,57 @@
                                     image</strong><small>PNG, JPG up to 5MB</small></div>
                         </div>
                         <label>Product name<input id="pname" placeholder="e.g. Handwoven Basket" required></label>
-                        <div class="form-row"><label>Unit of measure<input id="uom" placeholder="e.g. piece"
-                                    required></label><label>Price (₹)<input id="price" type="number" min="0" step=".01"
+                        <div class="form-row"><label>Unit of measure<select id="uom" required>
+                                    <option value="">Select unit</option>
+                                    <option value="piece">Piece</option>
+                                    <option value="kg">Kilogram (kg)</option>
+                                    <option value="g">Gram (g)</option>
+                                    <option value="litre">Litre</option>
+                                    <option value="ml">Millilitre (ml)</option>
+                                    <option value="box">Box</option>
+                                    <option value="pack">Pack</option>
+                                    <option value="dozen">Dozen</option>
+                                    <option value="meter">Meter</option>
+                                </select></label><label>Price (₹)<input id="price" type="number" min="0" step=".01"
                                     placeholder="0.00" required></label></div>
                         <div class="form-row"><label>Quantity<input id="quantity" type="number" min="0"
                                     placeholder="0"></label><label>Available stock<input id="stock" type="number"
                                     min="0" placeholder="0" required></label></div>
                         <label>Andhra Pradesh area<select id="area" required>
-                            <option value="">Select area</option>
-                            <option value="Alluri Sitharama Raju|17.6868|82.9946">Alluri Sitharama Raju</option>
-                            <option value="Anakapalli|17.6913|83.0039">Anakapalli</option>
-                            <option value="Anantapur|14.6819|77.6006">Anantapur</option>
-                            <option value="Annamayya|14.4674|79.9880">Annamayya</option>
-                            <option value="Bapatla|15.9040|80.4670">Bapatla</option>
-                            <option value="Chittoor|13.2172|79.1003">Chittoor</option>
-                            <option value="Dr. B. R. Ambedkar Konaseema|16.6950|82.0120">Dr. B. R. Ambedkar Konaseema</option>
-                            <option value="East Godavari|17.0005|81.8040">East Godavari</option>
-                            <option value="Eluru|16.7107|81.0952">Eluru</option>
-                            <option value="Guntur|16.3067|80.4365">Guntur</option>
-                            <option value="Kakinada|16.9891|82.2475">Kakinada</option>
-                            <option value="Krishna|16.5449|80.6305">Krishna</option>
-                            <option value="Kurnool|15.8281|78.0373">Kurnool</option>
-                            <option value="Nandyal|15.4786|78.4831">Nandyal</option>
-                            <option value="NTR|16.5062|80.6480">NTR</option>
-                            <option value="Palnadu|16.1557|80.2931">Palnadu</option>
-                            <option value="Parvathipuram Manyam|18.7811|83.4256">Parvathipuram Manyam</option>
-                            <option value="Prakasam|15.5057|80.0499">Prakasam</option>
-                            <option value="Srikakulam|18.2949|83.8938">Srikakulam</option>
-                            <option value="Sri Sathya Sai|14.1670|77.8100">Sri Sathya Sai</option>
-                            <option value="Tirupati|13.6288|79.4192">Tirupati</option>
-                            <option value="Visakhapatnam|17.6868|83.2185">Visakhapatnam</option>
-                            <option value="Vizianagaram|18.1067|83.3956">Vizianagaram</option>
-                            <option value="West Godavari|16.9174|81.3399">West Godavari</option>
-                            <option value="YSR Kadapa|14.4674|78.8241">YSR Kadapa</option>
-                        </select></label>
+                                <option value="">Select area</option>
+                                <option value="Alluri Sitharama Raju|17.6868|82.9946">Alluri Sitharama Raju</option>
+                                <option value="Anakapalli|17.6913|83.0039">Anakapalli</option>
+                                <option value="Anantapur|14.6819|77.6006">Anantapur</option>
+                                <option value="Annamayya|14.4674|79.9880">Annamayya</option>
+                                <option value="Bapatla|15.9040|80.4670">Bapatla</option>
+                                <option value="Chittoor|13.2172|79.1003">Chittoor</option>
+                                <option value="Dr. B. R. Ambedkar Konaseema|16.6950|82.0120">Dr. B. R. Ambedkar
+                                    Konaseema</option>
+                                <option value="East Godavari|17.0005|81.8040">East Godavari</option>
+                                <option value="Eluru|16.7107|81.0952">Eluru</option>
+                                <option value="Guntur|16.3067|80.4365">Guntur</option>
+                                <option value="Kakinada|16.9891|82.2475">Kakinada</option>
+                                <option value="Krishna|16.5449|80.6305">Krishna</option>
+                                <option value="Kurnool|15.8281|78.0373">Kurnool</option>
+                                <option value="Nandyal|15.4786|78.4831">Nandyal</option>
+                                <option value="NTR|16.5062|80.6480">NTR</option>
+                                <option value="Palnadu|16.1557|80.2931">Palnadu</option>
+                                <option value="Parvathipuram Manyam|18.7811|83.4256">Parvathipuram Manyam</option>
+                                <option value="Prakasam|15.5057|80.0499">Prakasam</option>
+                                <option value="Srikakulam|18.2949|83.8938">Srikakulam</option>
+                                <option value="Sri Sathya Sai|14.1670|77.8100">Sri Sathya Sai</option>
+                                <option value="Tirupati|13.6288|79.4192">Tirupati</option>
+                                <option value="Visakhapatnam|17.6868|83.2185">Visakhapatnam</option>
+                                <option value="Vizianagaram|18.1067|83.3956">Vizianagaram</option>
+                                <option value="West Godavari|16.9174|81.3399">West Godavari</option>
+                                <option value="YSR Kadapa|14.4674|78.8241">YSR Kadapa</option>
+                            </select></label>
+                        <label>Village / town<select id="village" required>
+                                <option value="">Select village</option>
+                            </select></label>
                         <div class="form-row"><label>Latitude<input id="latitude" type="number" step="any" readonly
-                                placeholder="Auto-filled"></label><label>Longitude<input id="longitude" type="number" step="any" readonly
-                                placeholder="Auto-filled"></label></div>
+                                    placeholder="Auto-filled"></label><label>Longitude<input id="longitude"
+                                    type="number" step="any" readonly placeholder="Auto-filled"></label></div>
                         <button class="button primary" type="submit" id="save-button"><span>＋</span> Add
                             product</button>
                         <p class="form-message" id="msg" role="status"></p>
@@ -129,7 +143,12 @@
             </section>
         </main>
     </div>
+    <script>
+        const currentMerchant = JSON.parse(localStorage.getItem('tribesCurrentMerchant') || 'null');
+        document.getElementById('merchant-name').textContent = currentMerchant?.fullName || 'Merchant';
+    </script>
     <script type="module" src="../js/admin.js"></script>
+    <script src="../js/chatbot.js"></script>
 </body>
 
 </html>
