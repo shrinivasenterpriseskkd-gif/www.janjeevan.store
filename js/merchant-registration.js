@@ -80,6 +80,35 @@ const showStatus = (message, type) => {
     statusBox.className = `status-message ${type}`;
 };
 
+const requestRegistrationApi = async (url, options, action) => {
+    let response;
+    try {
+        response = await fetch(url, options);
+    } catch {
+        throw new Error(`Could not connect to the secure merchant ${action} service. Please try again later or contact comtribes@gmail.com.`);
+    }
+
+    const contentType = response.headers.get('content-type') || '';
+    if (!contentType.toLowerCase().includes('application/json')) {
+        if (response.status === 404 || contentType.toLowerCase().includes('text/html')) {
+            throw new Error(`The secure merchant ${action} service is not available on this website yet. Please contact comtribes@gmail.com.`);
+        }
+        throw new Error(`The merchant ${action} service returned an unexpected response (HTTP ${response.status}). Please try again later.`);
+    }
+
+    let result;
+    try {
+        result = await response.json();
+    } catch {
+        throw new Error(`The merchant ${action} service returned an invalid response. Please try again later.`);
+    }
+
+    if (!response.ok) {
+        throw new Error(result.error || `Could not complete merchant ${action}.`);
+    }
+    return result;
+};
+
 const readAsDataURL = (file) => new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = () => resolve(reader.result);
@@ -121,16 +150,14 @@ const collectRegistrationFee = async (registration) => {
         throw new Error('Secure registration-fee checkout is unavailable. Start the local server and try again.');
     }
 
-    const orderResponse = await fetch(`${apiBase}/api/merchant-registration-order`, {
+    const order = await requestRegistrationApi(`${apiBase}/api/merchant-registration-order`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${await auth.currentUser.getIdToken()}`
         },
         body: JSON.stringify({ merchantId: registration.merchantId })
-    });
-    const order = await orderResponse.json();
-    if (!orderResponse.ok) throw new Error(order.error || 'Could not start the registration-fee checkout.');
+    }, 'registration-fee checkout');
     if (order.amount !== 100 || order.currency !== 'INR') {
         throw new Error('The registration checkout returned an unexpected fee. No payment was started.');
     }
@@ -150,15 +177,14 @@ const collectRegistrationFee = async (registration) => {
             },
             handler: async payment => {
                 try {
-                    const verificationResponse = await fetch(`${apiBase}/api/payments/verify`, {
+                    await requestRegistrationApi(`${apiBase}/api/payments/verify`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
                             'Authorization': `Bearer ${await auth.currentUser.getIdToken()}`
                         },
                         body: JSON.stringify(payment)
-                    });
-                    if (!verificationResponse.ok) throw new Error('Registration-fee payment verification failed.');
+                    }, 'payment verification');
                     resolve();
                 } catch (error) {
                     reject(error);
