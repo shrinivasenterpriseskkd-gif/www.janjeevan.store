@@ -1,6 +1,7 @@
-import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore.js";
-import { db } from "./firebase-config.js";
-import { calculateDeliveryPartnerPayout, getCurrentLocation } from "./order-tracking.js";
+import { collection, doc, getDoc, getDocs } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore.js";
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
+import { auth, db } from "./firebase-config.js";
+import { getCurrentLocation } from "./order-tracking.js";
 
 const apiBase = (window.TRIBES_API_BASE_URL || "").replace(/\/$/, "");
 const ids = JSON.parse(localStorage.getItem("tribesCart") || "[]");
@@ -10,7 +11,8 @@ const status = document.querySelector("#status");
 const deliveryState = document.querySelector("#delivery-state");
 const shareLocationButton = document.querySelector("#share-customer-location");
 const customerLocationStatus = document.querySelector("#customer-location-status");
-const currentCustomer = JSON.parse(localStorage.getItem("tribesCurrentCustomer") || "null");
+let currentCustomer;
+let currentUser;
 let products = [];
 let customerLocation = null;
 
@@ -28,18 +30,6 @@ const escapeHtml = value => String(value ?? "").replace(/[&<>'"]/g, char => ({
     "'": "&#39;",
     "\"": "&quot;"
 }[char]));
-
-const assignPartner = (area, orders) => {
-    const partners = JSON.parse(localStorage.getItem("tribesDeliveryPartners") || "[]")
-        .filter(partner => partner.state?.trim().toLowerCase() === area.trim().toLowerCase());
-    if (!partners.length) return null;
-
-    const pendingCounts = new Map(partners.map(partner => [
-        partner.deliveryPartnerId,
-        orders.filter(order => order.assignedPartnerId === partner.deliveryPartnerId && order.status !== "Delivered").length
-    ]));
-    return partners.sort((a, b) => pendingCounts.get(a.deliveryPartnerId) - pendingCounts.get(b.deliveryPartnerId))[0];
-};
 
 async function loadCart() {
     try {
@@ -89,6 +79,11 @@ shareLocationButton.addEventListener("click", () => {
 
 payButton.addEventListener("click", async () => {
     if (!products.length) return;
+    if (!currentUser || !currentCustomer) {
+        status.textContent = "Sign in with a customer account to place your order.";
+        window.setTimeout(() => window.location.assign("customer-login.html"), 800);
+        return;
+    }
     if (!deliveryState.value) {
         deliveryState.reportValidity();
         return;
@@ -107,14 +102,18 @@ payButton.addEventListener("click", async () => {
     }
 
     try {
-        const amount = Math.round(products.reduce((sum, product) => sum + effectivePrice(product), 0) * 100);
         const response = await fetch(`${apiBase}/api/orders`, {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${await currentUser.getIdToken()}`
+            },
             body: JSON.stringify({
-                amount,
-                items: products.map(product => ({ id: product.id, quantity: 1 })),
-                deliveryState: deliveryState.value
+                items: Array.from(products.reduce((quantities, product) =>
+                    quantities.set(product.id, (quantities.get(product.id) || 0) + 1), new Map()),
+                ([id, quantity]) => ({ id, quantity })),
+                deliveryState: deliveryState.value,
+                customerLocation
             })
         });
         const order = await response.json();
@@ -134,49 +133,16 @@ payButton.addEventListener("click", async () => {
                     status.textContent = "Verifying payment...";
                     const verification = await fetch(`${apiBase}/api/payments/verify`, {
                         method: "POST",
-                        headers: { "Content-Type": "application/json" },
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Authorization": `Bearer ${await currentUser.getIdToken()}`
+                        },
                         body: JSON.stringify(payment)
                     });
-                    if (!verification.ok) throw new Error("Payment verification failed");
-
-                    const savedOrders = JSON.parse(localStorage.getItem("tribesOrders") || "[]");
-                    const partner = assignPartner(deliveryState.value, savedOrders);
-                    const orderRecord = {
-                        orderId: order.orderId,
-                        paymentId: payment.razorpay_payment_id,
-                        customerName: currentCustomer?.name || "",
-                        customerMobile: currentCustomer?.mobile || "",
-                        items: products.map(product => ({
-                            name: product.name,
-                            quantity: 1,
-                            price: effectivePrice(product),
-                            listPrice: product.price || 0,
-                            discountPercent: Number(product.discountPercent) || 0
-                        })),
-                        amount: order.amount / 100,
-                        deliveryState: deliveryState.value,
-                        customerLocation,
-                        merchantLocations: products.filter(product =>
-                            Number.isFinite(Number(product.latitude))
-                            && Number.isFinite(Number(product.longitude))
-                            && Number(product.latitude) !== 0
-                            && Number(product.longitude) !== 0
-                        ).map(product => ({
-                            label: product.village || product.area || "Merchant pickup area",
-                            latitude: Number(product.latitude),
-                            longitude: Number(product.longitude)
-                        })),
-                        assignedPartnerId: partner?.deliveryPartnerId || null,
-                        status: partner ? "Awaiting pickup" : "Unassigned",
-                        createdAt: new Date().toISOString()
-                    };
-                    orderRecord.deliveryPartnerPayout = partner
-                        ? calculateDeliveryPartnerPayout(orderRecord)
-                        : null;
-                    savedOrders.push(orderRecord);
-                    localStorage.setItem("tribesOrders", JSON.stringify(savedOrders));
+                    const result = await verification.json();
+                    if (!verification.ok || !result.verified) throw new Error(result.error || "Payment verification failed");
                     localStorage.removeItem("tribesCart");
-                    status.textContent = partner
+                    status.textContent = result.assignedPartnerId
                         ? "Payment successful. Your order was assigned to a Delivery Partner."
                         : "Payment successful. No Delivery Partner is registered in this state yet; your order needs assignment.";
                     payButton.textContent = "Order complete";
@@ -196,6 +162,19 @@ payButton.addEventListener("click", async () => {
     } catch (error) {
         status.textContent = error.message;
         payButton.disabled = false;
+    }
+});
+
+onAuthStateChanged(auth, async user => {
+    currentUser = user;
+    currentCustomer = null;
+    if (!user) return;
+    try {
+        const profile = await getDoc(doc(db, "customerAccounts", user.uid));
+        if (profile.exists()) currentCustomer = profile.data();
+    } catch (error) {
+        console.error("Could not load the signed-in customer profile for checkout.", error);
+        status.textContent = "Customer profile could not be loaded. Sign in again and retry.";
     }
 });
 

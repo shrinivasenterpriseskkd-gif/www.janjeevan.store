@@ -1,3 +1,7 @@
+import { createUserWithEmailAndPassword, deleteUser } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
+import { doc, serverTimestamp, setDoc } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore.js";
+import { auth, db } from "./firebase-config.js";
+
 const form = document.getElementById('delivery-partner-form');
 const statusBox = document.getElementById('status');
 const donationInput = document.getElementById('donation');
@@ -13,15 +17,7 @@ const showStatus = (message, type) => {
 };
 
 const generateDeliveryPartnerId = () => {
-    const partners = JSON.parse(localStorage.getItem('tribesDeliveryPartners') || '[]');
-    const existingIds = new Set(partners.map(partner => partner.deliveryPartnerId));
-    let deliveryPartnerId;
-
-    do {
-        deliveryPartnerId = `Janjeevan.store-DP-${Math.random().toString(36).slice(2, 8).toUpperCase()}`;
-    } while (existingIds.has(deliveryPartnerId));
-
-    return deliveryPartnerId;
+    return `Janjeevan.store-DP-${crypto.randomUUID().replace(/-/g, '').slice(0, 6).toUpperCase()}`;
 };
 
 const generatePassword = () => {
@@ -33,11 +29,11 @@ const generatePassword = () => {
     return password.sort(() => Math.random() - 0.5).join('');
 };
 
-const downloadCredentials = (deliveryPartnerId, password) => {
+const downloadCredentials = (email, deliveryPartnerId, password) => {
     const escapeCsv = value => `"${String(value).replace(/"/g, '""')}"`;
     const csv = [
-        ['Delivery Partner ID', 'Password'],
-        [deliveryPartnerId, password]
+        ['Email', 'Delivery Partner ID', 'Password'],
+        [email, deliveryPartnerId, password]
     ].map(row => row.map(escapeCsv).join(',')).join('\r\n');
     const url = URL.createObjectURL(new Blob(['\uFEFF', csv], { type: 'text/csv;charset=utf-8' }));
     const link = document.createElement('a');
@@ -200,16 +196,48 @@ form.addEventListener('submit', async (event) => {
         return;
     }
 
-    const partners = JSON.parse(localStorage.getItem('tribesDeliveryPartners') || '[]');
     const registrationWithDate = {
         ...registration,
         profilePhoto,
         createdAt: new Date().toISOString()
     };
-    partners.push(registrationWithDate);
-    localStorage.setItem('tribesDeliveryPartners', JSON.stringify(partners));
+    let user;
+    try {
+        user = (await createUserWithEmailAndPassword(auth, registration.email, registration.password)).user;
+        await setDoc(doc(db, 'deliveryPartnerAccounts', user.uid), {
+            role: 'deliveryPartner',
+            deliveryPartnerId: registration.deliveryPartnerId,
+            fullName: registration.fullName,
+            email: user.email || registration.email,
+            phoneNo: registration.phoneNo,
+            address: registration.address,
+            state: registration.state,
+            language: registration.language,
+            relativeName: registration.relativeName,
+            relativePhone: registration.relativePhone,
+            relativeAddress: registration.relativeAddress,
+            profilePhoto,
+            createdAt: serverTimestamp()
+        });
+    } catch (error) {
+        console.error('Could not create the Firebase Delivery Partner account.', error);
+        if (user) {
+            try {
+                await deleteUser(user);
+            } catch (cleanupError) {
+                console.error('Could not remove the incomplete Delivery Partner account.', cleanupError);
+            }
+        }
+        showStatus(error.code === 'auth/email-already-in-use'
+            ? 'An account already exists for this email. Sign in or reset your password.'
+            : error.code === 'permission-denied'
+                ? 'Firestore denied the profile write. Publish the project rules, then try again.'
+                : `Account creation failed${error.code ? ` (${error.code})` : ''}. Check your connection and try again.`,
+        'error');
+        return;
+    }
 
-    downloadCredentials(registration.deliveryPartnerId, registration.password);
+    downloadCredentials(registration.email, registration.deliveryPartnerId, registration.password);
     try {
         const [aadharFront, aadharBack, passport] = await Promise.all([
             readFileAsDataUrl(document.getElementById('aadharPhotoFront').files[0]),
@@ -234,7 +262,7 @@ form.addEventListener('submit', async (event) => {
     form.reset();
     donationInput.checked = true;
     showStatus(
-        `Registration completed. Delivery Partner ID: ${registration.deliveryPartnerId} | Password: ${registration.password}. The credentials CSV and registration PDF were downloaded. Store them securely.`,
+        `Registration completed. Sign in with ${registration.email} and the password in your downloaded credentials CSV.`,
         'success'
     );
 });

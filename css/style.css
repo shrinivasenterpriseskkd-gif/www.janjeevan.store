@@ -2342,7 +2342,7 @@ button {
 }
 
 .login-id-credentials {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: minmax(0, 1fr);
 }
 
 .login-id-contact {
@@ -4232,6 +4232,10 @@ button {
     font-size: 19px;
 }
 
+.store-footer .social-symbol.telegram {
+    background: #229ed9;
+}
+
 @media(max-width:650px) {
     .store-hero {
         min-height: 520px;
@@ -5076,6 +5080,12 @@ button {
     width: 100%;
 }
 
+.merchant-product-form-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
 .merchant-product-form {
     display: grid;
     gap: 22px;
@@ -5120,7 +5130,7 @@ button {
     gap: 18px;
 }
 
-.merchant-product-form > .submit-btn {
+.merchant-product-form-actions > .submit-btn {
     width: 100%;
     max-width: 340px;
 }
@@ -5141,7 +5151,7 @@ button {
         grid-template-columns: minmax(0, 1fr);
     }
 
-    .merchant-product-form > .submit-btn {
+    .merchant-product-form-actions > .submit-btn {
         max-width: none;
     }
 }

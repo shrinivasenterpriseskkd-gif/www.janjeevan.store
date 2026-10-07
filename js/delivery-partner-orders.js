@@ -1,7 +1,9 @@
+import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
+import { doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore.js";
+import { auth, db } from "./firebase-config.js";
 import {
     getCurrentLocation,
     calculateDeliveryPartnerPayout,
-    getDailyBonus,
     isActiveOrder,
     readOrders,
     renderOrderMap,
@@ -9,29 +11,14 @@ import {
     updateOrders
 } from './order-tracking.js';
 
-const currentPartner = JSON.parse(localStorage.getItem('tribesCurrentDeliveryPartner') || 'null');
+const apiBase = (window.TRIBES_API_BASE_URL || '').replace(/\/$/, '');
+let currentPartner;
 const orderList = document.getElementById('orders-list');
 const ordersStatus = document.getElementById('orders-status');
 const partnerLocationStatus = document.getElementById('partner-location-status');
 const shareLocationButton = document.getElementById('share-partner-location');
 let partnerWatchId = null;
 let partnerSharing = false;
-
-if (!currentPartner?.deliveryPartnerId) {
-    window.location.replace('Delivery Partner-login.html');
-} else {
-    const partnerRecords = JSON.parse(localStorage.getItem('tribesDeliveryPartners') || '[]');
-    const partnerRecord = partnerRecords.find(partner => partner.deliveryPartnerId === currentPartner.deliveryPartnerId);
-    document.getElementById('partner-name').textContent = `${currentPartner.fullName} · ${currentPartner.deliveryPartnerId}`;
-    const profilePhoto = partnerRecord?.profilePhoto || currentPartner.profilePhoto;
-    const partnerPhoto = document.getElementById('partner-photo');
-    partnerPhoto.hidden = !profilePhoto;
-    partnerPhoto.src = profilePhoto || '';
-    document.getElementById('partner-photo-initials').textContent = profilePhoto
-        ? ''
-        : currentPartner.fullName.split(/\s+/).map(name => name[0]).slice(0, 2).join('').toUpperCase();
-    renderOrders();
-}
 
 function escapeHtml(value) {
     return String(value ?? '').replace(/[&<>'"]/g, character => ({
@@ -93,7 +80,7 @@ function renderOrders() {
         return;
     }
 
-    const assignedOrders = orders.filter(order => order.assignedPartnerId === currentPartner.deliveryPartnerId);
+    const assignedOrders = orders;
     if (!assignedOrders.some(isActiveOrder) && partnerWatchId !== null) {
         partnerSharing = false;
         navigator.geolocation.clearWatch(partnerWatchId);
@@ -108,13 +95,8 @@ function renderOrders() {
 
     orderList.innerHTML = assignedOrders.slice().reverse().map(order => {
         const payout = order.deliveryPartnerPayout || calculateDeliveryPartnerPayout(order);
-        const completedToday = assignedOrders.filter(record =>
-            record.status === 'Delivered'
-            && new Date(record.deliveredAt || record.createdAt).toLocaleDateString('en-IN') === new Date().toLocaleDateString('en-IN')
-        ).length;
-        const nextBonus = getDailyBonus(completedToday + 1);
         return `
-        <article class="delivery-order-card">
+        <article class="delivery-order-card" data-order-id="${escapeHtml(order.id)}">
             <div class="delivery-order-header">
                 <div><p>Order</p><h2>${escapeHtml(order.orderId)}</h2></div>
                 <span class="delivery-order-status">${escapeHtml(order.status)}</span>
@@ -134,14 +116,14 @@ function renderOrders() {
             <ul class="delivery-order-items">
                 ${(Array.isArray(order.items) ? order.items : []).map(item => `<li>${escapeHtml(item.name)} × ${escapeHtml(item.quantity)}</li>`).join('')}
             </ul>
-            ${isActiveOrder(order) ? `<div class="order-tracking-actions"><button class="button secondary" type="button" data-order-action="${order.status === 'Out for delivery' ? 'delivered' : 'start'}">${order.status === 'Out for delivery' ? 'Mark delivered' : 'Start delivery'}</button><span>Order status and GPS updates are shared in this browser only.</span></div>` : ''}
+            ${isActiveOrder(order) ? `<div class="order-tracking-actions"><button class="button secondary" type="button" data-order-action="${order.status === 'Out for delivery' ? 'delivered' : 'start'}">${order.status === 'Out for delivery' ? 'Mark delivered' : 'Start delivery'}</button><span>Order status and GPS updates sync with authorized participants.</span></div>` : ''}
             ${renderOrderMap(order)}
         </article>
     `;
     }).join('');
 }
 
-function stopPartnerSharing(clearLocations) {
+async function stopPartnerSharing(clearLocations) {
     partnerSharing = false;
     if (partnerWatchId !== null) {
         navigator.geolocation.clearWatch(partnerWatchId);
@@ -150,8 +132,8 @@ function stopPartnerSharing(clearLocations) {
     shareLocationButton.textContent = 'Share my location';
     if (clearLocations) {
         try {
-            updateOrders(orders => orders.forEach(order => {
-                if (order.assignedPartnerId === currentPartner.deliveryPartnerId && isActiveOrder(order)) {
+            await updateOrders(orders => orders.forEach(order => {
+                if (order.assignedPartnerUid === currentPartner.uid && isActiveOrder(order)) {
                     delete order.deliveryPartnerLocation;
                 }
             }));
@@ -170,9 +152,7 @@ function startPartnerSharing() {
 
     let activeOrders;
     try {
-        activeOrders = readOrders().filter(order =>
-            order.assignedPartnerId === currentPartner.deliveryPartnerId && isActiveOrder(order)
-        );
+        activeOrders = readOrders().filter(isActiveOrder);
     } catch (error) {
         console.error('Could not load assigned orders before starting GPS sharing.', error);
         ordersStatus.textContent = 'Orders could not be loaded. Refresh and try again.';
@@ -185,12 +165,12 @@ function startPartnerSharing() {
 
     partnerLocationStatus.textContent = 'Waiting for location permission...';
     partnerSharing = true;
-    partnerWatchId = navigator.geolocation.watchPosition(position => {
+    partnerWatchId = navigator.geolocation.watchPosition(async position => {
         if (!partnerSharing) return;
         try {
             const location = getCurrentLocation(position);
-            updateOrders(orders => orders.forEach(order => {
-                if (order.assignedPartnerId === currentPartner.deliveryPartnerId && isActiveOrder(order)) {
+            await updateOrders(orders => orders.forEach(order => {
+                if (order.assignedPartnerUid === currentPartner.uid && isActiveOrder(order)) {
                     order.deliveryPartnerLocation = location;
                 }
             }));
@@ -198,7 +178,7 @@ function startPartnerSharing() {
             renderOrders();
         } catch (error) {
             console.error('Could not update the shared Delivery Partner GPS location.', error);
-            ordersStatus.textContent = 'Your latest location could not be saved in this browser.';
+            ordersStatus.textContent = 'Your latest location could not be synced to the order.';
         }
     }, error => {
         partnerSharing = false;
@@ -213,39 +193,24 @@ function startPartnerSharing() {
     shareLocationButton.textContent = 'Stop sharing location';
 }
 
-orderList.addEventListener('click', event => {
+orderList.addEventListener('click', async event => {
     const button = event.target.closest('[data-order-action]');
     if (!button) return;
 
     try {
-        const orders = updateOrders(records => {
-            const order = records.find(record =>
-                record.orderId === button.closest('.delivery-order-card')?.querySelector('h2')?.textContent
-                && record.assignedPartnerId === currentPartner.deliveryPartnerId
-            );
-            if (!order || !isActiveOrder(order)) throw new Error('This assigned order is no longer active.');
-            if (button.dataset.orderAction === 'delivered') {
-                order.status = 'Delivered';
-                order.deliveredAt = new Date().toISOString();
-                const completedToday = records.filter(record =>
-                    record.assignedPartnerId === currentPartner.deliveryPartnerId
-                    && record.status === 'Delivered'
-                    && new Date(record.deliveredAt || record.createdAt).toLocaleDateString('en-IN') === new Date().toLocaleDateString('en-IN')
-                ).length;
-                order.deliveryPartnerPayout = calculateDeliveryPartnerPayout(order, getDailyBonus(completedToday));
-                delete order.customerLocation;
-                delete order.customerLiveLocation;
-                delete order.deliveryPartnerLocation;
-                delete order.merchantLocation;
-            } else {
-                order.status = 'Out for delivery';
-                order.pickedUpAt = order.pickedUpAt || new Date().toISOString();
-            }
+        const orderId = button.closest('.delivery-order-card')?.dataset.orderId;
+        const status = button.dataset.orderAction === 'delivered' ? 'Delivered' : 'Out for delivery';
+        const response = await fetch(`${apiBase}/api/orders/${encodeURIComponent(orderId)}/status`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${await auth.currentUser.getIdToken()}`
+            },
+            body: JSON.stringify({ status })
         });
-        const updatedOrder = orders.find(record =>
-            record.orderId === button.closest('.delivery-order-card')?.querySelector('h2')?.textContent
-        );
-        ordersStatus.textContent = updatedOrder?.status === 'Delivered'
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.error || 'Could not update this order.');
+        ordersStatus.textContent = status === 'Delivered'
             ? 'Order marked delivered. Shared GPS points were cleared.'
             : 'Delivery started. Your location can now be shared with the Customer and Admin.';
         ordersStatus.className = 'delivery-orders-status success';
@@ -255,25 +220,46 @@ orderList.addEventListener('click', event => {
     }
 });
 
-if (currentPartner?.deliveryPartnerId) {
-    shareLocationButton.addEventListener('click', () => {
-        if (partnerWatchId !== null) {
-            stopPartnerSharing(true);
-            partnerLocationStatus.textContent = 'Live location sharing stopped and your saved GPS points were cleared.';
-            renderOrders();
-        } else startPartnerSharing();
-    });
+shareLocationButton.addEventListener('click', async () => {
+    if (!currentPartner) return;
+    if (partnerWatchId !== null) {
+        await stopPartnerSharing(true);
+        partnerLocationStatus.textContent = 'Live location sharing stopped and your saved GPS points were cleared.';
+        renderOrders();
+    } else startPartnerSharing();
+});
 
-    subscribeToOrders(renderOrders);
+document.getElementById('sign-out').addEventListener('click', async () => {
+    await stopPartnerSharing(true);
+    await signOut(auth);
+    window.location.replace('Delivery Partner-login.html');
+});
+window.addEventListener('pagehide', () => { void stopPartnerSharing(true); }, { once: true });
 
-    document.getElementById('sign-out').addEventListener('click', () => {
-        stopPartnerSharing(true);
-        localStorage.removeItem('tribesCurrentDeliveryPartner');
+let unsubscribeOrders;
+onAuthStateChanged(auth, async user => {
+    if (unsubscribeOrders) unsubscribeOrders();
+    if (!user) {
         window.location.replace('Delivery Partner-login.html');
-    });
-
-    window.addEventListener('pagehide', () => stopPartnerSharing(true), { once: true });
-}
+        return;
+    }
+    try {
+        const profile = await getDoc(doc(db, 'deliveryPartnerAccounts', user.uid));
+        if (!profile.exists()) {
+            await signOut(auth);
+            window.location.replace('Delivery Partner-login.html');
+            return;
+        }
+        currentPartner = { ...profile.data(), uid: user.uid };
+        document.getElementById('partner-name').textContent = `${currentPartner.fullName} · ${currentPartner.deliveryPartnerId}`;
+        setPartnerPhoto(currentPartner.profilePhoto || '');
+        unsubscribeOrders = subscribeToOrders(renderOrders, { role: 'deliveryPartner' });
+        renderOrders();
+    } catch (error) {
+        console.error('Could not load the signed-in Delivery Partner profile.', error);
+        ordersStatus.textContent = 'Your Delivery Partner profile could not be loaded. Check Firebase permissions and try again.';
+    }
+});
 
 document.getElementById('profile-photo-upload').addEventListener('change', async event => {
     const [file] = event.target.files;
@@ -281,15 +267,11 @@ document.getElementById('profile-photo-upload').addEventListener('change', async
 
     try {
         const profilePhoto = await compressProfilePhoto(file);
-        const partners = JSON.parse(localStorage.getItem('tribesDeliveryPartners') || '[]');
-        const partnerIndex = partners.findIndex(partner => partner.deliveryPartnerId === currentPartner.deliveryPartnerId);
-        if (partnerIndex === -1) throw new Error('Your registration record was not found in this browser.');
-        partners[partnerIndex].profilePhoto = profilePhoto;
-        localStorage.setItem('tribesDeliveryPartners', JSON.stringify(partners));
+        if (!currentPartner?.uid) throw new Error('Sign in before changing your profile photo.');
+        await updateDoc(doc(db, 'deliveryPartnerAccounts', currentPartner.uid), { profilePhoto });
         currentPartner.profilePhoto = profilePhoto;
-        localStorage.setItem('tribesCurrentDeliveryPartner', JSON.stringify(currentPartner));
         setPartnerPhoto(profilePhoto);
-        ordersStatus.textContent = 'Profile photo updated. It will appear when you enter your Delivery Partner ID on the sign-in page.';
+        ordersStatus.textContent = 'Profile photo updated and synced to your account.';
     } catch (error) {
         console.error('Could not update Delivery Partner profile photo.', error);
         ordersStatus.textContent = `Profile photo could not be updated: ${error.message}`;

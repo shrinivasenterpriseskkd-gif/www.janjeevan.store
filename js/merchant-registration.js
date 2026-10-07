@@ -1,8 +1,13 @@
+import { createUserWithEmailAndPassword, deleteUser } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
+import { doc, serverTimestamp, setDoc } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore.js";
+import { auth, db } from "./firebase-config.js";
+
 const form = document.getElementById('merchant-form');
 const statusBox = document.getElementById('status');
 const credentialsPanel = document.getElementById('merchant-registration-credentials');
-const donationInput = document.getElementById('donation');
+const registrationFeeConsent = document.getElementById('registration-fee-consent');
 const aadharInput = document.getElementById('aadharNumber');
+const panNumberInput = document.getElementById('panNumber');
 const gstNumberInput = document.getElementById('gstNumber');
 const apiBase = (window.TRIBES_API_BASE_URL || '').replace(/\/$/, '');
 
@@ -10,10 +15,15 @@ const showMerchantCredentials = (merchantId, password) => {
     document.getElementById('registration-merchant-id').textContent = merchantId;
     document.getElementById('registration-merchant-password').textContent = password;
     credentialsPanel.hidden = false;
+    credentialsPanel.scrollIntoView({ behavior: 'smooth', block: 'center' });
 };
 
 aadharInput.addEventListener('input', () => {
     aadharInput.value = aadharInput.value.replace(/\D/g, '').slice(0, 12);
+});
+
+panNumberInput.addEventListener('input', () => {
+    panNumberInput.value = panNumberInput.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 10);
 });
 
 gstNumberInput.addEventListener('input', () => {
@@ -62,6 +72,7 @@ const previewImage = (inputId, previewId) => {
 
 previewImage('merchantPhoto', 'merchantPreview');
 previewImage('aadharPhoto', 'aadharPreview');
+previewImage('panPhoto', 'panPreview');
 previewImage('shopPhoto', 'shopPreview');
 
 const showStatus = (message, type) => {
@@ -94,29 +105,35 @@ const compressShopPhoto = async (file) => {
 
 const collectRegistrationData = () => ({
     merchantId: '',
-    password: '',
     fullName: document.getElementById('fullName').value.trim(),
     phoneNo: document.getElementById('phoneNo').value.trim(),
     email: document.getElementById('email').value.trim(),
     gstNumber: document.getElementById('gstNumber').value.trim().toUpperCase(),
+    shopCategory: document.getElementById('shopCategory').value,
+    panNumber: document.getElementById('panNumber').value.trim().toUpperCase(),
     state: document.getElementById('state').value.trim(),
     language: document.getElementById('language').value.trim(),
     aadharNumber: document.getElementById('aadharNumber').value.trim()
 });
 
-const collectDonationPayment = async (registration) => {
-    if (!donationInput.checked) return;
+const collectRegistrationFee = async (registration) => {
     if (!apiBase || typeof window.Razorpay !== 'function') {
-        throw new Error('Secure donation checkout is unavailable. Start the local server and try again.');
+        throw new Error('Secure registration-fee checkout is unavailable. Start the local server and try again.');
     }
 
     const orderResponse = await fetch(`${apiBase}/api/merchant-registration-order`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${await auth.currentUser.getIdToken()}`
+        },
         body: JSON.stringify({ merchantId: registration.merchantId })
     });
     const order = await orderResponse.json();
-    if (!orderResponse.ok) throw new Error(order.error || 'Could not start the donation checkout.');
+    if (!orderResponse.ok) throw new Error(order.error || 'Could not start the registration-fee checkout.');
+    if (order.amount !== 100 || order.currency !== 'INR') {
+        throw new Error('The registration checkout returned an unexpected fee. No payment was started.');
+    }
 
     await new Promise((resolve, reject) => {
         const checkout = new window.Razorpay({
@@ -124,25 +141,31 @@ const collectDonationPayment = async (registration) => {
             amount: order.amount,
             currency: order.currency,
             name: 'Janjeevan.store',
-            description: '₹1 community donation with merchant registration',
+            description: 'One-time ₹1 merchant registration fee (no recurring charge)',
             order_id: order.orderId,
             prefill: { name: registration.fullName, email: registration.email, contact: registration.phoneNo },
             theme: { color: '#ef6b3f' },
+            modal: {
+                ondismiss: () => reject(new Error('Registration-fee payment was cancelled. No registration was completed.'))
+            },
             handler: async payment => {
                 try {
                     const verificationResponse = await fetch(`${apiBase}/api/payments/verify`, {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${await auth.currentUser.getIdToken()}`
+                        },
                         body: JSON.stringify(payment)
                     });
-                    if (!verificationResponse.ok) throw new Error('Donation verification failed.');
+                    if (!verificationResponse.ok) throw new Error('Registration-fee payment verification failed.');
                     resolve();
                 } catch (error) {
                     reject(error);
                 }
             }
         });
-        checkout.on('payment.failed', failure => reject(new Error(failure.error?.description || 'Donation payment failed.')));
+        checkout.on('payment.failed', failure => reject(new Error(failure.error?.description || 'Registration-fee payment failed.')));
         checkout.open();
     });
 };
@@ -163,7 +186,15 @@ form.addEventListener('submit', async (event) => {
         return;
     }
 
+    if (!registrationFeeConsent.checked) {
+        showStatus('Agree to the one-time ₹1 registration fee before continuing.', 'error');
+        registrationFeeConsent.focus();
+        return;
+    }
+
     let savedCredentials = null;
+    let firebaseUser;
+    let accountSaved = false;
 
     const fullName = document.getElementById('fullName').value.trim();
     const phoneNo = document.getElementById('phoneNo').value.trim();
@@ -172,6 +203,7 @@ form.addEventListener('submit', async (event) => {
     const state = document.getElementById('state').value.trim();
     const language = document.getElementById('language').value.trim();
     const aadharNumber = document.getElementById('aadharNumber').value.trim();
+    const panPhoto = document.getElementById('panPhoto').files[0];
     const merchantPhoto = document.getElementById('merchantPhoto').files[0];
     const aadharPhoto = document.getElementById('aadharPhoto').files[0];
     const shopPhoto = document.getElementById('shopPhoto').files[0];
@@ -181,8 +213,19 @@ form.addEventListener('submit', async (event) => {
         return;
     }
 
-    if (!merchantPhoto || !aadharPhoto || !shopPhoto) {
-        showStatus('Please upload merchant, Aadhar, and shop photos.', 'error');
+    const panNumber = panNumberInput.value.trim().toUpperCase();
+    if (!/^[A-Z]{5}[0-9]{4}[A-Z]$/.test(panNumber)) {
+        showStatus('Enter a valid 10-character PAN number (5 letters, 4 digits, and 1 letter).', 'error');
+        return;
+    }
+
+    if (!merchantPhoto || !aadharPhoto || !panPhoto || !shopPhoto) {
+        showStatus('Please upload merchant, Aadhar, PAN card, and shop photos.', 'error');
+        return;
+    }
+
+    if (!['image/jpeg', 'image/png', 'image/webp'].includes(panPhoto.type) || panPhoto.size > 5 * 1024 * 1024) {
+        showStatus('Choose a JPG, PNG, or WebP PAN card photo no larger than 5 MB.', 'error');
         return;
     }
 
@@ -198,27 +241,51 @@ form.addEventListener('submit', async (event) => {
             return;
         }
         registration.merchantId = generateMerchantId();
-        if (donationInput.checked) showStatus('Opening secure ₹1 donation checkout...', 'pending');
-        await collectDonationPayment(registration);
-
-        const merchantId = registration.merchantId;
         const password = generatePassword();
-        registration.password = password;
         registration.shopPhotoDataUrl = await compressShopPhoto(shopPhoto);
 
+        firebaseUser = (await createUserWithEmailAndPassword(auth, registration.email, password)).user;
+        showStatus('Opening secure one-time ₹1 registration-fee checkout...', 'pending');
+        await collectRegistrationFee(registration);
+
+        const createdAt = new Date().toISOString();
+        await setDoc(doc(db, 'merchantAccounts', firebaseUser.uid), {
+            merchantId: registration.merchantId,
+            fullName: registration.fullName,
+            email: firebaseUser.email || registration.email,
+            phoneNo: registration.phoneNo,
+            gstNumber: registration.gstNumber,
+            shopCategory: registration.shopCategory,
+            state: registration.state,
+            language: registration.language,
+            createdAt: serverTimestamp()
+        });
+        const merchantId = registration.merchantId;
+        savedCredentials = { merchantId, password };
+        accountSaved = true;
+        showMerchantCredentials(merchantId, password);
+
         const merchantStore = JSON.parse(localStorage.getItem('tribesMerchants') || '[]');
+        if (!Array.isArray(merchantStore)) throw new Error('Saved merchant registrations are not in a valid list format.');
         merchantStore.push({
-            ...registration,
-            createdAt: new Date().toISOString()
+            merchantId,
+            fullName: registration.fullName,
+            phoneNo: registration.phoneNo,
+            email: registration.email,
+            gstNumber: registration.gstNumber,
+            shopCategory: registration.shopCategory,
+            state: registration.state,
+            createdAt,
+            shopPhotoDataUrl: registration.shopPhotoDataUrl
         });
         localStorage.setItem('tribesMerchants', JSON.stringify(merchantStore));
-        savedCredentials = { merchantId, password };
 
         showStatus('Generating your Janjeevan.store registration PDF...', 'pending');
 
-        const [merchantPhotoData, aadharPhotoData, shopPhotoData] = await Promise.all([
+        const [merchantPhotoData, aadharPhotoData, panPhotoData, shopPhotoData] = await Promise.all([
             readAsDataURL(merchantPhoto),
             readAsDataURL(aadharPhoto),
+            compressShopPhoto(panPhoto),
             readAsDataURL(shopPhoto)
         ]);
 
@@ -250,6 +317,8 @@ form.addEventListener('submit', async (event) => {
             `Phone No: ${phoneNo}`,
             `Email: ${email}`,
             `GSTIN: ${registration.gstNumber || 'Not provided'}`,
+            `Shop Category: ${registration.shopCategory}`,
+            `PAN Number: ${registration.panNumber}`,
             `Address: ${address}`,
             `State: ${state}`,
             `Language: ${language}`,
@@ -267,19 +336,28 @@ form.addEventListener('submit', async (event) => {
             y += wrapped.length * 7 + 4;
         });
 
+        doc.addPage();
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(16);
+        doc.text('Merchant and Identity Photos', 14, 22);
+        doc.setFontSize(10);
         try {
-            doc.addImage(merchantPhotoData, 'JPEG', 14, y, 45, 45);
-            doc.addImage(aadharPhotoData, 'JPEG', 105, y, 45, 45);
-            y += 52;
-            doc.addImage(shopPhotoData, 'JPEG', 14, y, 45, 45);
-            y += 52;
+            doc.text('Merchant photo', 14, 38);
+            doc.addImage(merchantPhotoData, 'JPEG', 14, 42, 82, 64);
+            doc.text('Aadhar card', 110, 38);
+            doc.addImage(aadharPhotoData, 'JPEG', 110, 42, 82, 64);
+            doc.text('PAN card', 14, 128);
+            doc.addImage(panPhotoData, 'JPEG', 14, 132, 82, 64);
+            doc.text('Shop photo', 110, 128);
+            doc.addImage(shopPhotoData, 'JPEG', 110, 132, 82, 64);
         } catch (imageError) {
             console.warn('Image embedding warning:', imageError);
-            doc.text('Uploaded images attached to the registration form.', 14, y);
-            y += 12;
+            doc.text('One or more uploaded images could not be embedded in the PDF.', 14, 42);
         }
 
         doc.setFont('helvetica', 'bold');
+        doc.addPage();
+        y = 32;
         doc.text('Janjeevan.store Terms & Conditions', 14, y + 6);
         y += 16;
 
@@ -303,17 +381,28 @@ form.addEventListener('submit', async (event) => {
 
         doc.save('Janjeevan.store-Merchant-Registration.pdf');
         form.reset();
-        donationInput.checked = true;
+        registrationFeeConsent.checked = false;
         document.getElementById('merchantPreview').hidden = true;
         document.getElementById('aadharPreview').hidden = true;
+        document.getElementById('panPreview').hidden = true;
         document.getElementById('shopPreview').hidden = true;
-        showMerchantCredentials(merchantId, password);
-        showStatus('Registration completed. Your Merchant ID and password are shown below and saved in the Admin dashboard.', 'success');
+        showStatus('Registration completed. Save your Merchant ID and password below; the password is not stored in the Admin dashboard.', 'success');
     } catch (error) {
         console.error(error);
+        if (firebaseUser && !accountSaved) {
+            try {
+                await deleteUser(firebaseUser);
+            } catch (cleanupError) {
+                console.error('Could not remove the incomplete merchant account.', cleanupError);
+            }
+        }
         if (savedCredentials) {
             showMerchantCredentials(savedCredentials.merchantId, savedCredentials.password);
             showStatus(`Your registration was saved, but the registration PDF could not be completed. Your login details are shown below. ${error.message || ''}`, 'error');
+            return;
+        }
+        if (error.code === 'auth/email-already-in-use') {
+            showStatus('This email already has an account. Use Merchant Sign In or the password reset option. If registration was interrupted before you received your Merchant ID, contact support at comtribes@gmail.com.', 'error');
             return;
         }
         showStatus(error.message || 'Registration could not be completed. Please try again.', 'error');

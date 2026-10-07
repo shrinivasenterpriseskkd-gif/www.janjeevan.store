@@ -1,3 +1,6 @@
+import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
+import { doc, getDoc } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore.js";
+import { auth, db } from "./firebase-config.js";
 import {
     getCurrentLocation,
     isActiveOrder,
@@ -7,23 +10,11 @@ import {
     updateOrders
 } from './order-tracking.js';
 
-const currentCustomer = JSON.parse(localStorage.getItem('tribesCurrentCustomer') || 'null');
+let currentCustomer;
 const orderList = document.getElementById('customer-orders-list');
 const orderStatus = document.getElementById('customer-orders-status');
 let customerWatchId = null;
 let customerSharing = false;
-
-if (!currentCustomer?.mobile) {
-    window.location.replace('customer-login.html');
-} else {
-    document.getElementById('portal-customer-name').textContent = currentCustomer.name;
-    document.getElementById('portal-customer-dob').textContent = new Date(`${currentCustomer.dateOfBirth}T00:00:00`)
-        .toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' });
-    document.getElementById('portal-customer-mobile').textContent = currentCustomer.mobile;
-    document.getElementById('portal-customer-email').textContent = currentCustomer.email || 'Not provided';
-    document.getElementById('portal-customer-state').textContent = currentCustomer.state || 'Not provided';
-    renderOrders();
-}
 
 function escapeHtml(value) {
     return String(value ?? '').replace(/[&<>'"]/g, character => ({
@@ -46,7 +37,7 @@ function renderOrders() {
         return;
     }
 
-    const customerOrders = orders.filter(order => order.customerMobile === currentCustomer.mobile);
+    const customerOrders = orders;
     if (!customerOrders.some(isActiveOrder) && customerWatchId !== null) {
         customerSharing = false;
         navigator.geolocation.clearWatch(customerWatchId);
@@ -71,7 +62,7 @@ function renderOrders() {
     `).join('');
 }
 
-function stopCustomerSharing(clearLocations) {
+async function stopCustomerSharing(clearLocations) {
     customerSharing = false;
     if (customerWatchId !== null) {
         navigator.geolocation.clearWatch(customerWatchId);
@@ -79,8 +70,8 @@ function stopCustomerSharing(clearLocations) {
     }
     if (clearLocations) {
         try {
-            updateOrders(orders => orders.forEach(order => {
-                if (order.customerMobile === currentCustomer.mobile && isActiveOrder(order)) {
+            await updateOrders(orders => orders.forEach(order => {
+                if (order.customerUid === auth.currentUser?.uid && isActiveOrder(order)) {
                     delete order.customerLiveLocation;
                 }
             }));
@@ -115,12 +106,12 @@ function startCustomerSharing() {
     orderStatus.textContent = 'Waiting for location permission...';
     orderStatus.className = 'status-message';
     customerSharing = true;
-    customerWatchId = navigator.geolocation.watchPosition(position => {
+    customerWatchId = navigator.geolocation.watchPosition(async position => {
         if (!customerSharing) return;
         try {
             const location = getCurrentLocation(position);
-            updateOrders(orders => orders.forEach(order => {
-                if (order.customerMobile === currentCustomer.mobile && isActiveOrder(order)) {
+            await updateOrders(orders => orders.forEach(order => {
+                if (order.customerUid === auth.currentUser?.uid && isActiveOrder(order)) {
                     order.customerLiveLocation = location;
                 }
             }));
@@ -129,7 +120,7 @@ function startCustomerSharing() {
             renderOrders();
         } catch (error) {
             console.error('Could not update the shared Customer GPS location.', error);
-            orderStatus.textContent = 'Your latest location could not be saved in this browser.';
+            orderStatus.textContent = 'Your latest location could not be synced to the order.';
             orderStatus.className = 'status-message error';
         }
     }, error => {
@@ -146,24 +137,52 @@ function startCustomerSharing() {
     renderOrders();
 }
 
-orderList.addEventListener('click', event => {
+orderList.addEventListener('click', async event => {
     const button = event.target.closest('[data-location-action]');
     if (!button) return;
     if (button.dataset.locationAction === 'start') startCustomerSharing();
     else {
-        stopCustomerSharing(true);
+        await stopCustomerSharing(true);
         orderStatus.textContent = 'Live location sharing stopped and the saved Customer GPS point was cleared.';
         orderStatus.className = 'status-message';
         renderOrders();
     }
 });
 
-if (currentCustomer?.mobile) {
-    subscribeToOrders(renderOrders);
-    window.addEventListener('pagehide', () => stopCustomerSharing(true), { once: true });
-    document.getElementById('customer-sign-out').addEventListener('click', () => {
-        stopCustomerSharing(true);
-        localStorage.removeItem('tribesCurrentCustomer');
+document.getElementById('customer-sign-out').addEventListener('click', async () => {
+    await stopCustomerSharing(true);
+    await signOut(auth);
+    window.location.replace('customer-login.html');
+});
+
+let unsubscribeOrders;
+onAuthStateChanged(auth, async user => {
+    if (unsubscribeOrders) unsubscribeOrders();
+    if (!user) {
         window.location.replace('customer-login.html');
-    });
-}
+        return;
+    }
+
+    try {
+        const profile = await getDoc(doc(db, 'customerAccounts', user.uid));
+        if (!profile.exists()) {
+            await signOut(auth);
+            window.location.replace('customer-login.html');
+            return;
+        }
+        currentCustomer = profile.data();
+        document.getElementById('portal-customer-name').textContent = currentCustomer.name;
+        document.getElementById('portal-customer-dob').textContent = new Date(`${currentCustomer.dateOfBirth}T00:00:00`)
+            .toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' });
+        document.getElementById('portal-customer-mobile').textContent = currentCustomer.mobile;
+        document.getElementById('portal-customer-email').textContent = currentCustomer.email || 'Not provided';
+        document.getElementById('portal-customer-state').textContent = currentCustomer.state || 'Not provided';
+        unsubscribeOrders = subscribeToOrders(renderOrders, { role: 'customer' });
+        renderOrders();
+        window.addEventListener('pagehide', () => { void stopCustomerSharing(true); }, { once: true });
+    } catch (error) {
+        console.error('Could not load the signed-in customer profile.', error);
+        orderStatus.textContent = 'Your customer profile could not be loaded. Check Firebase permissions and try again.';
+        orderStatus.className = 'status-message error';
+    }
+});

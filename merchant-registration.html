@@ -66,6 +66,42 @@
                     </label>
                 </div>
 
+                <div class="field-row single">
+                    <label>
+                        Shop Category
+                        <select id="shopCategory" name="shopCategory" required>
+                            <option value="">Select shop category</option>
+                            <option value="Beauty / Parlour">Beauty / Parlour</option>
+                            <option value="Barber Shop">Barber Shop</option>
+                            <option value="Kirana Store">Kirana Store</option>
+                            <option value="General Store">General Store</option>
+                            <option value="Garage">Garage</option>
+                            <option value="Welding Shop">Welding Shop</option>
+                            <option value="Cycle Shop">Cycle Shop</option>
+                            <option value="Hotel">Hotel</option>
+                            <option value="Lodge">Lodge</option>
+                            <option value="Mechanic Shop">Mechanic Shop</option>
+                            <option value="Driving School">Driving School</option>
+                            <option value="Book Shop">Book Shop</option>
+                            <option value="Stationery Shop">Stationery Shop</option>
+                            <option value="Clothing Store">Clothing Store</option>
+                            <option value="Footwear Shop">Footwear Shop</option>
+                            <option value="Electronics Shop">Electronics Shop</option>
+                            <option value="Mobile Phone Shop">Mobile Phone Shop</option>
+                            <option value="Hardware Store">Hardware Store</option>
+                            <option value="Electrical Shop">Electrical Shop</option>
+                            <option value="Pharmacy">Pharmacy</option>
+                            <option value="Restaurant">Restaurant</option>
+                            <option value="Bakery">Bakery</option>
+                            <option value="Dairy Shop">Dairy Shop</option>
+                            <option value="Fruit and Vegetable Shop">Fruit and Vegetable Shop</option>
+                            <option value="Tailoring Shop">Tailoring Shop</option>
+                            <option value="Agricultural Supplies">Agricultural Supplies</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </label>
+                </div>
+
                 <div class="field-row">
                     <label>
                         State
@@ -137,6 +173,13 @@
                             maxlength="12" pattern="[0-9]{12}" aria-describedby="aadhar-number-hint" required>
                         <small id="aadhar-number-hint">Enter exactly 12 digits. Letters and extra digits are not accepted.</small>
                     </label>
+                    <label>
+                        PAN Number
+                        <input id="panNumber" name="panNumber" type="text" placeholder="Enter 10-character PAN"
+                            minlength="10" maxlength="10" pattern="[A-Za-z]{5}[0-9]{4}[A-Za-z]"
+                            autocomplete="off" aria-describedby="pan-number-hint" required>
+                        <small id="pan-number-hint">Format: 5 letters, 4 digits, and 1 letter.</small>
+                    </label>
                 </div>
 
                 <div class="upload-grid">
@@ -150,6 +193,13 @@
                         <span>Aadhar Photo Upload</span>
                         <input id="aadharPhoto" name="aadharPhoto" type="file" accept="image/*" required>
                         <img id="aadharPreview" alt="Aadhar preview" hidden>
+                    </label>
+
+                    <label class="upload-box" for="panPhoto">
+                        <span>PAN Card Photo Upload</span>
+                        <input id="panPhoto" name="panPhoto" type="file" accept="image/jpeg,image/png,image/webp" required>
+                        <small>JPG, PNG, or WebP; up to 5 MB.</small>
+                        <img id="panPreview" alt="PAN card preview" hidden>
                     </label>
 
                     <label class="upload-box" for="shopPhoto">
@@ -178,12 +228,15 @@
                     <span>I agree to the Janjeevan.store terms and conditions.</span>
                 </label>
 
-                <label class="terms-checkbox donation-option">
-                    <input id="donation" type="checkbox" checked>
-                    <span>Add a voluntary ₹1 donation to support the Janjeevan.store community.</span>
-                </label>
+                <div class="terms-checkbox registration-fee-option">
+                    <input id="registration-fee-consent" type="checkbox" required>
+                    <label for="registration-fee-consent">
+                        Registration requires a one-time ₹1 fee, paid through checkout. This is charged once only;
+                        there is no monthly fee, recurring charge, or auto-pay.
+                    </label>
+                </div>
 
-                <button type="submit" class="submit-btn">Complete Registration</button>
+                <button type="submit" class="submit-btn">Pay ₹1 &amp; Complete Registration</button>
             </form>
 
             <p class="merchant-helper-text">
@@ -206,8 +259,8 @@
                         <dd><code id="registration-merchant-password"></code></dd>
                     </div>
                 </dl>
-                <p class="merchant-credentials-note">Your Merchant ID and password are also saved in the Admin
-                    dashboard.</p>
+                <p class="merchant-credentials-note">Your password is not saved in the Admin dashboard. Keep these
+                    sign-in details somewhere secure.</p>
             </section>
         </section>
     </main>
@@ -227,6 +280,9 @@
                 aria-label="Facebook"><span class="social-symbol facebook">f</span><span>Facebook</span></a>
             <a href="https://www.instagram.com/" target="_blank" rel="noopener" aria-label="Instagram"><span
                     class="social-symbol instagram">◎</span><span>Instagram</span></a>
+            <a href="https://t.me/share/url?url=https%3A%2F%2Fwww.janjeevan.store&amp;text=Discover%20Janjeevan.store"
+                target="_blank" rel="noopener" aria-label="Share Janjeevan.store on Telegram" title="Telegram"><span
+                    class="social-symbol telegram">TG</span><span>Telegram</span></a>
         </div>
         <div class="footer-meta">
             <a href="mailto:comtribes@gmail.com">Contact us: comtribes@gmail.com</a>
@@ -239,7 +295,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.0/jspdf.umd.min.js"></script>
     <script src="js/api-config.js"></script>
     <script type="module" src="js/viewers.js"></script>
-    <script src="js/merchant-registration.js"></script>
+    <script type="module" src="js/merchant-registration.js"></script>
     <script src="js/chatbot.js"></script>
 </body>
 

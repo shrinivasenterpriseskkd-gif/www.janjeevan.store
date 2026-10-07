@@ -1,29 +1,64 @@
-const ordersKey = 'tribesOrders';
+import { collection, deleteField, doc, onSnapshot, query, updateDoc, where } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore.js";
+import { auth, db } from "./firebase-config.js";
+
+let ordersCache = [];
+let orderRole;
 
 export function readOrders() {
-    const orders = JSON.parse(localStorage.getItem(ordersKey) || '[]');
-    if (!Array.isArray(orders)) throw new Error('Saved orders have an invalid format.');
-    return orders;
+    return structuredClone(ordersCache);
 }
 
-export function updateOrders(updater) {
-    const orders = readOrders();
-    updater(orders);
-    localStorage.setItem(ordersKey, JSON.stringify(orders));
-    window.dispatchEvent(new Event('tribes:orders-updated'));
-    return orders;
+export function subscribeToOrders(callback, { role } = {}) {
+    const user = auth.currentUser;
+    if (!user) throw new Error('Firebase sign-in is required to read orders.');
+    if (!['customer', 'deliveryPartner'].includes(role)) throw new Error('An order participant role is required.');
+
+    orderRole = role;
+    const field = role === 'customer' ? 'customerUid' : 'assignedPartnerUid';
+    const ordersQuery = query(collection(db, 'orders'), where(field, '==', user.uid));
+    return onSnapshot(ordersQuery, snapshot => {
+        ordersCache = snapshot.docs.map(orderDocument => {
+            const order = orderDocument.data();
+            const timestampFields = ['createdAt', 'pickedUpAt', 'deliveredAt'];
+            timestampFields.forEach(fieldName => {
+                const value = order[fieldName]?.toDate?.() || order[fieldName];
+                if (value instanceof Date) order[fieldName] = value.toISOString();
+            });
+            return { ...order, id: orderDocument.id };
+        });
+        callback(ordersCache);
+    }, error => {
+        console.error('Could not subscribe to Firestore orders.', error);
+    });
 }
 
-export function subscribeToOrders(callback) {
-    const onStorage = event => {
-        if (event.key === ordersKey) callback();
-    };
-    window.addEventListener('storage', onStorage);
-    window.addEventListener('tribes:orders-updated', callback);
-    return () => {
-        window.removeEventListener('storage', onStorage);
-        window.removeEventListener('tribes:orders-updated', callback);
-    };
+export async function updateOrders(updater) {
+    if (!auth.currentUser || !orderRole) throw new Error('Sign in and load your orders before updating them.');
+
+    const previous = ordersCache;
+    const next = structuredClone(previous);
+    updater(next);
+    const allowedFields = orderRole === 'customer'
+        ? ['customerLiveLocation']
+        : ['deliveryPartnerLocation'];
+    const writes = [];
+
+    next.forEach((order, index) => {
+        const before = previous[index];
+        if (!before || before.id !== order.id) throw new Error('Order records cannot be added or replaced from a participant page.');
+        const changedKeys = new Set([...Object.keys(before), ...Object.keys(order)]);
+        const changes = {};
+        changedKeys.forEach(key => {
+            if (JSON.stringify(before[key]) === JSON.stringify(order[key])) return;
+            if (!allowedFields.includes(key)) throw new Error(`Participants cannot update the ${key} field.`);
+            changes[key] = Object.hasOwn(order, key) ? order[key] : deleteField();
+        });
+        if (Object.keys(changes).length) writes.push(updateDoc(doc(db, 'orders', order.id), changes));
+    });
+
+    await Promise.all(writes);
+    ordersCache = next;
+    return readOrders();
 }
 
 export function isActiveOrder(order) {
@@ -204,7 +239,7 @@ export function renderOrderMap(order) {
                 ${markers}
                 <text x="22" y="246" class="map-distance">${lastUpdated}</text>
             </svg>
-            <p class="delivery-map-note">Route is a straight-line preview, not road navigation. GPS is stored in this browser and shared only between its tabs.</p>
+            <p class="delivery-map-note">Route is a straight-line preview, not road navigation. GPS is shared only with the customer, assigned Delivery Partner, and Admin while the order is active.</p>
         </div>
     `;
 }

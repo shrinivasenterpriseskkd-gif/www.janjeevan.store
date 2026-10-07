@@ -1,17 +1,23 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
+import { getAnalytics, isSupported as isAnalyticsSupported } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-analytics.js";
+import { getAuth } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
 import { getFirestore } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore.js";
-import { getStorage } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-storage.js";
 
 export const firebaseConfig = {
-    apiKey: "AIzaSyCwf7ffY1yMpW2I7dQzVgZaaGuhrzfZ8Bs",
-    authDomain: "tribes-c55f4.firebaseapp.com",
-    projectId: "tribes-c55f4",
-    storageBucket: "tribes-c55f4.firebasestorage.app",
-    messagingSenderId: "288668931924",
-    appId: "1:288668931924:web:e060873a10efc7a70a5ac1",
-    measurementId: "G-Y3CJQ8L7JC"
+    apiKey: "AIzaSyCEFDTn0rfzCnLp62MEK6_O9eO1gnBu2zg",
+    authDomain: "janjeevanstore.firebaseapp.com",
+    projectId: "janjeevanstore",
+    messagingSenderId: "538298630866",
+    appId: "1:538298630866:web:a763a858f073bdac5c630b",
+    measurementId: "G-YWXWM7R6KS"
 };
 
 export const app = initializeApp(firebaseConfig);
+export const auth = getAuth(app);
 export const db = getFirestore(app);
-export const storage = getStorage(app);
+export const analytics = isAnalyticsSupported()
+    .then(supported => supported ? getAnalytics(app) : null)
+    .catch(error => {
+        console.warn('Firebase Analytics is unavailable.', error);
+        return null;
+    });

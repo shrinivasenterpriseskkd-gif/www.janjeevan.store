@@ -24,14 +24,14 @@
             <div class="merchant-header">
                 <p class="store-kicker">Welcome back, merchant</p>
                 <h1>Sign in to your account</h1>
-                <p class="merchant-login-intro">Use the Merchant ID and password you received when you registered.</p>
+                <p class="merchant-login-intro">Use the email address and password you received when you registered.</p>
             </div>
 
             <form id="merchant-login-form" novalidate>
                 <div class="field-row">
                     <label>
-                        Merchant ID
-                        <input id="merchantId" name="merchantId" type="text" placeholder="e.g. Janjeevan.store-ABC123"
+                        Email Address
+                        <input id="email" name="email" type="email" placeholder="Enter your registered email"
                             autocomplete="username" required>
                     </label>
                 </div>
@@ -59,22 +59,8 @@
                     <h2>Reset password</h2>
                 </div>
                 <label>
-                    Merchant ID
-                    <input id="resetMerchantId" type="text" placeholder="Enter your merchant ID" required>
-                </label>
-                <label>
-                    Registered Email
+                    Registered email
                     <input id="resetEmail" type="email" placeholder="Enter your registered email" required>
-                </label>
-                <label>
-                    New Password
-                    <input id="resetPassword" type="password" minlength="8" pattern="(?=.*[^A-Za-z0-9]).{8,}"
-                        placeholder="Example: Janjeevan.store@123!" required>
-                </label>
-                <label>
-                    Confirm New Password
-                    <input id="resetConfirmPassword" type="password" minlength="8" pattern="(?=.*[^A-Za-z0-9]).{8,}"
-                        placeholder="Repeat: Janjeevan.store@123!" required>
                 </label>
                 <div class="reset-actions">
                     <button type="submit" class="submit-btn">Reset password</button>
@@ -105,6 +91,9 @@
                 aria-label="Facebook"><span class="social-symbol facebook">f</span><span>Facebook</span></a>
             <a href="https://www.instagram.com/" target="_blank" rel="noopener" aria-label="Instagram"><span
                     class="social-symbol instagram">◎</span><span>Instagram</span></a>
+            <a href="https://t.me/share/url?url=https%3A%2F%2Fwww.janjeevan.store&amp;text=Discover%20Janjeevan.store"
+                target="_blank" rel="noopener" aria-label="Share Janjeevan.store on Telegram" title="Telegram"><span
+                    class="social-symbol telegram">TG</span><span>Telegram</span></a>
         </div>
         <div class="footer-meta">
             <a href="mailto:comtribes@gmail.com">Contact us: comtribes@gmail.com</a>
@@ -112,7 +101,7 @@
         </div>
     </footer>
 
-    <script src="js/merchant-login.js"></script>
+    <script type="module" src="js/merchant-login.js"></script>
     <script src="js/chatbot.js"></script>
 </body>
 

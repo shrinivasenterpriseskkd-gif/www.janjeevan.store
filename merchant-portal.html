@@ -32,6 +32,7 @@
                     <div class="merchant-profile-details">
                         <h2 id="merchant-proprietor-name">Merchant</h2>
                         <p><span>Phone:</span> <span id="merchant-phone">Not provided</span></p>
+                        <p><span>Shop category:</span> <span id="merchant-shop-category">Not provided</span></p>
                         <p><span>GSTIN:</span> <span id="merchant-gstin">Not provided</span></p>
                     </div>
                 </div>
@@ -85,11 +86,14 @@
                     Product photo
                     <input id="merchant-product-image" type="file" accept="image/jpeg,image/png,image/webp" required>
                     <img id="merchant-product-preview" alt="Selected product photo preview" hidden>
-                    <small>Choose a JPG, PNG, or WebP image up to 5 MB.</small>
+                    <small id="merchant-product-image-help">Choose a JPG, PNG, or WebP image up to 5 MB.</small>
                 </label>
                 <div class="merchant-product-fields">
                     <label>Product name
                         <input id="merchant-product-name" type="text" maxlength="120" placeholder="e.g. Handwoven basket" required>
+                    </label>
+                    <label>Product category
+                        <input id="merchant-product-category" type="text" maxlength="80" placeholder="e.g. Grocery, Clothing, Books" required>
                     </label>
                     <label>Unit
                         <select id="merchant-product-unit" required>
@@ -126,8 +130,38 @@
                         <input id="merchant-product-village" type="text" maxlength="100" placeholder="Enter village or town" required>
                     </label>
                 </div>
-                <button class="submit-btn" id="merchant-product-submit" type="submit">Upload product</button>
+                <div class="merchant-product-form-actions">
+                    <button class="submit-btn" id="merchant-product-submit" type="submit">Upload product</button>
+                    <button class="secondary-btn" id="merchant-product-cancel" type="button" hidden>Cancel edit</button>
+                </div>
             </form>
+        </section>
+
+        <section class="merchant-portal-section" aria-labelledby="merchant-bulk-products-heading">
+            <div class="merchant-portal-section-heading">
+                <div>
+                    <p class="store-kicker">Catalog tools</p>
+                    <h2 id="merchant-bulk-products-heading">Bulk products and Excel files</h2>
+                </div>
+            </div>
+            <p>Download the sample workbook, fill in one product per row, then select the workbook and matching product images. Each image filename must match the Image Filename column.</p>
+            <div class="merchant-product-form-actions merchant-bulk-actions">
+                <button class="secondary-btn" id="download-product-template" type="button">Download sample Excel format</button>
+                <button class="secondary-btn" id="export-merchant-products" type="button">Export products by category</button>
+            </div>
+            <form id="merchant-bulk-product-form" class="merchant-product-form">
+                <label>Products workbook (.xlsx or .xls)
+                    <input id="merchant-bulk-workbook" type="file" accept=".xlsx,.xls" required>
+                </label>
+                <label>Product images (select all matching files)
+                    <input id="merchant-bulk-images" type="file" accept="image/jpeg,image/png,image/webp" multiple required>
+                    <small>JPG, PNG, or WebP; each image must be smaller than 5 MB.</small>
+                </label>
+                <div class="merchant-product-form-actions">
+                    <button class="submit-btn" id="merchant-bulk-submit" type="submit">Import products</button>
+                </div>
+            </form>
+            <p id="merchant-bulk-status" class="merchant-portal-status" role="status" aria-live="polite"></p>
         </section>
     </main>
 
@@ -141,6 +175,8 @@
         </div>
     </footer>
 
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+    <script src="js/api-config.js"></script>
     <script type="module" src="js/merchant-portal.js"></script>
     <script src="js/chatbot.js"></script>
 </body>

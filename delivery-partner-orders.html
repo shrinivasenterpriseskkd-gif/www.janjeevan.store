@@ -31,13 +31,14 @@
             </div>
         </div>
         <div class="delivery-location-control">
-            <p id="partner-location-status">Live GPS is optional and shared only while enabled in this browser.</p>
+            <p id="partner-location-status">Live GPS is optional; updates sync with authorized order participants while sharing is enabled.</p>
             <button type="button" id="share-partner-location" class="delivery-sign-out">Share my location</button>
         </div>
         <p id="orders-status" class="delivery-orders-status" role="status" aria-live="polite"></p>
         <section id="orders-list" class="delivery-orders-list" aria-label="Assigned orders"></section>
     </main>
 
+    <script src="js/api-config.js"></script>
     <script type="module" src="js/delivery-partner-orders.js"></script>
 </body>
 

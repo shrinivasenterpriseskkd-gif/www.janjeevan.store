@@ -24,18 +24,28 @@
             <div class="merchant-header">
                 <p class="store-kicker">Welcome to Janjeevan</p>
                 <h1>Customer Sign In</h1>
-                <p>Sign in with your registered mobile number and password.</p>
+                <p>Sign in with your registered email and password.</p>
             </div>
             <form id="customer-login-form" novalidate>
-                <label>Mobile Number
-                    <input id="customer-mobile" name="mobile" type="tel" inputmode="numeric" autocomplete="tel"
-                        minlength="10" maxlength="10" pattern="[0-9]{10}" placeholder="10-digit mobile number" required>
+                <label>Email Address
+                    <input id="customer-email" name="email" type="email" autocomplete="username"
+                        placeholder="Enter your registered email" required>
                 </label>
                 <label>Password
                     <input id="customer-password" name="password" type="password" autocomplete="current-password"
                         placeholder="Enter your password" required>
                 </label>
                 <button type="submit" class="submit-btn">Sign in</button>
+            </form>
+            <button type="button" class="reset-link" id="show-reset">Forgot password?</button>
+            <form id="customer-password-reset-form" class="password-reset-form" hidden novalidate>
+                <label>Registered email
+                    <input id="customer-reset-email" type="email" autocomplete="email" required>
+                </label>
+                <div class="reset-actions">
+                    <button type="submit" class="submit-btn">Send reset link</button>
+                    <button type="button" class="secondary-btn" id="cancel-reset">Cancel</button>
+                </div>
             </form>
             <p id="customer-status" class="status-message" role="status" aria-live="polite"></p>
             <p class="customer-auth-switch">New to Janjeevan? <a href="customer-registration.html">Create an account</a>
@@ -44,12 +54,27 @@
     </main>
 
     <footer class="store-footer">
+        <div class="footer-brand">
+            <img src="TribesLogo.jpg" alt="Janjeevan.store logo">
+            <div><span>Janjeevan.store</span><small>Made for everyday living</small></div>
+        </div>
+        <div class="social-links" aria-label="Social media links">
+            <a href="https://wa.me/?text=Discover%20Janjeevan.store" target="_blank" rel="noopener" aria-label="WhatsApp"><span
+                    class="social-symbol whatsapp">WA</span><span>WhatsApp</span></a>
+            <a href="https://www.facebook.com/sharer/sharer.php" target="_blank" rel="noopener" aria-label="Facebook"><span
+                    class="social-symbol facebook">f</span><span>Facebook</span></a>
+            <a href="https://www.instagram.com/" target="_blank" rel="noopener" aria-label="Instagram"><span
+                    class="social-symbol instagram">◎</span><span>Instagram</span></a>
+            <a href="https://t.me/share/url?url=https%3A%2F%2Fwww.janjeevan.store&amp;text=Discover%20Janjeevan.store"
+                target="_blank" rel="noopener" aria-label="Share Janjeevan.store on Telegram" title="Telegram"><span
+                    class="social-symbol telegram">TG</span><span>Telegram</span></a>
+        </div>
         <div class="footer-meta">
             <a href="mailto:comtribes@gmail.com">Contact us: comtribes@gmail.com</a>
             <small>© 2026 Janjeevan.store. All rights reserved.</small>
         </div>
     </footer>
-    <script src="js/customer-login.js"></script>
+    <script type="module" src="js/customer-login.js"></script>
 </body>
 
 </html>

@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Janjeevan.store | Admin Sign In</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+
+<body class="admin-login-page">
+    <main class="admin-login-card">
+        <a class="brand admin-login-brand" href="../index.html">
+            <span class="brand-mark">J</span>
+            <span>Janjeevan.store<small>Commerce Studio</small></span>
+        </a>
+        <p class="eyebrow">Secure workspace</p>
+        <h1>Admin sign in</h1>
+        <p class="admin-login-description">Enter your Admin login ID and password to continue.</p>
+        <form id="admin-login-form">
+            <label for="admin-login-id">Admin login ID</label>
+            <input id="admin-login-id" name="loginId" type="text" autocomplete="username" required>
+            <label for="admin-login-password">Password</label>
+            <input id="admin-login-password" name="password" type="password" autocomplete="current-password" required>
+            <button class="button primary" type="submit" id="admin-login-submit">Sign in</button>
+            <p id="admin-login-status" class="form-message" role="status" aria-live="polite"></p>
+        </form>
+        <a class="admin-login-back" href="../index.html">← Back to storefront</a>
+    </main>
+    <script src="../js/api-config.js"></script>
+    <script src="../js/admin-login.js"></script>
+</body>
+
+</html>

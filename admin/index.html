@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Janjeevan.store | Admin Dashboard</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        .admin-page .admin-topbar {
+            color: var(--ink)
+        }
+    </style>
+</head>
+
+<body class="admin-page">
+    <div class="admin-shell">
+        <aside class="admin-sidebar">
+            <a class="brand" href="../index.html"><span class="brand-mark">J</span><span>Janjeevan.store<small>Commerce
+                        Studio</small></span></a>
+            <nav class="admin-nav" aria-label="Admin navigation">
+                <a class="active" href="#overview"><span>▦</span> Overview</a>
+                <a href="#accounts"><span aria-hidden="true">♙</span> Login IDs</a>
+                <a href="#catalog"><span>◈</span> Catalog</a>
+                <a href="#reports"><span>⌁</span> Live Tracking</a>
+            </nav>
+            <div class="sidebar-foot"><span class="status-dot"></span> Firebase connected<a href="../index.html">View
+                    storefront ↗</a></div>
+        </aside>
+
+        <main class="admin-main">
+            <header class="admin-topbar">
+                <div>
+                    <p class="eyebrow">Workspace / Overview</p>
+                    <h1>Good morning, <span id="admin-name">Admin</span></h1>
+                </div>
+                <div class="admin-header-actions">
+                    <a class="store-link" href="../index.html">Open storefront <span>↗</span></a>
+                    <button class="button secondary" id="admin-sign-out" type="button">Sign out</button>
+                </div>
+            </header>
+
+            <section class="stats-grid admin-view" id="overview" aria-label="Store summary">
+                <article class="stat-card">
+                    <div class="stat-icon orange">◈</div>
+                    <div><span>Total products</span><strong id="total-products">--</strong><small>Items in your
+                            catalog</small></div>
+                </article>
+                <article class="stat-card">
+                    <div class="stat-icon green">✓</div>
+                    <div><span>In stock</span><strong id="in-stock">--</strong><small>Ready for customers</small></div>
+                </article>
+                <article class="stat-card">
+                    <div class="stat-icon blue">₹</div>
+                    <div><span>Catalog value</span><strong id="catalog-value">--</strong><small>Based on available
+                            stock</small></div>
+                </article>
+            </section>
+
+            <section class="panel login-ids-panel admin-view" id="accounts" aria-labelledby="login-ids-heading" hidden>
+                <div class="panel-heading">
+                    <div>
+                        <p class="eyebrow">Account directory</p>
+                        <h2 id="login-ids-heading">Customer, Merchant &amp; Delivery Partner Accounts</h2>
+                    </div>
+                    <button class="button secondary" type="button" id="refresh-login-ids">↻ Refresh</button>
+                </div>
+                <p class="login-ids-notice">Customers, Merchants, and Delivery Partners sign in with their registered email. Account passwords are managed by Firebase Authentication and are not visible here.</p>
+                <div class="catalog-tools">
+                    <label class="search-box"><span>⌕</span><input id="login-id-search" type="search"
+                            placeholder="Search accounts or names..." aria-label="Search account records"></label>
+                    <span class="result-count" id="login-id-count" aria-live="polite">Loading...</span>
+                </div>
+                <div id="login-id-list" class="login-id-list" aria-live="polite">
+                    <div class="empty-state"><span class="loader"></span><p>Loading account records...</p></div>
+                </div>
+                <p id="login-id-status" class="form-message" role="status"></p>
+            </section>
+
+            <section class="dashboard-grid admin-view" id="catalog" hidden>
+                <article class="panel product-panel">
+                    <div class="panel-heading">
+                        <div>
+                            <p class="eyebrow">Your inventory</p>
+                            <h2>Product catalog</h2>
+                        </div><button class="button secondary" id="export"><span>⇩</span> Export CSV</button>
+                    </div>
+                    <div class="catalog-tools"><label class="search-box"><span>⌕</span><input id="search" type="search"
+                                placeholder="Search products..." aria-label="Search products"></label><span
+                            class="result-count" id="result-count">Loading...</span></div>
+                    <div id="product-list" class="product-list">
+                        <div class="empty-state"><span class="loader"></span>
+                            <p>Loading your catalog...</p>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="panel add-panel">
+                    <div class="panel-heading">
+                        <div>
+                            <p class="eyebrow">Catalog management</p>
+                            <h2>Add a product</h2>
+                        </div><span class="plus-badge">+</span>
+                    </div>
+                    <form id="form">
+                        <div class="image-drop"><input id="image" type="file" accept="image/*" required>
+                            <div class="image-preview" id="image-preview"><span>＋</span><strong>Choose product
+                                    image</strong><small>PNG, JPG up to 5MB</small></div>
+                        </div>
+                        <label>Product name<input id="pname" placeholder="e.g. Handwoven Basket" required></label>
+                        <div class="form-row"><label>Unit of measure<select id="uom" required>
+                                    <option value="">Select unit</option>
+                                    <option value="piece">Piece</option>
+                                    <option value="kg">Kilogram (kg)</option>
+                                    <option value="g">Gram (g)</option>
+                                    <option value="litre">Litre</option>
+                                    <option value="ml">Millilitre (ml)</option>
+                                    <option value="box">Box</option>
+                                    <option value="pack">Pack</option>
+                                    <option value="dozen">Dozen</option>
+                                    <option value="meter">Meter</option>
+                                </select></label><label>Price (₹)<input id="price" type="number" min="0" step=".01"
+                                    placeholder="0.00" required></label></div>
+                                <label>Discount (%)<input id="discount" type="number" min="0" max="100" step="1"
+                                        value="0" required><small>Enter 0 for no discount, or a whole number up to 100.</small></label>
+                        <div class="form-row"><label>Quantity<input id="quantity" type="number" min="0"
+                                    placeholder="0"></label><label>Available stock<input id="stock" type="number"
+                                    min="0" placeholder="0" required></label></div>
+                        <label>Andhra Pradesh area<select id="area" required>
+                                <option value="">Select area</option>
+                                <option value="Alluri Sitharama Raju|17.6868|82.9946">Alluri Sitharama Raju</option>
+                                <option value="Anakapalli|17.6913|83.0039">Anakapalli</option>
+                                <option value="Anantapur|14.6819|77.6006">Anantapur</option>
+                                <option value="Annamayya|14.4674|79.9880">Annamayya</option>
+                                <option value="Bapatla|15.9040|80.4670">Bapatla</option>
+                                <option value="Chittoor|13.2172|79.1003">Chittoor</option>
+                                <option value="Dr. B. R. Ambedkar Konaseema|16.6950|82.0120">Dr. B. R. Ambedkar
+                                    Konaseema</option>
+                                <option value="East Godavari|17.0005|81.8040">East Godavari</option>
+                                <option value="Eluru|16.7107|81.0952">Eluru</option>
+                                <option value="Guntur|16.3067|80.4365">Guntur</option>
+                                <option value="Kakinada|16.9891|82.2475">Kakinada</option>
+                                <option value="Krishna|16.5449|80.6305">Krishna</option>
+                                <option value="Kurnool|15.8281|78.0373">Kurnool</option>
+                                <option value="Nandyal|15.4786|78.4831">Nandyal</option>
+                                <option value="NTR|16.5062|80.6480">NTR</option>
+                                <option value="Palnadu|16.1557|80.2931">Palnadu</option>
+                                <option value="Parvathipuram Manyam|18.7811|83.4256">Parvathipuram Manyam</option>
+                                <option value="Prakasam|15.5057|80.0499">Prakasam</option>
+                                <option value="Srikakulam|18.2949|83.8938">Srikakulam</option>
+                                <option value="Sri Sathya Sai|14.1670|77.8100">Sri Sathya Sai</option>
+                                <option value="Tirupati|13.6288|79.4192">Tirupati</option>
+                                <option value="Visakhapatnam|17.6868|83.2185">Visakhapatnam</option>
+                                <option value="Vizianagaram|18.1067|83.3956">Vizianagaram</option>
+                                <option value="West Godavari|16.9174|81.3399">West Godavari</option>
+                                <option value="YSR Kadapa|14.4674|78.8241">YSR Kadapa</option>
+                            </select></label>
+                        <label>Village / town<select id="village" required>
+                                <option value="">Select village</option>
+                            </select></label>
+                        <div class="form-row"><label>Latitude<input id="latitude" type="number" step="any" readonly
+                                    placeholder="Auto-filled"></label><label>Longitude<input id="longitude"
+                                    type="number" step="any" readonly placeholder="Auto-filled"></label></div>
+                        <button class="button primary" type="submit" id="save-button"><span>＋</span> Add
+                            product</button>
+                        <p class="form-message" id="msg" role="status"></p>
+                    </form>
+                </article>
+            </section>
+            <section class="panel admin-view" id="reports" aria-labelledby="reports-heading" hidden>
+                <div class="panel-heading">
+                    <div>
+                        <p class="eyebrow">Active orders</p>
+                        <h2 id="reports-heading">GPS Live Tracking</h2>
+                    </div>
+                    <button class="button secondary" id="share-merchant-location" type="button">Share this device's pickup location</button>
+                </div>
+                <p class="login-ids-notice">Sharing is optional. This device's GPS appears as the Merchant pickup point for active orders and syncs with authorized participants. Precise location fields are cleared when an order is delivered.</p>
+                <p id="tracking-status" class="form-message" role="status" aria-live="polite">Merchant pickup GPS sharing is off.</p>
+                <div id="admin-tracking-orders" class="admin-tracking-orders" aria-live="polite"></div>
+            </section>
+        </main>
+    </div>
+    <script src="../js/api-config.js"></script>
+    <script type="module" src="../js/admin.js"></script>
+    <script src="../js/chatbot.js"></script>
+</body>
+
+</html>

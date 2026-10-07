@@ -1,3 +1,7 @@
+import { createUserWithEmailAndPassword, deleteUser } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
+import { doc, serverTimestamp, setDoc } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore.js";
+import { auth, db } from "./firebase-config.js";
+
 const form = document.getElementById('customer-registration-form');
 const statusBox = document.getElementById('customer-status');
 const dateOfBirthInput = document.getElementById('customer-date-of-birth');
@@ -8,7 +12,7 @@ dateOfBirthInput.max = [
     String(today.getDate()).padStart(2, '0')
 ].join('-');
 
-form.addEventListener('submit', event => {
+form.addEventListener('submit', async event => {
     event.preventDefault();
     if (!form.checkValidity()) {
         form.reportValidity();
@@ -39,34 +43,36 @@ form.addEventListener('submit', event => {
         return;
     }
 
-    let customers;
+    let user;
     try {
-        customers = JSON.parse(localStorage.getItem('tribesCustomers') || '[]');
-        if (!Array.isArray(customers)) throw new Error('Customer records have an invalid format.');
+        user = (await createUserWithEmailAndPassword(auth, email, password)).user;
+        await setDoc(doc(db, 'customerAccounts', user.uid), {
+            role: 'customer',
+            name,
+            dateOfBirth,
+            mobile,
+            email: user.email || email,
+            state,
+            createdAt: serverTimestamp()
+        });
     } catch (error) {
-        console.error('Could not read saved customer accounts.', error);
-        statusBox.textContent = 'Accounts could not be loaded. Please reload and try again.';
+        console.error('Could not create the Firebase customer account.', error);
+        if (user) {
+            try {
+                await deleteUser(user);
+            } catch (cleanupError) {
+                console.error('Could not remove the incomplete customer account.', cleanupError);
+            }
+        }
+        statusBox.textContent = error.code === 'auth/email-already-in-use'
+            ? 'An account already exists for this email. Sign in or reset your password.'
+            : error.code === 'permission-denied'
+                ? 'Firestore denied the profile write. Publish the project rules, then try again.'
+                : `Account creation failed${error.code ? ` (${error.code})` : ''}. Check your connection and try again.`;
         statusBox.className = 'status-message error';
         return;
     }
 
-    if (customers.some(customer => customer.mobile === mobile)) {
-        statusBox.textContent = 'An account already exists for this mobile number. Sign in instead.';
-        statusBox.className = 'status-message error';
-        return;
-    }
-
-    const customer = { name, dateOfBirth, mobile, email, state, password, createdAt: new Date().toISOString() };
-    customers.push(customer);
-    try {
-        localStorage.setItem('tribesCustomers', JSON.stringify(customers));
-        localStorage.setItem('tribesCurrentCustomer', JSON.stringify({ name, dateOfBirth, mobile, email, state }));
-    } catch (error) {
-        console.error('Could not save the customer account.', error);
-        statusBox.textContent = 'Your account could not be saved in this browser. Check available storage and try again.';
-        statusBox.className = 'status-message error';
-        return;
-    }
-
+    localStorage.removeItem('tribesCurrentCustomer');
     window.location.href = 'customer-portal.html';
 });

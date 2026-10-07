@@ -1,47 +1,11 @@
+import { sendPasswordResetEmail, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
+import { auth } from "./firebase-config.js";
+
 const form = document.getElementById('delivery-partner-login-form');
 const statusBox = document.getElementById('status');
 const resetForm = document.getElementById('password-reset-form');
 const showResetButton = document.getElementById('show-reset');
 const cancelResetButton = document.getElementById('cancel-reset');
-const partnerIdInput = document.getElementById('delivery-partner-id');
-const partnerIdPreview = document.getElementById('partner-id-preview');
-const partnerIdPhoto = document.getElementById('partner-id-photo');
-
-const readPartners = () => {
-    const storedPartners = localStorage.getItem('tribesDeliveryPartners');
-    if (!storedPartners) return [];
-
-    const partners = JSON.parse(storedPartners);
-    if (!Array.isArray(partners)) throw new Error('Saved Delivery Partner registrations have an invalid format.');
-    return partners;
-};
-
-const normalizePartnerId = value => String(value || '').trim().toUpperCase();
-
-partnerIdInput.addEventListener('input', () => {
-    let partner;
-    try {
-        partner = readPartners().find(entry =>
-            normalizePartnerId(entry.deliveryPartnerId) === normalizePartnerId(partnerIdInput.value)
-        );
-    } catch (error) {
-        console.error('Could not load Delivery Partner registrations for the ID preview.', error);
-        showStatus('Saved registrations could not be read. Please refresh or contact support.', 'error');
-        partnerIdPreview.hidden = true;
-        return;
-    }
-
-    partnerIdPreview.hidden = !partner;
-    if (!partner) return;
-    partnerIdPhoto.hidden = !partner.profilePhoto;
-    partnerIdPhoto.src = partner.profilePhoto || '';
-    document.getElementById('partner-id-initials').textContent = partner.profilePhoto
-        ? ''
-        : partner.fullName.split(/\s+/).map(name => name[0]).slice(0, 2).join('').toUpperCase();
-    document.getElementById('partner-id-name').textContent = partner.fullName;
-    document.getElementById('partner-id-label').textContent = partner.deliveryPartnerId;
-});
-
 const showStatus = (message, type) => {
     statusBox.textContent = message;
     statusBox.className = `status-message ${type}`;
@@ -72,7 +36,7 @@ cancelResetButton.addEventListener('click', () => {
     showResetButton.hidden = false;
 });
 
-form.addEventListener('submit', (event) => {
+form.addEventListener('submit', async event => {
     event.preventDefault();
 
     if (!form.checkValidity()) {
@@ -80,46 +44,26 @@ form.addEventListener('submit', (event) => {
         return;
     }
 
-    const deliveryPartnerId = normalizePartnerId(partnerIdInput.value);
-    const password = document.getElementById('password').value.trim();
-    let partners;
+    const email = document.getElementById('delivery-partner-email').value.trim();
+    const password = document.getElementById('password').value;
     try {
-        partners = readPartners();
+        await signInWithEmailAndPassword(auth, email, password);
     } catch (error) {
-        console.error('Could not load Delivery Partner registrations for sign in.', error);
-        showStatus('Saved registrations could not be read. Please refresh or contact support.', 'error');
+        console.error('Delivery Partner sign-in failed.', error);
+        showStatus(error.code === 'auth/invalid-credential' || error.code === 'auth/user-not-found'
+            ? 'Email or password is incorrect.'
+            : `Sign in failed${error.code ? ` (${error.code})` : ''}. Check your connection and try again.`, 'error');
         return;
     }
 
-    if (!partners.length) {
-        showStatus('No Delivery Partner registrations were found in this browser. Sign in on the same browser and device used to register.', 'error');
-        return;
-    }
-
-    const partner = partners.find(entry =>
-        normalizePartnerId(entry.deliveryPartnerId) === deliveryPartnerId &&
-        String(entry.password || '').trim() === password
-    );
-
-    if (!partner) {
-        showStatus('Invalid Delivery Partner ID or password. Please try again.', 'error');
-        return;
-    }
-
-    localStorage.setItem('tribesCurrentDeliveryPartner', JSON.stringify({
-        deliveryPartnerId: partner.deliveryPartnerId,
-        fullName: partner.fullName,
-        phoneNo: partner.phoneNo,
-        profilePhoto: partner.profilePhoto || '',
-        createdAt: partner.createdAt
-    }));
+    localStorage.removeItem('tribesCurrentDeliveryPartner');
     showStatus('Sign in successful. Redirecting to your dashboard...', 'success');
     window.setTimeout(() => {
         window.location.href = 'delivery-partner-orders.html';
     }, 800);
 });
 
-resetForm.addEventListener('submit', (event) => {
+resetForm.addEventListener('submit', async event => {
     event.preventDefault();
 
     if (!resetForm.checkValidity()) {
@@ -127,42 +71,17 @@ resetForm.addEventListener('submit', (event) => {
         return;
     }
 
-    const deliveryPartnerId = normalizePartnerId(document.getElementById('reset-delivery-partner-id').value);
     const email = document.getElementById('resetEmail').value.trim().toLowerCase();
-    const newPassword = document.getElementById('resetPassword').value;
-    const confirmPassword = document.getElementById('resetConfirmPassword').value;
-    let partners;
     try {
-        partners = readPartners();
+        await sendPasswordResetEmail(auth, email);
     } catch (error) {
-        console.error('Could not load Delivery Partner registrations for password reset.', error);
-        showStatus('Saved registrations could not be read. Please refresh or contact support.', 'error');
-        return;
-    }
-    const partnerIndex = partners.findIndex(partner =>
-        normalizePartnerId(partner.deliveryPartnerId) === deliveryPartnerId &&
-        String(partner.email || '').trim().toLowerCase() === email
-    );
-
-    if (partnerIndex === -1) {
-        showStatus('Delivery Partner ID and registered email do not match.', 'error');
+        console.error('Could not send Delivery Partner password reset email.', error);
+        showStatus(`Password reset could not be sent${error.code ? ` (${error.code})` : ''}. Check the email address and try again.`, 'error');
         return;
     }
 
-    if (newPassword !== confirmPassword) {
-        showStatus('New passwords do not match.', 'error');
-        return;
-    }
-
-    if (!/[^A-Za-z0-9]/.test(newPassword)) {
-        showStatus('New password must include at least one special character.', 'error');
-        return;
-    }
-
-    partners[partnerIndex].password = newPassword;
-    localStorage.setItem('tribesDeliveryPartners', JSON.stringify(partners));
     resetForm.reset();
     resetForm.hidden = true;
     showResetButton.hidden = false;
-    showStatus('Password reset successfully. You can now sign in.', 'success');
+    showStatus('If the address belongs to a Delivery Partner account, Firebase will send a password reset link.', 'success');
 });
