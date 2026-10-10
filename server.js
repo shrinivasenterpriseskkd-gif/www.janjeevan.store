@@ -29,7 +29,33 @@ const adminAllowedOrigin = process.env.ADMIN_ALLOWED_ORIGIN || "";
 const appAllowedOrigins = new Set([
   ...(process.env.APP_ALLOWED_ORIGINS || "").split(",").map(origin => origin.trim()),
   adminAllowedOrigin
-].filter(Boolean));
+].filter(Boolean).map(origin => {
+  try {
+    return new URL(origin).origin;
+  } catch {
+    return origin;
+  }
+}));
+const normalizeOrigin = origin => {
+  if (!origin) return "";
+  try {
+    return new URL(origin).origin;
+  } catch {
+    return "";
+  }
+};
+const isConfiguredOriginAllowed = request => {
+  const origin = request.get("origin");
+  if (!origin) return true;
+  const normalizedOrigin = normalizeOrigin(origin);
+  if (!normalizedOrigin) return false;
+  if (appAllowedOrigins.has(normalizedOrigin)) return true;
+  const requestHost = request.get("host");
+  const sameOrigin = request.protocol && requestHost ? `${request.protocol}://${requestHost}` : "";
+  if (sameOrigin && normalizedOrigin === sameOrigin) return true;
+  const hostname = new URL(normalizedOrigin).hostname;
+  return ["localhost", "127.0.0.1", "::1"].includes(hostname);
+};
 const firebaseCredential = process.env.FIREBASE_SERVICE_ACCOUNT_JSON
   ? cert(JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_JSON))
   : applicationDefault();
@@ -133,7 +159,7 @@ app.get("/js/api-config.js", (request, response) => {
 });
 app.use((request, response, next) => {
   const origin = request.get("origin");
-  if (origin && appAllowedOrigins.has(origin)) {
+  if (origin && isConfiguredOriginAllowed(request)) {
     response.set("Access-Control-Allow-Origin", origin);
     response.set("Access-Control-Allow-Credentials", "true");
     response.set("Access-Control-Allow-Headers", "Content-Type, Authorization");
@@ -141,7 +167,7 @@ app.use((request, response, next) => {
     response.vary("Origin");
   }
   if (request.method === "OPTIONS") {
-    return origin && appAllowedOrigins.has(origin)
+    return origin && isConfiguredOriginAllowed(request)
       ? response.sendStatus(204)
       : response.sendStatus(403);
   }
@@ -173,13 +199,13 @@ app.use("/admin", adminPageProtection);
 
 app.use("/api/admin", (request, response, next) => {
   const origin = request.get("origin");
-  if (origin && adminAllowedOrigin && origin === adminAllowedOrigin) {
+  if (origin && isConfiguredOriginAllowed(request)) {
     response.set("Access-Control-Allow-Origin", origin);
     response.set("Access-Control-Allow-Credentials", "true");
     response.set("Access-Control-Allow-Headers", "Content-Type");
     response.set("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
     response.vary("Origin");
-  } else if (origin && adminAllowedOrigin && origin !== adminAllowedOrigin) {
+  } else if (origin && adminAllowedOrigin && normalizeOrigin(origin) !== normalizeOrigin(adminAllowedOrigin)) {
     return response.status(403).json({ error: "This origin is not allowed to access Admin sign-in." });
   }
   if (request.method === "OPTIONS") return response.sendStatus(204);

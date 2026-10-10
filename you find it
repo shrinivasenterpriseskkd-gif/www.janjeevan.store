@@ -1,0 +1,32 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "Janjeevan%23001",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "Customer",
+          "order": "DESCENDING"
+        },
+        {
+          "fieldPath": "PASSWORD",
+          "order": "DESCENDING"
+        },
+        {
+          "fieldPath": "MOBILE",
+          "order": "DESCENDING"
+        },
+        {
+          "fieldPath": "MAIL",
+          "order": "DESCENDING"
+        },
+        {
+          "fieldPath": "__name__",
+          "order": "DESCENDING"
+        }
+      ],
+      "density": "SPARSE_ALL"
+    }
+  ],
+  "fieldOverrides": []
+}

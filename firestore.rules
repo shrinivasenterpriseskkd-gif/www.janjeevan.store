@@ -2,18 +2,202 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
+    match /customerAccounts/{uid} {
+      allow read: if request.auth != null && request.auth.uid == uid;
+      allow create: if request.auth != null
+        && request.auth.uid == uid
+        && request.resource.data.keys().hasOnly([
+          'role', 'name', 'dateOfBirth', 'mobile', 'email', 'state', 'createdAt'
+        ])
+        && request.resource.data.role == 'customer'
+        && request.resource.data.name is string
+        && request.resource.data.name.size() > 0
+        && request.resource.data.name.size() <= 100
+        && request.resource.data.dateOfBirth is string
+        && request.resource.data.mobile is string
+        && request.resource.data.email == request.auth.token.email
+        && request.resource.data.state is string
+        && request.resource.data.createdAt is timestamp;
+      allow update, delete: if false;
+    }
+
+    match /deliveryPartnerAccounts/{uid} {
+      allow read: if request.auth != null && request.auth.uid == uid;
+      allow create: if request.auth != null
+        && request.auth.uid == uid
+        && request.resource.data.keys().hasOnly([
+          'role', 'deliveryPartnerId', 'fullName', 'email', 'phoneNo', 'address',
+          'state', 'language', 'relativeName', 'relativePhone', 'relativeAddress',
+          'profilePhoto', 'createdAt'
+        ])
+        && request.resource.data.role == 'deliveryPartner'
+        && request.resource.data.deliveryPartnerId is string
+        && request.resource.data.fullName is string
+        && request.resource.data.email == request.auth.token.email
+        && request.resource.data.phoneNo is string
+        && request.resource.data.address is string
+        && request.resource.data.state is string
+        && request.resource.data.language is string
+        && request.resource.data.relativeName is string
+        && request.resource.data.relativePhone is string
+        && request.resource.data.relativeAddress is string
+        && request.resource.data.profilePhoto is string
+        && request.resource.data.profilePhoto.size() <= 500000
+        && request.resource.data.createdAt is timestamp;
+      allow update: if request.auth != null
+        && request.auth.uid == uid
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['profilePhoto'])
+        && request.resource.data.profilePhoto is string
+        && request.resource.data.profilePhoto.size() <= 500000;
+      allow delete: if false;
+    }
+
+    match /merchantAccounts/{uid} {
+      allow read: if request.auth != null && request.auth.uid == uid;
+      allow create: if request.auth != null
+        && request.auth.uid == uid
+        && request.resource.data.keys().hasOnly([
+          'merchantId', 'fullName', 'email', 'phoneNo', 'gstNumber', 'shopCategory', 'state', 'language', 'createdAt'
+        ])
+        && request.resource.data.merchantId is string
+        && request.resource.data.fullName is string
+        && request.resource.data.email == request.auth.token.email
+        && request.resource.data.phoneNo is string
+        && request.resource.data.gstNumber is string
+        && request.resource.data.shopCategory in [
+          'Beauty / Parlour', 'Barber Shop', 'Kirana Store', 'General Store',
+          'Garage', 'Welding Shop', 'Cycle Shop', 'Hotel', 'Lodge', 'Mechanic Shop',
+          'Driving School', 'Book Shop', 'Stationery Shop', 'Clothing Store',
+          'Footwear Shop', 'Electronics Shop', 'Mobile Phone Shop', 'Hardware Store',
+          'Electrical Shop', 'Pharmacy', 'Restaurant', 'Bakery', 'Dairy Shop',
+          'Fruit and Vegetable Shop', 'Tailoring Shop', 'Agricultural Supplies', 'Other'
+        ]
+        && request.resource.data.state is string
+        && request.resource.data.language is string
+        && request.resource.data.createdAt is timestamp;
+      allow update: if request.auth != null
+        && request.auth.uid == uid
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['gstNumber'])
+        && request.resource.data.gstNumber is string
+        && request.resource.data.gstNumber.size() <= 15;
+      allow delete: if false;
+    }
+
     match /products/{productId} {
       allow read: if true;
-      allow create: if request.resource.data.name is string
+      allow create: if request.auth != null
+        && request.resource.data.keys().hasOnly([
+          'ownerUid', 'merchantId', 'merchantName', 'name', 'uom', 'price',
+          'category', 'discountPercent', 'gstPercent', 'quantity', 'avlbStk', 'area',
+          'village', 'imageUrl', 'createdAt'
+        ])
+        && request.resource.data.ownerUid == request.auth.uid
+        && request.resource.data.merchantId == get(/databases/$(database)/documents/merchantAccounts/$(request.auth.uid)).data.merchantId
+        && request.resource.data.name is string
         && request.resource.data.name.size() > 0
+        && request.resource.data.name.size() <= 120
+        && request.resource.data.merchantName is string
+        && request.resource.data.uom is string
+        && (!('category' in request.resource.data)
+          || (request.resource.data.category is string
+            && request.resource.data.category.size() > 0
+            && request.resource.data.category.size() <= 80))
         && request.resource.data.price is number
+        && request.resource.data.price >= 0
+        && request.resource.data.discountPercent is int
+        && request.resource.data.discountPercent >= 0
+        && request.resource.data.discountPercent <= 100
+        && request.resource.data.quantity is int
+        && request.resource.data.quantity >= 0
         && request.resource.data.avlbStk is number
+        && request.resource.data.avlbStk >= 0
+        && request.resource.data.area is string
+        && request.resource.data.village is string
+        && request.resource.data.imageUrl is string
+        && request.resource.data.createdAt is timestamp
+        && (!('gstPercent' in request.resource.data)
+          || (request.resource.data.gstPercent is number
+            && request.resource.data.gstPercent >= 0
+            && request.resource.data.gstPercent <= 100));
+      allow update: if request.auth != null
+        && resource.data.ownerUid == request.auth.uid
+        && request.resource.data.ownerUid == resource.data.ownerUid
+        && request.resource.data.merchantId == resource.data.merchantId
+        && request.resource.data.merchantName == resource.data.merchantName
+        && request.resource.data.createdAt == resource.data.createdAt
+        && request.resource.data.keys().hasOnly([
+          'ownerUid', 'merchantId', 'merchantName', 'name', 'uom', 'price',
+          'category', 'discountPercent', 'gstPercent', 'quantity', 'avlbStk', 'area',
+          'village', 'imageUrl', 'createdAt'
+        ])
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'name', 'uom', 'price', 'category', 'discountPercent', 'gstPercent',
+          'quantity', 'avlbStk', 'area', 'village', 'imageUrl'
+        ])
+        && request.resource.data.name is string
+        && request.resource.data.name.size() > 0
+        && request.resource.data.name.size() <= 120
+        && request.resource.data.uom is string
+        && (!('category' in request.resource.data)
+          || (request.resource.data.category is string
+            && request.resource.data.category.size() > 0
+            && request.resource.data.category.size() <= 80))
+        && request.resource.data.price is number
+        && request.resource.data.price >= 0
+        && request.resource.data.discountPercent is int
+        && request.resource.data.discountPercent >= 0
+        && request.resource.data.discountPercent <= 100
+        && request.resource.data.quantity is int
+        && request.resource.data.quantity >= 0
+        && request.resource.data.avlbStk is number
+        && request.resource.data.avlbStk >= 0
+        && request.resource.data.area is string
+        && request.resource.data.village is string
         && request.resource.data.imageUrl is string
         && (!('gstPercent' in request.resource.data)
           || (request.resource.data.gstPercent is number
             && request.resource.data.gstPercent >= 0
             && request.resource.data.gstPercent <= 100));
-      allow update, delete: if false;
+      allow delete: if false;
+    }
+
+    match /orders/{orderId} {
+      allow read: if request.auth != null
+        && (resource.data.customerUid == request.auth.uid
+          || resource.data.assignedPartnerUid == request.auth.uid);
+      allow create, delete: if false;
+      allow update: if request.auth != null
+        && resource.data.customerUid == request.auth.uid
+        && resource.data.status in ['Awaiting pickup', 'Out for delivery', 'Unassigned']
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['customerLiveLocation'])
+        && (!('customerLiveLocation' in request.resource.data)
+          || (request.resource.data.customerLiveLocation is map
+            && request.resource.data.customerLiveLocation.keys().hasOnly(['latitude', 'longitude', 'accuracy', 'updatedAt'])
+            && request.resource.data.customerLiveLocation.latitude is number
+            && request.resource.data.customerLiveLocation.latitude >= -90
+            && request.resource.data.customerLiveLocation.latitude <= 90
+            && request.resource.data.customerLiveLocation.longitude is number
+            && request.resource.data.customerLiveLocation.longitude >= -180
+            && request.resource.data.customerLiveLocation.longitude <= 180
+            && request.resource.data.customerLiveLocation.accuracy is number
+            && request.resource.data.customerLiveLocation.accuracy >= 0
+            && request.resource.data.customerLiveLocation.updatedAt is string))
+        || (request.auth != null
+          && resource.data.assignedPartnerUid == request.auth.uid
+          && resource.data.status in ['Awaiting pickup', 'Out for delivery']
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['deliveryPartnerLocation'])
+          && (!('deliveryPartnerLocation' in request.resource.data)
+            || (request.resource.data.deliveryPartnerLocation is map
+              && request.resource.data.deliveryPartnerLocation.keys().hasOnly(['latitude', 'longitude', 'accuracy', 'updatedAt'])
+              && request.resource.data.deliveryPartnerLocation.latitude is number
+              && request.resource.data.deliveryPartnerLocation.latitude >= -90
+              && request.resource.data.deliveryPartnerLocation.latitude <= 90
+              && request.resource.data.deliveryPartnerLocation.longitude is number
+              && request.resource.data.deliveryPartnerLocation.longitude >= -180
+              && request.resource.data.deliveryPartnerLocation.longitude <= 180
+              && request.resource.data.deliveryPartnerLocation.accuracy is number
+              && request.resource.data.deliveryPartnerLocation.accuracy >= 0
+              && request.resource.data.deliveryPartnerLocation.updatedAt is string)));
     }
   }
 }
