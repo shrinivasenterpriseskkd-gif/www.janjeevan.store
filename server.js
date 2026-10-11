@@ -81,7 +81,7 @@ const r2Client = r2AccountId && r2AccessKeyId && r2SecretAccessKey
   })
   : null;
 
-const uploadR2Image = async (imageDataUrl, prefix) => {
+const uploadR2Image = async (imageDataUrl, prefix, imageLabel = "product") => {
   if (!r2Client || !r2BucketName || !r2PublicUrl) {
     const error = new Error("Cloudflare R2 is not configured. Set its account ID, bucket name, API credentials, and public URL on the server.");
     error.status = 503;
@@ -103,13 +103,13 @@ const uploadR2Image = async (imageDataUrl, prefix) => {
 
   const imageMatch = /^data:(image\/(?:jpeg|png|webp));base64,([A-Za-z0-9+/=]+)$/.exec(String(imageDataUrl || ""));
   if (!imageMatch) {
-    const error = new Error("Choose a valid JPG, PNG, or WebP product image.");
+    const error = new Error(`Choose a valid JPG, PNG, or WebP ${imageLabel} image.`);
     error.status = 400;
     throw error;
   }
   const imageBuffer = Buffer.from(imageMatch[2], "base64");
   if (!imageBuffer.length || imageBuffer.length >= 5 * 1024 * 1024) {
-    const error = new Error("Product images must be smaller than 5 MB.");
+    const error = new Error(`${imageLabel} images must be smaller than 5 MB.`);
     error.status = 400;
     throw error;
   }
@@ -128,7 +128,11 @@ const uploadR2Image = async (imageDataUrl, prefix) => {
 };
 
 const deleteR2Image = async key => {
-  if (!r2Client || !r2BucketName) return;
+  if (!r2Client || !r2BucketName) {
+    const error = new Error("Cloudflare R2 is not configured; uploaded image cleanup could not be completed.");
+    error.status = 503;
+    throw error;
+  }
   await r2Client.send(new DeleteObjectCommand({ Bucket: r2BucketName, Key: key }));
 };
 
@@ -163,7 +167,7 @@ app.use((request, response, next) => {
     response.set("Access-Control-Allow-Origin", origin);
     response.set("Access-Control-Allow-Credentials", "true");
     response.set("Access-Control-Allow-Headers", "Content-Type, Authorization");
-    response.set("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+    response.set("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS");
     response.vary("Origin");
   }
   if (request.method === "OPTIONS") {
@@ -203,7 +207,7 @@ app.use("/api/admin", (request, response, next) => {
     response.set("Access-Control-Allow-Origin", origin);
     response.set("Access-Control-Allow-Credentials", "true");
     response.set("Access-Control-Allow-Headers", "Content-Type");
-    response.set("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+    response.set("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS");
     response.vary("Origin");
   } else if (origin && adminAllowedOrigin && normalizeOrigin(origin) !== normalizeOrigin(adminAllowedOrigin)) {
     return response.status(403).json({ error: "This origin is not allowed to access Admin sign-in." });
@@ -305,6 +309,135 @@ app.get("/api/admin/orders", async (request, response) => {
   } catch (error) {
     console.error("Could not load Firebase orders for Admin.", error);
     response.status(503).json({ error: "Order records are unavailable." });
+  }
+});
+
+app.get("/api/advertisements", async (request, response) => {
+  try {
+    const snapshot = await firebaseAdminDb.collection("advertisements").get();
+    const advertisements = snapshot.docs
+      .map(document => ({ id: document.id, ...document.data() }))
+      .filter(advertisement => advertisement.active === true)
+      .sort((left, right) => {
+        const leftTime = left.createdAt?.toMillis?.() || 0;
+        const rightTime = right.createdAt?.toMillis?.() || 0;
+        return rightTime - leftTime;
+      })
+      .map(({ id, title, description, linkUrl, imageUrl }) => ({ id, title, description, linkUrl, imageUrl }));
+    response.json({ advertisements });
+  } catch (error) {
+    console.error("Could not load published advertisements.", error);
+    response.status(503).json({ error: "Advertisements are unavailable." });
+  }
+});
+
+app.get("/api/admin/advertisements", async (request, response) => {
+  if (!readAdminSession(request)) return response.status(401).json({ error: "Admin sign-in required." });
+  try {
+    const snapshot = await firebaseAdminDb.collection("advertisements").get();
+    const advertisements = snapshot.docs
+      .map(document => ({ id: document.id, ...document.data() }))
+      .sort((left, right) => {
+        const leftTime = left.createdAt?.toMillis?.() || 0;
+        const rightTime = right.createdAt?.toMillis?.() || 0;
+        return rightTime - leftTime;
+      })
+      .map(({ id, title, description, linkUrl, imageUrl, imageKey, active }) => ({
+        id,
+        title,
+        description,
+        linkUrl,
+        imageUrl,
+        imageKey,
+        active
+      }));
+    response.json({ advertisements });
+  } catch (error) {
+    console.error("Could not load advertisements for Admin.", error);
+    response.status(503).json({ error: "Advertisements are unavailable." });
+  }
+});
+
+app.post("/api/admin/advertisements", async (request, response) => {
+  if (!readAdminSession(request)) return response.status(401).json({ error: "Admin sign-in required." });
+  const { advertisement: submittedAdvertisement, imageDataUrl } = request.body || {};
+  const title = String(submittedAdvertisement?.title || "").trim();
+  const description = String(submittedAdvertisement?.description || "").trim();
+  const linkUrl = String(submittedAdvertisement?.linkUrl || "").trim();
+  const active = submittedAdvertisement?.active === true;
+  if (!title || title.length > 100 || description.length > 240) {
+    return response.status(400).json({ error: "A title is required and must be at most 100 characters; the description must be at most 240 characters." });
+  }
+  if (linkUrl) {
+    const isInternalLink = (linkUrl.startsWith("/") && !linkUrl.startsWith("//")) || linkUrl.startsWith("#");
+    let isHttpsLink = false;
+    try {
+      isHttpsLink = new URL(linkUrl).protocol === "https:";
+    } catch {
+      isHttpsLink = false;
+    }
+    if (!isInternalLink && !isHttpsLink) {
+      return response.status(400).json({ error: "The ad link must be an HTTPS URL or an internal path." });
+    }
+  }
+
+  let uploadedImageKey;
+  try {
+    const uploaded = await uploadR2Image(imageDataUrl, "advertisements", "advertisement");
+    uploadedImageKey = uploaded.key;
+    const advertisement = {
+      title,
+      description,
+      linkUrl,
+      imageUrl: uploaded.imageUrl,
+      imageKey: uploaded.key,
+      active,
+      createdAt: FieldValue.serverTimestamp()
+    };
+    const created = await firebaseAdminDb.collection("advertisements").add(advertisement);
+    response.json({
+      advertisement: {
+        ...advertisement,
+        id: created.id,
+        createdAt: new Date().toISOString()
+      }
+    });
+  } catch (error) {
+    console.error("Could not create an Admin advertisement.", error);
+    if (uploadedImageKey) {
+      try {
+        await deleteR2Image(uploadedImageKey);
+      } catch (cleanupError) {
+        console.error("Could not clean up the failed R2 advertisement image upload.", cleanupError);
+      }
+    }
+    response.status(error.status || 503).json({
+      error: error.status ? error.message : "Advertisement could not be saved."
+    });
+  }
+});
+
+app.delete("/api/admin/advertisements/:advertisementId", async (request, response) => {
+  if (!readAdminSession(request)) return response.status(401).json({ error: "Admin sign-in required." });
+  try {
+    const advertisementRef = firebaseAdminDb.collection("advertisements").doc(request.params.advertisementId);
+    const advertisement = await advertisementRef.get();
+    if (!advertisement.exists) return response.status(404).json({ error: "Advertisement was not found." });
+    await advertisementRef.delete();
+    let imageCleanupWarning = false;
+    const imageKey = advertisement.data()?.imageKey;
+    if (imageKey) {
+      try {
+        await deleteR2Image(imageKey);
+      } catch (error) {
+        imageCleanupWarning = true;
+        console.error("Advertisement was removed, but its R2 image could not be deleted.", error);
+      }
+    }
+    response.json({ deleted: true, imageCleanupWarning });
+  } catch (error) {
+    console.error("Could not remove an Admin advertisement.", error);
+    response.status(503).json({ error: "Advertisement could not be removed." });
   }
 });
 
