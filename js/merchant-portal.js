@@ -16,6 +16,7 @@ const apiBase = (window.TRIBES_API_BASE_URL || "").replace(/\/$/, "");
 const merchantList = document.querySelector("#merchant-product-list");
 const catalogStatus = document.querySelector("#merchant-catalog-status");
 const productForm = document.querySelector("#merchant-product-form");
+const productStatus = document.querySelector("#merchant-product-status");
 const imageInput = document.querySelector("#merchant-product-image");
 const imagePreview = document.querySelector("#merchant-product-preview");
 const submitButton = document.querySelector("#merchant-product-submit");
@@ -302,7 +303,12 @@ const parseProductWorkbook = async (workbookFile, imageFiles) => {
 
 bulkProductForm.addEventListener("submit", async event => {
     event.preventDefault();
-    if (!currentMerchant?.merchantId || !bulkProductForm.reportValidity()) return;
+    if (!currentMerchant?.merchantId || !merchantAccount) {
+        bulkStatus.textContent = "Products cannot be imported because this signed-in account has no merchant profile and Merchant ID in Firestore. Contact comtribes@gmail.com to restore the merchant profile.";
+        bulkStatus.className = "merchant-portal-status error";
+        return;
+    }
+    if (!bulkProductForm.reportValidity()) return;
 
     const workbookFile = bulkWorkbookInput.files?.[0];
     const imageFiles = Array.from(bulkImagesInput.files || []);
@@ -497,6 +503,11 @@ const showStatus = (message, type = "") => {
     catalogStatus.className = `merchant-portal-status ${type}`.trim();
 };
 
+const showProductStatus = (message, type = "") => {
+    productStatus.textContent = message;
+    productStatus.className = `merchant-portal-status ${type}`.trim();
+};
+
 const renderProducts = () => {
     if (!merchantProducts.length) {
         merchantList.innerHTML = '<p class="merchant-product-empty">No products in your catalog yet. Add your first product below.</p>';
@@ -533,6 +544,13 @@ const resetProductForm = () => {
     document.querySelector("#merchant-product-cancel").hidden = true;
 };
 
+const disableCatalogSubmission = message => {
+    submitButton.disabled = true;
+    bulkSubmitButton.disabled = true;
+    showStatus(message, "error");
+    showProductStatus(message, "error");
+};
+
 const editProduct = ({ id, product }) => {
     editingProductId = id;
     document.querySelector("#merchant-product-name").value = product.name || "";
@@ -558,17 +576,23 @@ const editProduct = ({ id, product }) => {
 };
 
 const loadProducts = async () => {
-    if (!currentMerchant?.merchantId) return;
+    if (!currentMerchant?.uid) return;
 
     merchantList.innerHTML = '<p class="merchant-product-empty">Loading your catalog…</p>';
     showStatus("");
     try {
-        const productsQuery = query(
-            collection(db, "products"),
-            where("ownerUid", "==", currentMerchant.uid)
-        );
-        const snapshot = await getDocs(productsQuery);
-        merchantProducts = snapshot.docs.map(productDocument => ({
+        const productsCollection = collection(db, "products");
+        const productQueries = [
+            getDocs(query(productsCollection, where("ownerUid", "==", currentMerchant.uid)))
+        ];
+        if (currentMerchant.merchantId) {
+            productQueries.push(getDocs(query(productsCollection, where("merchantId", "==", currentMerchant.merchantId))));
+        }
+        const productSnapshots = await Promise.all(productQueries);
+        const productDocuments = new Map([
+            ...productSnapshots.flatMap(snapshot => snapshot.docs)
+        ].map(productDocument => [productDocument.id, productDocument]));
+        merchantProducts = [...productDocuments.values()].map(productDocument => ({
             id: productDocument.id,
             product: productDocument.data()
         }));
@@ -753,11 +777,15 @@ shopPhotoForm.addEventListener("submit", async event => {
 
 productForm.addEventListener("submit", async event => {
     event.preventDefault();
-    if (!currentMerchant?.merchantId || !productForm.reportValidity()) return;
+    if (!currentMerchant?.merchantId || !merchantAccount) {
+        showProductStatus("Product upload is unavailable because this signed-in account has no merchant profile and Merchant ID in Firestore. Contact comtribes@gmail.com to restore the merchant profile.", "error");
+        return;
+    }
+    if (!productForm.reportValidity()) return;
 
     const file = imageInput.files?.[0];
     if (!editingProductId && !file) {
-        showStatus("Choose a product photo before uploading.", "error");
+        showProductStatus("Choose a product photo before uploading.", "error");
         return;
     }
     const price = Number(document.querySelector("#merchant-product-price").value);
@@ -766,18 +794,18 @@ productForm.addEventListener("submit", async event => {
     const avlbStk = Number(document.querySelector("#merchant-product-stock").value);
     const productName = document.querySelector("#merchant-product-name").value.trim();
     if (!productName) {
-        showStatus("Enter a product name.", "error");
+        showProductStatus("Enter a product name.", "error");
         return;
     }
     if (!Number.isFinite(price) || price < 0 || !Number.isInteger(discountPercent) ||
         discountPercent < 0 || discountPercent > 100 || !Number.isFinite(gstPercent) ||
         gstPercent < 0 || gstPercent > 100 || !Number.isInteger(avlbStk) || avlbStk < 0) {
-        showStatus("Enter a valid price, discount (0–100), GST percentage (0–100), and non-negative stock.", "error");
+        showProductStatus("Enter a valid price, discount (0–100), GST percentage (0–100), and non-negative stock.", "error");
         return;
     }
 
     submitButton.disabled = true;
-    showStatus(file ? "Uploading your product photo and saving the listing…" : "Saving your product changes…");
+    showProductStatus(file ? "Uploading your product photo and saving the listing…" : "Saving your product changes…");
     let saveStage = "product listing";
     try {
         const existingProduct = editingProductId
@@ -833,7 +861,7 @@ productForm.addEventListener("submit", async event => {
         const successMessage = wasEditing
             ? "Product updated in your catalog."
             : "Product photo, price, discount, and GST rate added to your catalog.";
-        showStatus(refreshed
+        showProductStatus(refreshed
             ? successMessage
             : "Product was saved, but the catalog could not refresh. Use Refresh catalog to try again.",
         refreshed ? "" : "error");
@@ -843,7 +871,7 @@ productForm.addEventListener("submit", async event => {
         const message = errorCode === "permission-denied"
             ? `Firebase Firestore denied the product ${editingProductId ? "update" : "listing"}. Verify the products collection permissions.`
             : error.message || `Could not save the ${saveStage}${errorCode ? ` (${errorCode})` : ""}. Check the browser console and try again.`;
-        showStatus(message, "error");
+        showProductStatus(message, "error");
     } finally {
         submitButton.disabled = false;
     }
@@ -876,13 +904,18 @@ onAuthStateChanged(auth, async user => {
     try {
         const merchantSnapshot = await getDoc(doc(db, "merchantAccounts", user.uid));
         if (!merchantSnapshot.exists()) {
-            await signOut(auth);
-            window.location.replace("merchant-login.html");
+            disableCatalogSubmission("Your sign-in succeeded, but this account has no merchant profile saved in Firestore. Product uploads are disabled until the merchant profile and Merchant ID are restored. Contact comtribes@gmail.com.");
+            merchantList.innerHTML = '<p class="merchant-product-empty">Your merchant profile is missing, so the catalog cannot be loaded yet.</p>';
             return;
         }
 
         merchantAccount = merchantSnapshot.data();
         currentMerchant = { uid: user.uid, merchantId: merchantAccount.merchantId };
+        if (!currentMerchant.merchantId) {
+            disableCatalogSubmission("This merchant profile has no Merchant ID. Product uploads are disabled until the profile is corrected. Contact comtribes@gmail.com.");
+            merchantList.innerHTML = '<p class="merchant-product-empty">Your Merchant ID is missing, so the catalog cannot be loaded yet.</p>';
+            return;
+        }
         document.querySelector("#merchant-welcome-name").textContent = merchantAccount.fullName || "Merchant";
         document.querySelector("#merchant-gstin").textContent = merchantAccount.gstNumber || "Not provided";
         document.querySelector("#merchant-proprietor-name").textContent = merchantAccount.fullName || "Merchant";
@@ -911,9 +944,18 @@ onAuthStateChanged(auth, async user => {
             shopPhotoImage.hidden = false;
             shopPhotoEmpty.hidden = true;
         }
-        await loadMerchantOrders();
+        const initialLoads = await Promise.allSettled([
+            loadMerchantOrders(),
+            loadProducts()
+        ]);
+        initialLoads.forEach((result, index) => {
+            if (result.status === "rejected") {
+                console.error(index === 0
+                    ? "Initial merchant order loading failed."
+                    : "Initial merchant catalog loading failed.", result.reason);
+            }
+        });
         window.setInterval(loadMerchantOrders, 15000);
-        await loadProducts();
     } catch (error) {
         console.error("Could not load the authenticated merchant profile.", error);
         showStatus("Your merchant profile could not be loaded. Check Firebase permissions and try again.", "error");

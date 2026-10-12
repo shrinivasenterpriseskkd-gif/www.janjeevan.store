@@ -166,8 +166,8 @@ onAuthStateChanged(auth, async user => {
     try {
         const profile = await getDoc(doc(db, 'customerAccounts', user.uid));
         if (!profile.exists()) {
-            await signOut(auth);
-            window.location.replace('customer-login.html');
+            orderStatus.textContent = 'Your sign-in succeeded, but this account has no customer profile saved in Firestore. You are still signed in. Contact comtribes@gmail.com to restore the customer profile.';
+            orderStatus.className = 'status-message error';
             return;
         }
         currentCustomer = profile.data();

@@ -1,4 +1,9 @@
-import { createUserWithEmailAndPassword, deleteUser } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
+import {
+    browserLocalPersistence,
+    createUserWithEmailAndPassword,
+    deleteUser,
+    setPersistence
+} from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
 import { doc, serverTimestamp, setDoc } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore.js";
 import { auth, db } from "./firebase-config.js";
 
@@ -45,6 +50,7 @@ form.addEventListener('submit', async event => {
 
     let user;
     try {
+        await setPersistence(auth, browserLocalPersistence);
         user = (await createUserWithEmailAndPassword(auth, email, password)).user;
         await setDoc(doc(db, 'customerAccounts', user.uid), {
             role: 'customer',

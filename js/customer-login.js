@@ -1,4 +1,9 @@
-import { sendPasswordResetEmail, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
+import {
+    browserLocalPersistence,
+    sendPasswordResetEmail,
+    setPersistence,
+    signInWithEmailAndPassword
+} from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
 import { auth } from "./firebase-config.js";
 
 const form = document.getElementById('customer-login-form');
@@ -30,6 +35,7 @@ form.addEventListener('submit', async event => {
     const email = document.getElementById('customer-email').value.trim();
     const password = document.getElementById('customer-password').value;
     try {
+        await setPersistence(auth, browserLocalPersistence);
         await signInWithEmailAndPassword(auth, email, password);
     } catch (error) {
         console.error('Customer sign-in failed.', error);
