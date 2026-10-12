@@ -5,52 +5,39 @@
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<meta name="description"
-		content="Discover useful products from Janjeevan.store. Browse the latest collection and order online.">
-	<meta property="og:title" content="Janjeevan.store | Shop the latest collection">
-	<meta property="og:description" content="Browse products from Janjeevan.store and order online.">
+		content="Discover useful products from TRIBES. Browse the latest collection and order online.">
+	<meta property="og:title" content="TRIBES | Shop the latest collection">
+	<meta property="og:description" content="Browse products from TRIBES and order online.">
 	<meta property="og:type" content="website">
 	<meta name="theme-color" content="#18221f">
-	<title>Janjeevan.store | Shop the latest collection</title>
+	<title>TRIBES | Shop the latest collection</title>
 	<link rel="preconnect" href="https://fonts.googleapis.com">
 	<link rel="stylesheet" href="css/style.css">
 </head>
 
 <body class="store-page">
 	<header class="store-header">
-		<a class="store-brand" href="index.html"><img src="TribesLogo.jpg" alt="Janjeevan.store logo" width="42" height="42"><span>Janjeevan.store</span></a>
+		<a class="store-brand" href="index.html"><img src="TribesLogo.jpg" alt="TRIBES logo"><span>TRIBES</span></a>
 		<div class="header-actions">
 			<nav aria-label="Store navigation"><a class="active" href="index.html">Shop</a><a href="cart.html">Cart</a>
 			</nav>
-			<a class="header-signin" href="customer-login.html">Customer Sign In</a>
+			<a class="header-signin" href="merchant-login.html">Sign In</a>
 		</div>
 	</header>
 	<main class="store-main">
 		<section class="store-hero">
 			<div class="hero-copy">
-				<p class="store-kicker">The Janjeevan.store collection</p>
+				<p class="store-kicker">The TRIBES collection</p>
 				<h1>Everyday pieces.<br><em>Chosen with care.</em></h1>
 				<p class="hero-description">Find thoughtful products for your everyday life, with fresh stock added
 					regularly.</p><a class="hero-button" href="#products-section">Explore collection <span>↓</span></a>
 			</div>
-			<div class="hero-market-carousel" id="hero-market-carousel" role="region"
-				aria-label="Photos from Andhra Pradesh tribal markets" aria-roledescription="carousel">
-				<img id="hero-market-photo" class="hero-market-photo" alt="" fetchpriority="high">
-				<div class="hero-market-shade"></div>
-				<div class="hero-market-caption">
-					<p id="hero-market-caption">Andhra Pradesh tribal markets</p>
-					<small>Photo: <a id="hero-market-credit" target="_blank" rel="noopener noreferrer">View photo credit</a></small>
-				</div>
-				<div class="hero-market-controls">
-					<button type="button" id="hero-market-previous" aria-label="Previous market photo">←</button>
-					<span id="hero-market-count" aria-hidden="true">1 / 4</span>
-					<button type="button" id="hero-market-next" aria-label="Next market photo">→</button>
-				</div>
-			</div>
+			<div class="hero-art" aria-hidden="true"><span class="art-label">NEW<br>ARRIVALS</span><span
+					class="art-circle"></span><span class="art-line"></span></div>
 		</section>
-		<section id="store-advertisements" class="store-advertisements" aria-label="Featured advertisements" hidden></section>
 		<div class="store-benefits"><span><b>01</b> Curated products</span><span><b>02</b> Live stock
 				updates</span><span><b>03</b> Simple online ordering</span></div>
-		<section class="service-section" aria-label="Janjeevan.store services">
+		<section class="service-section" aria-label="TRIBES services">
 			<article class="service-card delivery-service"><span class="service-icon">⌁</span>
 				<div>
 					<p class="store-kicker">Fast and reliable</p>
@@ -63,10 +50,11 @@
 			</article>
 			<article class="service-card merchant-service"><span class="service-icon">◈</span>
 				<div>
-					<p class="store-kicker">Grow with Janjeevan.store</p>
+					<p class="store-kicker">Grow with TRIBES</p>
 					<h2>Merchant Registration</h2>
 					<p>Join our seller network and bring your products to more customers.</p><a
 						href="merchant-registration.html">Register as a merchant <span>→</span></a>
+					<p>Promote your shop on our storefront.</p><a href="advertisement-registration.html">Register an advertisement <span>→</span></a>
 				</div>
 			</article>
 			<article class="service-card donation-service"><span class="service-icon">♡</span>
@@ -78,6 +66,22 @@
 						<span>→</span></a>
 				</div>
 			</article>
+		</section>
+		<section class="store-advertisements" id="store-advertisements" aria-labelledby="store-advertisements-heading" hidden>
+			<div class="section-heading">
+				<div>
+					<p class="store-kicker">From our merchants</p>
+					<h2 id="store-advertisements-heading">Featured offers</h2>
+				</div>
+				<div class="carousel-tools">
+					<span id="advertisement-count" class="product-count"></span>
+					<button class="carousel-button" id="previous-advertisement" type="button" aria-label="Previous advertisements">←</button>
+					<button class="carousel-button" id="next-advertisement" type="button" aria-label="Next advertisements">→</button>
+				</div>
+			</div>
+			<div class="advertisement-carousel-window" id="advertisement-carousel-window">
+				<div id="store-advertisement-list" class="store-advertisement-list" aria-live="polite"></div>
+			</div>
 		</section>
 		<section class="product-section" id="products-section">
 			<div class="section-heading">
@@ -97,35 +101,30 @@
 					</div>
 				</div>
 			</div>
-			<p id="collection-notice" class="collection-notice" role="status" hidden>These photos show weekly market
-				journeys in Araku Valley, Andhra Pradesh. Follow each photo credit for its source and license. Product
-				listings will return when the catalog is available.</p>
+			<p id="collection-notice" class="collection-notice" role="status" hidden>These photos are for inspiration
+				only. Product listings will return when the catalog is available.</p>
 		</section>
 	</main>
 	<footer class="store-footer">
-		<div class="footer-brand"><img src="TribesLogo.jpg" alt="Janjeevan.store logo" width="46" height="46">
-			<div><span>Janjeevan.store</span><small>Made for everyday living</small></div>
+		<div class="footer-brand"><img src="TribesLogo.jpg" alt="TRIBES logo">
+			<div><span>TRIBES</span><small>Made for everyday living</small></div>
 		</div>
-		<div class="social-links" aria-label="Social media links"><a href="https://wa.me/?text=Discover%20Janjeevan.store"
-				target="_blank" rel="noopener" aria-label="Share Janjeevan.store on WhatsApp" title="WhatsApp"><span
+		<div class="social-links" aria-label="Social media links"><a href="https://wa.me/?text=Discover%20TRIBES"
+				target="_blank" rel="noopener" aria-label="Share TRIBES on WhatsApp" title="WhatsApp"><span
 					class="social-symbol whatsapp">WA</span><span>WhatsApp</span></a><a
 				href="https://www.facebook.com/sharer/sharer.php" target="_blank" rel="noopener"
-				aria-label="Share Janjeevan.store on Facebook" title="Facebook"><span
+				aria-label="Share TRIBES on Facebook" title="Facebook"><span
 					class="social-symbol facebook">f</span><span>Facebook</span></a><a href="https://www.instagram.com/"
-				target="_blank" rel="noopener" aria-label="Open Janjeevan.store on Instagram" title="Instagram"><span
-					class="social-symbol instagram">◎</span><span>Instagram</span></a><a
-				href="https://t.me/share/url?url=https%3A%2F%2Fwww.janjeevan.store&amp;text=Discover%20Janjeevan.store"
-				target="_blank" rel="noopener" aria-label="Share Janjeevan.store on Telegram" title="Telegram"><span
-					class="social-symbol telegram">TG</span><span>Telegram</span></a></div>
+				target="_blank" rel="noopener" aria-label="Open TRIBES on Instagram" title="Instagram"><span
+					class="social-symbol instagram">◎</span><span>Instagram</span></a></div>
 		<div class="footer-meta"><a href="mailto:comtribes@gmail.com">Contact us: comtribes@gmail.com</a><a
 				href="cart.html">View cart ↗</a>
 			<div class="viewer-pill"><span class="viewer-label">Viewers</span><strong id="viewer-count">0</strong></div>
-			<small>© 2026 Janjeevan.store. All rights reserved.</small>
+			<small>© 2026 TRIBES. All rights reserved.</small>
 		</div>
 	</footer>
 	<script src="js/api-config.js"></script>
-	<script type="module" src="js/advertisements.js"></script>
-	<script type="module" src="js/market-carousel.js"></script>
+	<script type="module" src="js/store-advertisements.js"></script>
 	<script type="module" src="js/products.js?v=2"></script>
 	<script type="module" src="js/viewers.js"></script>
 	<script src="js/chatbot.js"></script>

@@ -77,9 +77,23 @@ service cloud.firestore {
         && request.resource.data.createdAt is timestamp;
       allow update: if request.auth != null
         && request.auth.uid == uid
-        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['gstNumber'])
-        && request.resource.data.gstNumber is string
-        && request.resource.data.gstNumber.size() <= 15;
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'gstNumber', 'bankAccountNumber', 'ifscCode', 'upiLink'
+        ])
+        && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['gstNumber'])
+          || (request.resource.data.gstNumber is string
+            && request.resource.data.gstNumber.size() <= 15))
+        && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['bankAccountNumber'])
+          || (request.resource.data.bankAccountNumber is string
+            && request.resource.data.bankAccountNumber.matches('^([0-9]{6,18})?$')))
+        && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['ifscCode'])
+          || (request.resource.data.ifscCode is string
+            && request.resource.data.ifscCode.matches('^([A-Z]{4}0[A-Z0-9]{6})?$')))
+        && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['upiLink'])
+          || (request.resource.data.upiLink is string
+            && request.resource.data.upiLink.size() <= 2048
+            && (request.resource.data.upiLink == ''
+              || request.resource.data.upiLink.matches('^(https://|upi://).+$'))));
       allow delete: if false;
     }
 

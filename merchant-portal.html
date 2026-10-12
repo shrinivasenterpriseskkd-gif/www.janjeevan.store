@@ -34,6 +34,9 @@
                         <p><span>Phone:</span> <span id="merchant-phone">Not provided</span></p>
                         <p><span>Shop category:</span> <span id="merchant-shop-category">Not provided</span></p>
                         <p><span>GSTIN:</span> <span id="merchant-gstin">Not provided</span></p>
+                        <p><span>Bank account:</span> <span id="merchant-bank-account">Not provided</span></p>
+                        <p><span>IFSC code:</span> <span id="merchant-ifsc-code">Not provided</span></p>
+                        <p><span>UPI link:</span> <span id="merchant-upi-link">Not provided</span></p>
                     </div>
                 </div>
                 <details class="merchant-gstin-editor">
@@ -49,6 +52,24 @@
                     </form>
                 </details>
                 <p id="merchant-gstin-status" class="merchant-shop-photo-status" role="status" aria-live="polite"></p>
+                <details class="merchant-gstin-editor">
+                    <summary>Edit payment details</summary>
+                    <form id="merchant-payment-details-form" class="merchant-gstin-form">
+                        <label for="merchant-bank-account-input">Bank account number</label>
+                        <input id="merchant-bank-account-input" type="text" inputmode="numeric" maxlength="18"
+                            placeholder="6–18 digits" autocomplete="off" pattern="[0-9]{6,18}">
+                        <label for="merchant-ifsc-code-input">IFSC code</label>
+                        <input id="merchant-ifsc-code-input" type="text" maxlength="11"
+                            placeholder="e.g. SBIN0001234" autocomplete="off"
+                            pattern="[A-Za-z]{4}0[A-Za-z0-9]{6}">
+                        <label for="merchant-upi-link-input">UPI payment link</label>
+                        <input id="merchant-upi-link-input" type="text" maxlength="2048"
+                            placeholder="https://… or upi://pay?…" autocomplete="url">
+                        <small>Optional. Use a bank account number, 11-character IFSC, and an https:// or upi:// payment link. Only you can see these details here.</small>
+                        <button class="secondary-btn" id="merchant-payment-details-save" type="submit">Save payment details</button>
+                    </form>
+                </details>
+                <p id="merchant-payment-details-status" class="merchant-shop-photo-status" role="status" aria-live="polite"></p>
                 <form id="merchant-shop-photo-form" class="merchant-shop-photo-form">
                     <label for="merchant-shop-photo-input">Shop photo</label>
                     <input id="merchant-shop-photo-input" type="file" accept="image/jpeg,image/png,image/webp">
@@ -59,6 +80,20 @@
             </aside>
             <span class="merchant-portal-badge">My catalog</span>
         </header>
+
+        <section class="merchant-portal-section" aria-labelledby="merchant-orders-heading">
+            <div class="merchant-portal-section-heading">
+                <div>
+                    <p class="store-kicker">Customer purchases</p>
+                    <h2 id="merchant-orders-heading">Orders for your products</h2>
+                </div>
+                <button class="secondary-btn" id="enable-merchant-order-notifications" type="button">Enable browser alerts</button>
+            </div>
+            <p id="merchant-orders-status" class="merchant-portal-status" role="status" aria-live="polite">Loading your orders…</p>
+            <div id="merchant-order-list" class="merchant-product-list">
+                <p class="merchant-product-empty">Loading your orders…</p>
+            </div>
+        </section>
 
         <section class="merchant-portal-section" aria-labelledby="merchant-products-heading">
             <div class="merchant-portal-section-heading">

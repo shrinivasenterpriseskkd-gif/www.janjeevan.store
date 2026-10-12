@@ -294,6 +294,56 @@ app.get("/api/admin/accounts", async (request, response) => {
   }
 });
 
+app.get("/api/admin/merchants", async (request, response) => {
+  if (!readAdminSession(request)) return response.status(401).json({ error: "Admin sign-in required." });
+  try {
+    const snapshot = await firebaseAdminDb.collection("merchantAccounts").get();
+    const merchants = snapshot.docs.map(document => {
+      const data = document.data();
+      return {
+        uid: document.id,
+        merchantId: String(data.merchantId || ""),
+        fullName: String(data.fullName || ""),
+        email: String(data.email || ""),
+        phoneNo: String(data.phoneNo || ""),
+        shopCategory: String(data.shopCategory || ""),
+        state: String(data.state || ""),
+        gstNumber: String(data.gstNumber || ""),
+        bankAccountNumber: String(data.bankAccountNumber || ""),
+        ifscCode: String(data.ifscCode || ""),
+        upiLink: String(data.upiLink || ""),
+        approvalStatus: ["approved", "rejected"].includes(data.approvalStatus) ? data.approvalStatus : "pending"
+      };
+    });
+    response.json({ merchants });
+  } catch (error) {
+    console.error("Could not load merchant approval records for Admin.", error);
+    response.status(503).json({ error: "Merchant approval records are unavailable." });
+  }
+});
+
+app.post("/api/admin/merchants/:merchantUid/approval", async (request, response) => {
+  if (!readAdminSession(request)) return response.status(401).json({ error: "Admin sign-in required." });
+  const { merchantUid } = request.params;
+  const { approvalStatus } = request.body || {};
+  if (merchantUid.includes("/") || !["pending", "approved", "rejected"].includes(approvalStatus)) {
+    return response.status(400).json({ error: "Merchant ID or approval status is invalid." });
+  }
+  try {
+    const merchantRef = firebaseAdminDb.collection("merchantAccounts").doc(merchantUid);
+    const merchant = await merchantRef.get();
+    if (!merchant.exists) return response.status(404).json({ error: "Merchant account was not found." });
+    await merchantRef.update({
+      approvalStatus,
+      approvalUpdatedAt: FieldValue.serverTimestamp()
+    });
+    response.json({ uid: merchantUid, approvalStatus });
+  } catch (error) {
+    console.error("Could not update a merchant approval status.", error);
+    response.status(503).json({ error: "Merchant approval status could not be updated." });
+  }
+});
+
 app.get("/api/admin/orders", async (request, response) => {
   if (!readAdminSession(request)) return response.status(401).json({ error: "Admin sign-in required." });
   try {
@@ -441,6 +491,61 @@ app.delete("/api/admin/advertisements/:advertisementId", async (request, respons
   }
 });
 
+app.post("/api/merchant/advertisements/order", async (request, response) => {
+  try {
+    const user = await requireFirebaseUser(request);
+    if (!razorpay) return response.status(503).json({ error: "Razorpay is not configured. Add keys to .env." });
+    const merchantSnapshot = await firebaseAdminDb.collection("merchantAccounts").doc(user.uid).get();
+    if (!merchantSnapshot.exists || !merchantSnapshot.data()?.merchantId) {
+      return response.status(403).json({ error: "A Merchant account is required to create an advertisement checkout." });
+    }
+
+    const merchant = merchantSnapshot.data();
+    const advertisement = request.body?.advertisement || {};
+    const months = Number(advertisement.months);
+    const title = String(advertisement.title || "").trim();
+    const description = String(advertisement.description || "").trim();
+    const linkUrl = String(advertisement.linkUrl || "").trim();
+    const planPrices = { 1: 200, 3: 500, 6: 800 };
+    if (![1, 3, 6].includes(months) || !title || title.length > 100 || description.length > 240 || (linkUrl && !/^https:\/\//i.test(linkUrl) && !linkUrl.startsWith("/"))) {
+      return response.status(400).json({ error: "Select a valid advertisement plan and enter a valid title and link." });
+    }
+    const amount = planPrices[months] * 100;
+    const order = await razorpay.orders.create({
+      amount,
+      currency: "INR",
+      receipt: `tribes_ad_${Date.now()}`,
+      notes: {
+        purpose: "merchant_advertisement",
+        merchantUid: user.uid,
+        merchantId: String(merchant.merchantId || ""),
+        months: String(months)
+      }
+    });
+    await firebaseAdminDb.collection("pendingAdvertisements").doc(order.id).set({
+      merchantUid: user.uid,
+      merchantId: String(merchant.merchantId || ""),
+      months,
+      title,
+      description,
+      linkUrl,
+      amount: order.amount,
+      createdAt: FieldValue.serverTimestamp()
+    });
+    response.json({ orderId: order.id, amount: order.amount, currency: order.currency, keyId: process.env.RAZORPAY_KEY_ID });
+  } catch (error) {
+    console.error("Unable to create advertisement payment checkout.", error);
+    if (error.status) return response.status(error.status).json({ error: error.message });
+    const razorpayAuthenticationFailed = error.statusCode === 401 || (error.error?.code === "BAD_REQUEST_ERROR" && /authentication failed/i.test(error.error?.description || ""));
+    if (razorpayAuthenticationFailed) {
+      return response.status(502).json({
+        error: "Razorpay rejected its API credentials. Verify RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET are a matching pair from the same Razorpay mode (test or live), then restart the server."
+      });
+    }
+    response.status(error.status || 503).json({ error: error.status ? error.message : "Advertisement checkout could not be created." });
+  }
+});
+
 app.post("/api/merchant/product-images", async (request, response) => {
   try {
     const user = await requireFirebaseUser(request);
@@ -454,6 +559,50 @@ app.post("/api/merchant/product-images", async (request, response) => {
     if (error.status) return response.status(error.status).json({ error: error.message });
     console.error("Could not upload a Merchant product image to Cloudflare R2.", error);
     response.status(503).json({ error: "Product image upload failed. Verify the Cloudflare R2 server configuration and try again." });
+  }
+});
+
+app.get("/api/merchant/orders", async (request, response) => {
+  try {
+    const user = await requireFirebaseUser(request);
+    const merchantSnapshot = await firebaseAdminDb.collection("merchantAccounts").doc(user.uid).get();
+    if (!merchantSnapshot.exists || !merchantSnapshot.data()?.merchantId) {
+      return response.status(403).json({ error: "A Merchant account is required to view orders." });
+    }
+    const merchantId = String(merchantSnapshot.data().merchantId);
+    const ordersCollection = firebaseAdminDb.collection("orders");
+    const snapshot = request.query.includeLegacy === "1"
+      ? await ordersCollection.get()
+      : await ordersCollection.where("merchantIds", "array-contains", merchantId).get();
+    const orders = snapshot.docs.flatMap(document => {
+      const order = document.data();
+      const items = (Array.isArray(order.items) ? order.items : [])
+        .filter(item => String(item.merchantId || "") === merchantId)
+        .map(item => ({
+          name: String(item.name || "Product"),
+          quantity: Number(item.quantity) || 0,
+          price: Number(item.price) || 0
+        }));
+      if (!items.length) return [];
+      const createdAt = order.createdAt?.toDate?.();
+      return [{
+        id: document.id,
+        orderId: String(order.orderId || document.id),
+        customerName: String(order.customerName || "Customer"),
+        customerMobile: String(order.customerMobile || ""),
+        deliveryState: String(order.deliveryState || ""),
+        status: String(order.status || "Unassigned"),
+        amount: Math.round(items.reduce((sum, item) => sum + item.price * item.quantity, 0) * 100) / 100,
+        items,
+        createdAt: createdAt ? createdAt.toISOString() : null
+      }];
+    });
+    orders.sort((first, second) => (Date.parse(second.createdAt) || 0) - (Date.parse(first.createdAt) || 0));
+    response.json({ orders });
+  } catch (error) {
+    if (error.status) return response.status(error.status).json({ error: error.message });
+    console.error("Could not load orders for the signed-in Merchant.", error);
+    response.status(503).json({ error: "Merchant orders are unavailable." });
   }
 });
 
@@ -692,6 +841,41 @@ app.post("/api/payments/verify", async (request, response) => {
         await registrationFeeRef.delete();
         return response.json({ verified: true, registrationFee: true });
       }
+      const pendingAdvertisementRef = firebaseAdminDb.collection("pendingAdvertisements").doc(orderId);
+      const pendingAdvertisement = await pendingAdvertisementRef.get();
+      if (pendingAdvertisement.exists && pendingAdvertisement.data().merchantUid === user.uid) {
+        const ad = pendingAdvertisement.data();
+        let uploadedImageKey;
+        try {
+          const uploaded = await uploadR2Image(request.body?.advertisementImageDataUrl, `advertisements/${user.uid}`, "advertisement");
+          uploadedImageKey = uploaded.key;
+          const savedAdvertisement = {
+            title: String(ad.title || "").trim(),
+            description: String(ad.description || "").trim(),
+            linkUrl: String(ad.linkUrl || "").trim(),
+            imageUrl: uploaded.imageUrl,
+            imageKey: uploaded.key,
+            merchantUid: user.uid,
+            merchantId: String(ad.merchantId || ""),
+            months: Number(ad.months) || 1,
+            price: Number(ad.amount || 0) / 100,
+            active: false,
+            status: "pending",
+            createdAt: FieldValue.serverTimestamp(),
+            paymentId,
+            orderId
+          };
+          await firebaseAdminDb.collection("advertisements").add(savedAdvertisement);
+          await pendingAdvertisementRef.delete();
+          return response.json({ verified: true, advertisementSubmitted: true, paymentId, orderId });
+        } catch (error) {
+          console.error("Could not persist merchant advertisement after successful payment.", error);
+          if (uploadedImageKey) {
+            try { await deleteR2Image(uploadedImageKey); } catch (cleanupError) { console.error("Could not clean up failed ad submission image.", cleanupError); }
+          }
+          return response.status(error.status || 503).json({ verified: false, error: error.status ? error.message : "Payment was verified but the advertisement could not be submitted." });
+        }
+      }
       return response.status(404).json({ verified: false, error: "Checkout was not found or has expired." });
     }
     const pending = pendingSnapshot.data();
@@ -738,6 +922,7 @@ app.post("/api/payments/verify", async (request, response) => {
       transaction.create(orderRef, {
         orderId,
         paymentId,
+        merchantIds: [...new Set(currentPending.data().items.map(item => String(item.merchantId || "")).filter(Boolean))],
         customerUid: user.uid,
         customerName: currentPending.data().customerName,
         customerMobile: currentPending.data().customerMobile,
