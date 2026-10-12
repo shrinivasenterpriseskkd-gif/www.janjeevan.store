@@ -1,0 +1,94 @@
+- generic [active] [ref=f1e1]:
+  - banner [ref=f1e2]:
+    - link "Janjeevan.store logo Janjeevan.store" [ref=f1e3] [cursor=pointer]:
+      - /url: index.html
+      - img "Janjeevan.store logo" [ref=f1e4]
+      - generic [ref=f1e5]: Janjeevan.store
+    - navigation "Main navigation" [ref=f1e6]:
+      - link "Shop" [ref=f1e7] [cursor=pointer]:
+        - /url: index.html
+      - link "Cart" [ref=f1e8] [cursor=pointer]:
+        - /url: cart.html
+      - link "Customer Sign In" [ref=f1e9] [cursor=pointer]:
+        - /url: customer-login.html
+  - main [ref=f1e10]:
+    - generic [ref=f1e11]:
+      - generic [ref=f1e12]:
+        - paragraph [ref=f1e13]: Join Janjeevan
+        - heading "Create your customer account" [level=1] [ref=f1e14]
+        - paragraph [ref=f1e15]: Register once to view your customer profile and order history.
+      - generic [ref=f1e16]:
+        - generic [ref=f1e17]:
+          - text: Full Name
+          - textbox "Full Name" [ref=f1e18]:
+            - /placeholder: Enter your full name
+        - generic [ref=f1e19]:
+          - text: Date of Birth
+          - textbox "Date of Birth" [ref=f1e20]
+        - generic [ref=f1e21]:
+          - text: Mobile Number
+          - textbox "Mobile Number Enter 10 digits without country code." [ref=f1e22]:
+            - /placeholder: 10-digit mobile number
+          - generic [ref=f1e23]: Enter 10 digits without country code.
+        - generic [ref=f1e24]:
+          - text: Email Address
+          - textbox "Email Address" [ref=f1e25]:
+            - /placeholder: Enter your email address
+        - generic [ref=f1e26]:
+          - text: State / Area
+          - combobox "State / Area" [ref=f1e27]:
+            - option "Select your state / area" [selected]
+            - option "Andhra Pradesh"
+            - option "Arunachal Pradesh"
+            - option "Assam"
+            - option "Bihar"
+            - option "Chhattisgarh"
+            - option "Goa"
+            - option "Gujarat"
+            - option "Haryana"
+            - option "Himachal Pradesh"
+            - option "Jharkhand"
+            - option "Karnataka"
+            - option "Kerala"
+            - option "Madhya Pradesh"
+            - option "Maharashtra"
+            - option "Manipur"
+            - option "Meghalaya"
+            - option "Mizoram"
+            - option "Nagaland"
+            - option "Odisha"
+            - option "Punjab"
+            - option "Rajasthan"
+            - option "Sikkim"
+            - option "Tamil Nadu"
+            - option "Telangana"
+            - option "Tripura"
+            - option "Uttar Pradesh"
+            - option "Uttarakhand"
+            - option "West Bengal"
+            - option "Andaman and Nicobar Islands"
+            - option "Chandigarh"
+            - option "Dadra and Nagar Haveli and Daman and Diu"
+            - option "Delhi"
+            - option "Jammu and Kashmir"
+            - option "Ladakh"
+            - option "Lakshadweep"
+            - option "Puducherry"
+        - generic [ref=f1e28]:
+          - text: Password
+          - textbox "Password" [ref=f1e29]:
+            - /placeholder: At least 8 characters
+        - generic [ref=f1e30]:
+          - text: Confirm Password
+          - textbox "Confirm Password" [ref=f1e31]:
+            - /placeholder: Enter password again
+        - button "Create account" [ref=f1e32] [cursor=pointer]
+      - paragraph [ref=f1e33]:
+        - text: Already have an account?
+        - link "Sign in" [ref=f1e34] [cursor=pointer]:
+          - /url: customer-login.html
+  - contentinfo [ref=f1e35]:
+    - generic [ref=f1e36]:
+      - 'link "Contact us: comtribes@gmail.com" [ref=f1e37] [cursor=pointer]':
+        - /url: mailto:comtribes@gmail.com
+      - generic [ref=f1e38]: © 2026 Janjeevan.store. All rights reserved.

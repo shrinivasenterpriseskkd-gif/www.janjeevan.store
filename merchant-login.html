@@ -4,14 +4,14 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>TRIBES | Merchant Sign In</title>
-    <meta name="description" content="Sign in to your TRIBES merchant account.">
+    <title>Janjeevan.store | Merchant Sign In</title>
+    <meta name="description" content="Sign in to your Janjeevan.store merchant account.">
     <link rel="stylesheet" href="css/style.css">
 </head>
 
-<body class="merchant-page">
+<body class="merchant-page merchant-login-page">
     <header class="store-header">
-        <a class="store-brand" href="index.html"><img src="TribesLogo.jpg" alt="TRIBES logo"><span>TRIBES</span></a>
+        <a class="store-brand" href="index.html"><img src="TribesLogo.jpg" alt="Janjeevan.store logo"><span>Janjeevan.store</span></a>
         <nav aria-label="Main navigation">
             <a href="index.html">Shop</a>
             <a href="cart.html">Cart</a>
@@ -20,121 +20,88 @@
     </header>
 
     <main class="merchant-wrap">
-        <div class="merchant-auth-layout">
-            <aside class="merchant-hero" aria-label="Merchant benefits overview">
-                <div class="merchant-hero-badge">TRIBES Merchant Portal</div>
-                <h2>Grow your store with confidence.</h2>
-                <p>Manage products, update your catalog, and serve your customers with a stronger local business
-                    presence.</p>
+        <section class="merchant-card merchant-form-panel merchant-login-card">
+            <div class="merchant-header">
+                <p class="store-kicker">Welcome back, merchant</p>
+                <h1>Sign in to your account</h1>
+                <p class="merchant-login-intro">Use the email address and password you received when you registered.</p>
+            </div>
 
-                <ul class="merchant-benefits">
-                    <li>Quick product updates</li>
-                    <li>Smart local inventory control</li>
-                    <li>Daily sales and store insights</li>
-                </ul>
-
-                <div class="merchant-mini-card">
-                    <div>
-                        <span class="mini-label">Store performance</span>
-                        <strong>+24.8% this month</strong>
-                    </div>
-                    <span class="mini-icon">↗</span>
-                </div>
-            </aside>
-
-            <section class="merchant-card merchant-form-panel">
-                <div class="merchant-header">
-                    <p class="store-kicker">Welcome back</p>
-                    <h1>Sign In</h1>
+            <form id="merchant-login-form" novalidate>
+                <div class="field-row">
+                    <label>
+                        Email Address
+                        <input id="email" name="email" type="email" placeholder="Enter your registered email"
+                            autocomplete="username" required>
+                    </label>
                 </div>
 
-                <form id="merchant-login-form" novalidate>
-                    <div class="field-row">
-                        <label>
-                            Merchant ID
-                            <input id="merchantId" name="merchantId" type="text" placeholder="Enter your merchant ID"
-                                required>
-                        </label>
-                    </div>
-
-                    <div class="field-row single">
-                        <label>
-                            Password
-                            <div class="password-field">
-                                <input id="password" name="password" type="password" placeholder="Example: Tribes@123!"
-                                    required>
-                                <button type="button" class="password-toggle" aria-label="Show password"
-                                    data-target="password">👁</button>
-                            </div>
-                        </label>
-                    </div>
-
-                    <button type="submit" class="submit-btn">Sign In</button>
-                </form>
-
-                <button type="button" class="reset-link" id="show-reset">Forgot password?</button>
-
-                <form id="password-reset-form" class="password-reset-form" hidden novalidate>
-                    <div class="merchant-header reset-header">
-                        <p class="store-kicker">Account recovery</p>
-                        <h2>Reset password</h2>
-                    </div>
+                <div class="field-row single">
                     <label>
-                        Merchant ID
-                        <input id="resetMerchantId" type="text" placeholder="Enter your merchant ID" required>
+                        Password
+                        <div class="password-field">
+                            <input id="password" name="password" type="password" placeholder="Enter your password"
+                                autocomplete="current-password" required>
+                            <button type="button" class="password-toggle" aria-label="Show password"
+                                data-target="password">👁</button>
+                        </div>
                     </label>
-                    <label>
-                        Registered Email
-                        <input id="resetEmail" type="email" placeholder="Enter your registered email" required>
-                    </label>
-                    <label>
-                        New Password
-                        <input id="resetPassword" type="password" minlength="8" pattern="(?=.*[^A-Za-z0-9]).{8,}"
-                            placeholder="Example: Tribes@123!" required>
-                    </label>
-                    <label>
-                        Confirm New Password
-                        <input id="resetConfirmPassword" type="password" minlength="8" pattern="(?=.*[^A-Za-z0-9]).{8,}"
-                            placeholder="Repeat: Tribes@123!" required>
-                    </label>
-                    <div class="reset-actions">
-                        <button type="submit" class="submit-btn">Reset password</button>
-                        <button type="button" class="secondary-btn" id="cancel-reset">Cancel</button>
-                    </div>
-                </form>
+                </div>
 
-                <div id="status" class="status-message" aria-live="polite"></div>
+                <button type="submit" class="submit-btn">Sign In</button>
+            </form>
 
-                <p class="merchant-helper-text">
-                    New merchant? <a href="merchant-registration.html">Create account</a>
-                </p>
-            </section>
-        </div>
+            <button type="button" class="reset-link" id="show-reset">Forgot password?</button>
+
+            <form id="password-reset-form" class="password-reset-form" hidden novalidate>
+                <div class="merchant-header reset-header">
+                    <p class="store-kicker">Account recovery</p>
+                    <h2>Reset password</h2>
+                </div>
+                <label>
+                    Registered email
+                    <input id="resetEmail" type="email" placeholder="Enter your registered email" required>
+                </label>
+                <div class="reset-actions">
+                    <button type="submit" class="submit-btn">Reset password</button>
+                    <button type="button" class="secondary-btn" id="cancel-reset">Cancel</button>
+                </div>
+            </form>
+
+            <div id="status" class="status-message" aria-live="polite"></div>
+
+            <p class="merchant-helper-text">
+                New merchant? <a href="merchant-registration.html">Create account</a>
+            </p>
+        </section>
     </main>
 
     <footer class="store-footer">
         <div class="footer-brand">
-            <img src="TribesLogo.jpg" alt="TRIBES logo">
+            <img src="TribesLogo.jpg" alt="Janjeevan.store logo">
             <div>
-                <span>TRIBES</span>
+                <span>Janjeevan.store</span>
                 <small>Made for everyday living</small>
             </div>
         </div>
         <div class="social-links" aria-label="Social media links">
-            <a href="https://wa.me/?text=Discover%20TRIBES" target="_blank" rel="noopener" aria-label="WhatsApp"><span
+            <a href="https://wa.me/?text=Discover%20Janjeevan.store" target="_blank" rel="noopener" aria-label="WhatsApp"><span
                     class="social-symbol whatsapp">WA</span><span>WhatsApp</span></a>
             <a href="https://www.facebook.com/sharer/sharer.php" target="_blank" rel="noopener"
                 aria-label="Facebook"><span class="social-symbol facebook">f</span><span>Facebook</span></a>
             <a href="https://www.instagram.com/" target="_blank" rel="noopener" aria-label="Instagram"><span
                     class="social-symbol instagram">◎</span><span>Instagram</span></a>
+            <a href="https://t.me/share/url?url=https%3A%2F%2Fwww.janjeevan.store&amp;text=Discover%20Janjeevan.store"
+                target="_blank" rel="noopener" aria-label="Share Janjeevan.store on Telegram" title="Telegram"><span
+                    class="social-symbol telegram">TG</span><span>Telegram</span></a>
         </div>
         <div class="footer-meta">
             <a href="mailto:comtribes@gmail.com">Contact us: comtribes@gmail.com</a>
-            <small>© 2026 TRIBES. All rights reserved.</small>
+            <small>© 2026 Janjeevan.store. All rights reserved.</small>
         </div>
     </footer>
 
-    <script src="js/merchant-login.js"></script>
+    <script type="module" src="js/merchant-login.js"></script>
     <script src="js/chatbot.js"></script>
 </body>
 

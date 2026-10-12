@@ -1,0 +1,41 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - link "Janjeevan.store logo Janjeevan.store" [ref=e3] [cursor=pointer]:
+      - /url: index.html
+      - img "Janjeevan.store logo" [ref=e4]
+      - generic [ref=e5]: Janjeevan.store
+    - navigation "Main navigation" [ref=e6]:
+      - link "Shop" [ref=e7] [cursor=pointer]:
+        - /url: index.html
+      - link "Cart" [ref=e8] [cursor=pointer]:
+        - /url: cart.html
+      - link "Customer Sign In" [ref=e9] [cursor=pointer]:
+        - /url: customer-login.html
+  - main [ref=e10]:
+    - generic [ref=e11]:
+      - generic [ref=e12]:
+        - paragraph [ref=e13]: Welcome to Janjeevan
+        - heading "Customer Sign In" [level=1] [ref=e14]
+        - paragraph [ref=e15]: Sign in with your registered email and password.
+      - generic [ref=e16]:
+        - generic [ref=e17]:
+          - text: Email Address
+          - textbox "Email Address" [ref=e18]:
+            - /placeholder: Enter your registered email
+            - text: tribes-dp-test01
+        - generic [ref=e19]:
+          - text: Password
+          - textbox "Password" [ref=e20]:
+            - /placeholder: Enter your password
+            - text: TestPass@123
+        - button "Sign in" [ref=e21] [cursor=pointer]
+      - button "Forgot password?" [ref=e22] [cursor=pointer]
+      - paragraph [ref=e23]:
+        - text: New to Janjeevan?
+        - link "Create an account" [ref=e24] [cursor=pointer]:
+          - /url: customer-registration.html
+  - contentinfo [ref=e25]:
+    - generic [ref=e26]:
+      - 'link "Contact us: comtribes@gmail.com" [ref=e27] [cursor=pointer]':
+        - /url: mailto:comtribes@gmail.com
+      - generic [ref=e28]: © 2026 Janjeevan.store. All rights reserved.

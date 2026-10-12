@@ -1,0 +1,7 @@
+[   33439ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://www.janjeevan.store/admin:0
+[   92771ms] [ERROR] [2026-10-03T18:25:36.489Z]  @firebase/firestore: Firestore (12.3.0): Could not reach Cloud Firestore backend. Backend didn't respond within 10 seconds.
+This typically indicates that your device does not have a healthy Internet connection at the moment. The client will operate in offline mode until it is able to successfully connect to the backend. @ https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore.js:0
+[   98056ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_CLOSED @ https://firestore.googleapis.com/google.firestore.v1.Firestore/Listen/channel?VER=8&database=projects%2Ftribes-c55f4%2Fdatabases%2F(default)&RID=39459&CVER=22&X-HTTP-Session-Id=gsessionid&zx=dcxym1wmrlpl&t=1:0
+[   98066ms] [WARNING] [2026-10-03T18:25:41.783Z]  @firebase/firestore: Firestore (12.3.0): WebChannelConnection RPC 'Listen' stream 0x1e6846a8 transport errored. Name: undefined Message: undefined @ https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore.js:0
+[  107473ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ https://www.janjeevan.store/favicon.ico:0
+[  165527ms] [ERROR] FirebaseError: Missing or insufficient permissions. @ https://www.janjeevan.store/js/products.js?v=2:85

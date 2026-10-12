@@ -1,5 +1,6 @@
 import { collection, getDocs } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore.js";
 import { db } from "./firebase-config.js";
+import { andhraPradeshMarketPhotos } from "./market-photos.js";
 
 const el = document.querySelector("#products");
 const count = document.querySelector("#product-count");
@@ -11,21 +12,16 @@ const escapeHtml = value => String(value ?? "").replace(/[&<>\'"]/g, char => ({
     "'": "&#39;",
     "\"": "&quot;"
 }[char]));
-
-const inspirationPhotos = [
-    { src: "photo-1578749556568-bc2c40e68b61", alt: "Handcrafted pottery and homewares" },
-    { src: "photo-1513519245088-0e12902e5a38", alt: "Thoughtful details in a welcoming home" },
-    { src: "photo-1494438639946-1ebd1d20bf85", alt: "Everyday objects arranged for a quiet moment" },
-    { src: "photo-1544787219-7f47ccb76574", alt: "Tea served in a ceramic cup" },
-    { src: "photo-1602143407151-7111542de6e8", alt: "Reusable bottle for everyday use" }
-];
+const effectivePrice = product => Math.round((Number(product.price) || 0) * (1 - Math.min(100, Math.max(0, Number(product.discountPercent) || 0)) / 100) * 100) / 100;
+const money = value => new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 2 }).format(value || 0);
+const formatPercent = value => Number(value || 0).toLocaleString("en-IN", { maximumFractionDigits: 2 });
 
 function startCarousel() {
     const track = el;
     const viewport = document.querySelector(".carousel-window");
     const next = document.querySelector("#next-product");
     const previous = document.querySelector("#previous-product");
-    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
     let timer;
 
     const move = direction => {
@@ -42,13 +38,13 @@ function startCarousel() {
         else if (direction < 0 && atStart) target = maxScroll;
         else target = Math.max(0, Math.min(maxScroll, target));
 
-        track.scrollTo({ left: target, behavior: reducedMotion ? "auto" : "smooth" });
+        track.scrollTo({ left: target, behavior: reducedMotion.matches ? "auto" : "smooth" });
     };
 
     const stop = () => window.clearInterval(timer);
     const start = () => {
         stop();
-        if (reducedMotion || document.hidden) return;
+        if (reducedMotion.matches || document.hidden) return;
         timer = window.setInterval(() => move(1), 4500);
     };
 
@@ -59,6 +55,7 @@ function startCarousel() {
     viewport.addEventListener("focusin", stop);
     viewport.addEventListener("focusout", start);
     document.addEventListener("visibilitychange", start);
+    reducedMotion.addEventListener("change", start);
     start();
 }
 
@@ -67,19 +64,23 @@ try {
     count.textContent = `${snapshot.size} product${snapshot.size === 1 ? "" : "s"} available`;
     el.innerHTML = snapshot.size ? snapshot.docs.map(document => {
         const product = document.data();
-        return `<article class="card"><div class="card-image"><img src="${escapeHtml(product.imageUrl || "https://via.placeholder.com/400x300?text=TRIBES")}" alt="${escapeHtml(product.name || "Product")}"><span class="card-tag">In stock</span></div><div class="card-body"><div><h3>${escapeHtml(product.name || "Untitled product")}</h3><p>${escapeHtml(product.uom || "Unit")} · ${product.avlbStk ?? 0} available</p></div><strong class="price">₹${product.price ?? 0}</strong></div><button onclick="addCart('${document.id}')">Add to cart <span>→</span></button></article>`;
+        const discount = Math.min(100, Math.max(0, Number(product.discountPercent) || 0));
+        const gstPercent = formatPercent(product.gstPercent);
+        const price = effectivePrice(product);
+        return `<article class="card"><div class="card-image"><img src="${escapeHtml(product.imageUrl || "https://via.placeholder.com/400x300?text=Janjeevan.store")}" alt="${escapeHtml(product.name || "Product")}"><span class="card-tag">In stock</span>${discount ? `<span class="discount-tag">${discount}% off</span>` : ""}</div><div class="card-body"><div><h3>${escapeHtml(product.name || "Untitled product")}</h3><p>${escapeHtml(product.uom || "Unit")} · ${product.avlbStk ?? 0} available</p><p>GST: ${gstPercent}%</p></div><div class="price-line"><strong class="price">${money(price)}</strong>${discount ? `<s>${money(product.price)}</s>` : ""}</div></div><button onclick="addCart('${document.id}')">Add to cart <span>→</span></button></article>`;
     }).join("") : "<div class=\"store-empty\"><h3>The collection is coming together.</h3><p>New products will appear here soon.</p></div>";
     if (snapshot.size > 1) startCarousel();
 } catch (error) {
-    count.textContent = "TRIBES photo preview";
+    count.textContent = "Andhra Pradesh tribal market photos";
     el.classList.add("photo-carousel");
     document.querySelector("#previous-product").setAttribute("aria-label", "Previous photos");
     document.querySelector("#next-product").setAttribute("aria-label", "Next photos");
-    el.innerHTML = inspirationPhotos.map((photo, index) => `
+    el.innerHTML = andhraPradeshMarketPhotos.map((photo, index) => `
 		<article class="photo-slide">
-			<img src="https://images.unsplash.com/${photo.src}?auto=format&fit=crop&w=900&q=80" alt="${escapeHtml(photo.alt)}" ${index < 3 ? "fetchpriority=high" : "loading=lazy"}>
-			<span>TRIBES · Everyday inspiration</span>
+			<img src="${escapeHtml(photo.src)}" alt="${escapeHtml(photo.alt)}" ${index < 2 ? "fetchpriority=high" : "loading=lazy"}>
+			<div class="photo-slide-caption"><span>${escapeHtml(photo.caption)}</span><small>Photo: <a href="${escapeHtml(photo.fileUrl)}" target="_blank" rel="noopener noreferrer">${escapeHtml(photo.artist)} · ${escapeHtml(photo.license)}</a></small></div>
 		</article>`).join("");
+    el.setAttribute("aria-label", "Andhra Pradesh tribal market photos");
     notice.hidden = false;
     startCarousel();
     console.error(error);

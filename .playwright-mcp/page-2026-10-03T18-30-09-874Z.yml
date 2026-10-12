@@ -1,0 +1,60 @@
+- generic [active] [ref=f6e1]:
+  - banner [ref=f6e2]:
+    - link "Janjeevan.store logo Janjeevan.store" [ref=f6e3] [cursor=pointer]:
+      - /url: index.html
+      - img "Janjeevan.store logo" [ref=f6e4]
+      - generic [ref=f6e5]: Janjeevan.store
+    - navigation "Main navigation" [ref=f6e6]:
+      - link "Shop" [ref=f6e7] [cursor=pointer]:
+        - /url: index.html
+      - link "Cart" [ref=f6e8] [cursor=pointer]:
+        - /url: cart.html
+      - link "Customer Sign In" [ref=f6e9] [cursor=pointer]:
+        - /url: customer-login.html
+  - main [ref=f6e10]:
+    - generic [ref=f6e11]:
+      - generic [ref=f6e12]:
+        - paragraph [ref=f6e13]: Welcome to Janjeevan
+        - heading "Customer Sign In" [level=1] [ref=f6e14]
+        - paragraph [ref=f6e15]: Sign in with your registered email and password.
+      - generic [ref=f6e16]:
+        - generic [ref=f6e17]:
+          - text: Email Address
+          - textbox "Email Address" [ref=f6e18]:
+            - /placeholder: Enter your registered email
+            - text: tribes-dp-test01
+        - generic [ref=f6e19]:
+          - text: Password
+          - textbox "Password" [ref=f6e20]:
+            - /placeholder: Enter your password
+            - text: TestPass@123
+        - button "Sign in" [ref=f6e21] [cursor=pointer]
+      - button "Forgot password?" [ref=f6e22] [cursor=pointer]
+      - paragraph [ref=f6e23]:
+        - text: New to Janjeevan?
+        - link "Create an account" [ref=f6e24] [cursor=pointer]:
+          - /url: customer-registration.html
+  - contentinfo [ref=f6e25]:
+    - generic [ref=f6e26]:
+      - img "Janjeevan.store logo" [ref=f6e27]
+      - generic [ref=f6e28]:
+        - generic [ref=f6e29]: Janjeevan.store
+        - generic [ref=f6e30]: Made for everyday living
+    - generic "Social media links" [ref=f6e31]:
+      - link "WhatsApp" [ref=f6e32] [cursor=pointer]:
+        - /url: https://wa.me/?text=Discover%20Janjeevan.store
+        - generic [ref=f6e33]: WA
+      - link "Facebook" [ref=f6e35] [cursor=pointer]:
+        - /url: https://www.facebook.com/sharer/sharer.php
+        - generic [ref=f6e36]: f
+      - link "Instagram" [ref=f6e38] [cursor=pointer]:
+        - /url: https://www.instagram.com/
+        - generic [ref=f6e39]: ◎
+      - link "Share Janjeevan.store on Telegram" [ref=f6e41] [cursor=pointer]:
+        - /url: https://t.me/share/url?url=https%3A%2F%2Fwww.janjeevan.store&text=Discover%20Janjeevan.store
+        - generic [ref=f6e42]: TG
+        - generic [ref=f6e43]: Telegram
+    - generic [ref=f6e44]:
+      - 'link "Contact us: comtribes@gmail.com" [ref=f6e45] [cursor=pointer]':
+        - /url: mailto:comtribes@gmail.com
+      - generic [ref=f6e46]: © 2026 Janjeevan.store. All rights reserved.

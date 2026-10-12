@@ -1,0 +1,27 @@
+mutation CreateSeedData @transaction {
+  user_insertMany(data: [
+    { id: "00000000-0000-0000-0000-000000000001", email: "alice@example.com", displayName: "Alice" },
+    { id: "00000000-0000-0000-0000-000000000002", email: "bob@example.com", displayName: "Bob" },
+    { id: "00000000-0000-0000-0000-000000000003", email: "charlie@example.com", displayName: "Charlie" }
+  ])
+  project_insertMany(data: [
+    { id: "10000000-0000-0000-0000-000000000001", title: "Project Alpha", ownerId: "00000000-0000-0000-0000-000000000001" },
+    { id: "10000000-0000-0000-0000-000000000002", title: "Project Beta", ownerId: "00000000-0000-0000-0000-000000000002" },
+    { id: "10000000-0000-0000-0000-000000000003", title: "Project Gamma", ownerId: "00000000-0000-0000-0000-000000000003" }
+  ])
+  member_insertMany(data: [
+    { userId: "00000000-0000-0000-0000-000000000001", projectId: "10000000-0000-0000-0000-000000000001", role: "Owner" },
+    { userId: "00000000-0000-0000-0000-000000000002", projectId: "10000000-0000-0000-0000-000000000001", role: "Developer" },
+    { userId: "00000000-0000-0000-0000-000000000003", projectId: "10000000-0000-0000-0000-000000000002", role: "Viewer" }
+  ])
+  task_insertMany(data: [
+    { id: "20000000-0000-0000-0000-000000000001", title: "Task 1", status: "Open", projectId: "10000000-0000-0000-0000-000000000001", assignedToId: "00000000-0000-0000-0000-000000000002" },
+    { id: "20000000-0000-0000-0000-000000000002", title: "Task 2", status: "In Progress", projectId: "10000000-0000-0000-0000-000000000001", assignedToId: "00000000-0000-0000-0000-000000000001" },
+    { id: "20000000-0000-0000-0000-000000000003", title: "Task 3", status: "Closed", projectId: "10000000-0000-0000-0000-000000000002", assignedToId: "00000000-0000-0000-0000-000000000003" }
+  ])
+  comment_insertMany(data: [
+    { content: "Great start!", taskId: "20000000-0000-0000-0000-000000000001", authorId: "00000000-0000-0000-0000-000000000001" },
+    { content: "Working on it.", taskId: "20000000-0000-0000-0000-000000000002", authorId: "00000000-0000-0000-0000-000000000002" },
+    { content: "Completed.", taskId: "20000000-0000-0000-0000-000000000003", authorId: "00000000-0000-0000-0000-000000000003" }
+  ])
+}

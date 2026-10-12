@@ -1,0 +1,36 @@
+- generic [active] [ref=f11e1]:
+  - banner [ref=f11e2]:
+    - link "Janjeevan.store logo Janjeevan.store" [ref=f11e3] [cursor=pointer]:
+      - /url: index.html
+      - img "Janjeevan.store logo" [ref=f11e4]
+      - generic [ref=f11e5]: Janjeevan.store
+    - navigation "Customer navigation" [ref=f11e6]:
+      - link "Shop" [ref=f11e7] [cursor=pointer]:
+        - /url: index.html
+      - link "Cart" [ref=f11e8] [cursor=pointer]:
+        - /url: cart.html
+      - button "Sign out" [ref=f11e9] [cursor=pointer]
+  - main [ref=f11e10]:
+    - generic [ref=f11e11]:
+      - paragraph [ref=f11e12]: Your account
+      - heading "Hello," [level=1] [ref=f11e13]
+      - generic [ref=f11e14]:
+        - generic [ref=f11e15]:
+          - term [ref=f11e16]: Date of Birth
+          - definition
+        - generic [ref=f11e17]:
+          - term [ref=f11e18]: Mobile Number
+          - definition
+        - generic [ref=f11e19]:
+          - term [ref=f11e20]: Email Address
+          - definition
+        - generic [ref=f11e21]:
+          - term [ref=f11e22]: State / Area
+          - definition
+      - link "Continue shopping →" [ref=f11e23] [cursor=pointer]:
+        - /url: index.html
+        - text: Continue shopping
+        - generic [ref=f11e24]: →
+    - generic [ref=f11e27]:
+      - paragraph [ref=f11e28]: Your purchases
+      - heading "Order History" [level=2] [ref=f11e29]

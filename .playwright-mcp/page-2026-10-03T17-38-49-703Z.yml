@@ -1,0 +1,180 @@
+- generic [active] [ref=f5e1]:
+  - banner [ref=f5e2]:
+    - link "Janjeevan.store logo Janjeevan.store" [ref=f5e3] [cursor=pointer]:
+      - /url: index.html
+      - img "Janjeevan.store logo" [ref=f5e4]
+      - generic [ref=f5e5]: Janjeevan.store
+    - navigation "Main navigation" [ref=f5e6]:
+      - link "Shop" [ref=f5e7] [cursor=pointer]:
+        - /url: index.html
+      - link "Cart" [ref=f5e8] [cursor=pointer]:
+        - /url: cart.html
+      - link "Delivery Partner Registration" [ref=f5e9] [cursor=pointer]:
+        - /url: Delivery Partner-login.html
+  - main [ref=f5e10]:
+    - generic [ref=f5e11]:
+      - generic [ref=f5e12]:
+        - paragraph [ref=f5e13]: Janjeevan.store partnership
+        - heading "Delivery Partner Registration" [level=1] [ref=f5e14]
+      - generic [ref=f5e15]:
+        - generic [ref=f5e16]:
+          - generic [ref=f5e17]:
+            - text: Full Name of the Delivery Partner
+            - textbox "Full Name of the Delivery Partner" [ref=f5e18]:
+              - /placeholder: Enter full name
+          - generic [ref=f5e19]:
+            - text: Phone No
+            - textbox "Phone No" [ref=f5e20]:
+              - /placeholder: Enter 10-digit phone number
+        - generic [ref=f5e22]:
+          - text: Email Address
+          - textbox "Email Address" [ref=f5e23]:
+            - /placeholder: Enter email address
+        - generic [ref=f5e25]:
+          - text: Full Address
+          - textbox "Full Address" [ref=f5e26]:
+            - /placeholder: Enter full residential or business address
+        - generic [ref=f5e27]:
+          - generic [ref=f5e28]:
+            - text: State
+            - combobox "State" [ref=f5e29]:
+              - option "Select state" [selected]
+              - option "Andhra Pradesh"
+              - option "Arunachal Pradesh"
+              - option "Assam"
+              - option "Bihar"
+              - option "Chhattisgarh"
+              - option "Goa"
+              - option "Gujarat"
+              - option "Haryana"
+              - option "Himachal Pradesh"
+              - option "Jharkhand"
+              - option "Karnataka"
+              - option "Kerala"
+              - option "Madhya Pradesh"
+              - option "Maharashtra"
+              - option "Manipur"
+              - option "Meghalaya"
+              - option "Mizoram"
+              - option "Nagaland"
+              - option "Odisha"
+              - option "Punjab"
+              - option "Rajasthan"
+              - option "Sikkim"
+              - option "Tamil Nadu"
+              - option "Telangana"
+              - option "Tripura"
+              - option "Uttar Pradesh"
+              - option "Uttarakhand"
+              - option "West Bengal"
+              - option "Andaman and Nicobar Islands"
+              - option "Chandigarh"
+              - option "Dadra and Nagar Haveli and Daman and Diu"
+              - option "Delhi"
+              - option "Jammu and Kashmir"
+              - option "Ladakh"
+              - option "Lakshadweep"
+              - option "Puducherry"
+          - generic [ref=f5e30]:
+            - text: Language
+            - combobox "Language" [ref=f5e31]:
+              - option "Select language" [selected]
+              - option "English"
+              - option "Hindi"
+              - option "Kannada"
+              - option "Tamil"
+              - option "Telugu"
+              - option "Malayalam"
+              - option "Marathi"
+              - option "Gujarati"
+              - option "Punjabi"
+              - option "Bengali"
+        - generic [ref=f5e33]:
+          - text: Aadhar Number
+          - textbox "Aadhar Number Enter exactly 12 digits. Letters and extra digits are not accepted." [ref=f5e34]:
+            - /placeholder: Enter 12-digit Aadhar Number
+          - text: Enter exactly 12 digits. Letters and extra digits are not accepted.
+        - generic [ref=f5e35]:
+          - heading "Relative Details" [level=3] [ref=f5e36]
+          - generic [ref=f5e37]:
+            - generic [ref=f5e38]:
+              - text: Relative Name
+              - textbox "Relative Name" [ref=f5e39]:
+                - /placeholder: Enter relative's full name
+            - generic [ref=f5e40]:
+              - text: Relative Phone Number
+              - textbox "Relative Phone Number" [ref=f5e41]:
+                - /placeholder: Enter 10-digit phone number
+          - generic [ref=f5e43]:
+            - text: Relative Address
+            - textbox "Relative Address" [ref=f5e44]:
+              - /placeholder: Enter relative's full address
+        - generic [ref=f5e45]:
+          - heading "Delivery Partner Registration Documents" [level=3] [ref=f5e46]
+          - generic [ref=f5e47]:
+            - generic [ref=f5e48] [cursor=pointer]:
+              - generic [ref=f5e49]: Aadhar Photo Front Upload
+              - button "Aadhar Photo Front Upload Aadhar front preview" [ref=f5e50]
+              - img "Aadhar front preview" [ref=f5e51]
+            - generic [ref=f5e52] [cursor=pointer]:
+              - generic [ref=f5e53]: Aadhar Photo Back Upload
+              - button "Aadhar Photo Back Upload Aadhar back preview" [ref=f5e54]
+              - img "Aadhar back preview" [ref=f5e55]
+            - generic [ref=f5e56] [cursor=pointer]:
+              - generic [ref=f5e57]: CV Upload
+              - button "CV Upload" [ref=f5e58]
+            - generic [ref=f5e59] [cursor=pointer]:
+              - generic [ref=f5e60]: Passport Size Photo Upload
+              - button "Passport Size Photo Upload Passport size photo preview" [ref=f5e61]
+              - img "Passport size photo preview" [ref=f5e62]
+        - generic [ref=f5e63]:
+          - heading "Delivery Partner Agreement Terms & Conditions" [level=3] [ref=f5e64]
+          - list [ref=f5e65]:
+            - listitem [ref=f5e66]: The Delivery Partner agrees to provide accurate identity, contact, and address information.
+            - listitem [ref=f5e67]: The Delivery Partner must collect delivery items only from the pickup location shown in the assigned delivery details.
+            - listitem [ref=f5e68]: The Delivery Partner must handle every delivery item carefully and keep it secure, clean, and protected from damage during transport.
+            - listitem [ref=f5e69]: The Delivery Partner must deliver each item to the correct customer and obtain confirmation of handoff when required.
+            - listitem [ref=f5e70]: The Delivery Partner must promptly report damaged, missing, delayed, or undeliverable items to Janjeevan.store.
+            - listitem [ref=f5e71]: The Delivery Partner must not open, use, exchange, sell, or tamper with any delivery item entrusted to them.
+            - listitem [ref=f5e72]: Janjeevan.store may verify submitted documents and may approve, reject, suspend, or end the delivery partnership if these terms are not followed.
+            - listitem [ref=f5e73]: By submitting this form, the Delivery Partner agrees to follow these delivery-item responsibilities and all applicable Janjeevan.store policies.
+        - generic [ref=f5e74]:
+          - checkbox "I agree to the Delivery Partner Agreement terms and conditions." [ref=f5e75]
+          - generic [ref=f5e76]: I agree to the Delivery Partner Agreement terms and conditions.
+        - generic [ref=f5e77]:
+          - checkbox "Add a ₹1 donation to support the Janjeevan.store community." [checked] [ref=f5e78]
+          - generic [ref=f5e79]: Add a ₹1 donation to support the Janjeevan.store community.
+        - button "Complete Registration" [ref=f5e80] [cursor=pointer]
+      - paragraph [ref=f5e81]:
+        - text: Already have a Delivery Partner account?
+        - link "Sign In" [ref=f5e82] [cursor=pointer]:
+          - /url: Delivery Partner-login.html
+  - contentinfo [ref=f5e83]:
+    - generic [ref=f5e84]:
+      - img "Janjeevan.store logo" [ref=f5e85]
+      - generic [ref=f5e86]:
+        - generic [ref=f5e87]: Janjeevan.store
+        - generic [ref=f5e88]: Made for everyday living
+    - generic "Social media links" [ref=f5e89]:
+      - link "WhatsApp" [ref=f5e90] [cursor=pointer]:
+        - /url: https://wa.me/?text=Discover%20Janjeevan.store
+        - generic [ref=f5e91]: WA
+      - link "Facebook" [ref=f5e93] [cursor=pointer]:
+        - /url: https://www.facebook.com/sharer/sharer.php
+        - generic [ref=f5e94]: f
+      - link "Instagram" [ref=f5e96] [cursor=pointer]:
+        - /url: https://www.instagram.com/
+        - generic [ref=f5e97]: ◎
+      - link "Share Janjeevan.store on Telegram" [ref=f5e99] [cursor=pointer]:
+        - /url: https://t.me/share/url?url=https%3A%2F%2Fwww.janjeevan.store&text=Discover%20Janjeevan.store
+        - generic [ref=f5e100]: TG
+        - generic [ref=f5e101]: Telegram
+    - generic [ref=f5e102]:
+      - 'link "Contact us: comtribes@gmail.com" [ref=f5e103] [cursor=pointer]':
+        - /url: mailto:comtribes@gmail.com
+      - generic [ref=f5e104]:
+        - generic [ref=f5e105]: Viewers
+        - strong [ref=f5e106]: "3"
+      - generic [ref=f5e107]: © 2026 Janjeevan.store. All rights reserved.
+  - region "Janjeevan.store support chat" [ref=f5e108]:
+    - button "Chat" [ref=f5e109] [cursor=pointer]

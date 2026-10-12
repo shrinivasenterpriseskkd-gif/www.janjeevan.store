@@ -1,0 +1,27 @@
+services:
+  - type: web
+    name: janjeevan-store-api
+    runtime: node
+    plan: free
+    buildCommand: npm ci
+    startCommand: npm start
+    healthCheckPath: /healthz
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: FIREBASE_PROJECT_ID
+        value: janjeevanstore
+      - key: FIREBASE_SERVICE_ACCOUNT_JSON
+        sync: false
+      - key: APP_ALLOWED_ORIGINS
+        value: https://www.janjeevan.store,https://janjeevan.store
+      - key: ADMIN_ALLOWED_ORIGIN
+        value: https://www.janjeevan.store
+      - key: ADMIN_LOGIN_ID
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: RAZORPAY_KEY_ID
+        sync: false
+      - key: RAZORPAY_KEY_SECRET
+        sync: false

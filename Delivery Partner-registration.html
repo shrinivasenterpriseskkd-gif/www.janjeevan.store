@@ -4,15 +4,15 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>TRIBES | Delivery Partner Registration</title>
+    <title>Janjeevan.store | Delivery Partner Registration</title>
     <meta name="description"
-        content="Register as a Delivery Partner with TRIBES and download your registration PDF agreement.">
+        content="Register as a Delivery Partner with Janjeevan.store and download your registration PDF agreement.">
     <link rel="stylesheet" href="css/style.css">
 </head>
 
-<body class="Delivery Partner-page">
+<body class="delivery-partner-page">
     <header class="store-header">
-        <a class="store-brand" href="index.html"><img src="TribesLogo.jpg" alt="TRIBES logo"><span>TRIBES</span></a>
+        <a class="store-brand" href="index.html"><img src="TribesLogo.jpg" alt="Janjeevan.store logo"><span>Janjeevan.store</span></a>
         <nav aria-label="Main navigation">
             <a href="index.html">Shop</a>
             <a href="cart.html">Cart</a>
@@ -20,14 +20,14 @@
         </nav>
     </header>
 
-    <main class="Delivery Partner-wrap">
-        <section class="Delivery Partner-card">
-            <div class="Delivery Partner-header">
-                <p class="store-kicker">TRIBES partnership</p>
+    <main class="delivery-partner-wrap">
+        <section class="delivery-partner-card">
+            <div class="delivery-partner-header">
+                <p class="store-kicker">Janjeevan.store partnership</p>
                 <h1>Delivery Partner Registration</h1>
             </div>
 
-            <form id="Delivery Partner-form" novalidate>
+            <form id="delivery-partner-form" novalidate>
                 <div class="field-row">
                     <label>
                         Full Name of the Delivery Partner
@@ -125,7 +125,8 @@
                         Aadhar Number
                         <input id="aadharNumber" name="aadharNumber" type="text"
                             placeholder="Enter 12-digit Aadhar Number" inputmode="numeric" minlength="12"
-                            maxlength="12" pattern="[0-9]{12}" required>
+                            maxlength="12" pattern="[0-9]{12}" aria-describedby="aadhar-number-hint" required>
+                        <small id="aadhar-number-hint">Enter exactly 12 digits. Letters and extra digits are not accepted.</small>
                     </label>
                 </div>
 
@@ -162,46 +163,67 @@
                 <div class="upload-grid">
                     <label class="upload-box" for="aadharPhotoFront">
                         <span>Aadhar Photo Front Upload</span>
-                        <input id="aadharPhotoFront" name="aadharPhotoFront" type="file" accept="image/*" required>
+                        <input id="aadharPhotoFront" name="aadharPhotoFront" type="file" accept="image/jpeg,image/png" required>
                         <img id="aadharPreviewFront" alt="Aadhar front preview" hidden>
                     </label>
 
                     <label class="upload-box" for="aadharPhotoBack">
                         <span>Aadhar Photo Back Upload</span>
-                        <input id="aadharPhotoBack" name="aadharPhotoBack" type="file" accept="image/*" required>
+                        <input id="aadharPhotoBack" name="aadharPhotoBack" type="file" accept="image/jpeg,image/png" required>
                         <img id="aadharPreviewBack" alt="Aadhar back preview" hidden>
+                    </label>
+
+                    <label class="upload-box" for="cvUpload">
+                        <span>CV Upload</span>
+                        <input id="cvUpload" name="cvUpload" type="file"
+                            accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                            required>
+                    </label>
+
+                    <label class="upload-box" for="passportPhoto">
+                        <span>Passport Size Photo Upload</span>
+                        <input id="passportPhoto" name="passportPhoto" type="file" accept="image/jpeg,image/png" required>
+                        <img id="passportPhotoPreview" alt="Passport size photo preview" hidden>
                     </label>
                 </div>
                 </div>
 
                 <div class="terms-box">
-                    <h3>TRIBES Terms & Conditions</h3>
+                    <h3>Delivery Partner Agreement Terms & Conditions</h3>
                     <ul>
-                        <li>The Delivery Partner agrees to provide accurate identity and address information.</li>
-                        <li>TRIBES may verify submitted identity documents as required for onboarding.</li>
-                        <li>All submitted products, pricing, and catalog details must comply with applicable rules and
-                            community standards.</li>
-                        <li>TRIBES reserves the right to approve, reject, or pause Delivery Partner onboarding at its
-                            discretion.</li>
-                        <li>By submitting this form, the Delivery Partner agrees to comply with all TRIBES policies and
-                            procedures.</li>
+                        <li>The Delivery Partner agrees to provide accurate identity, contact, and address
+                            information.</li>
+                        <li>The Delivery Partner must collect delivery items only from the pickup location shown in the
+                            assigned delivery details.</li>
+                        <li>The Delivery Partner must handle every delivery item carefully and keep it secure, clean,
+                            and protected from damage during transport.</li>
+                        <li>The Delivery Partner must deliver each item to the correct customer and obtain confirmation
+                            of handoff when required.</li>
+                        <li>The Delivery Partner must promptly report damaged, missing, delayed, or undeliverable items
+                            to Janjeevan.store.</li>
+                        <li>The Delivery Partner must not open, use, exchange, sell, or tamper with any delivery item
+                            entrusted to them.</li>
+                        <li>Janjeevan.store may verify submitted documents and may approve, reject, suspend, or end the delivery
+                            partnership if these terms are not followed.</li>
+                        <li>By submitting this form, the Delivery Partner agrees to follow these delivery-item
+                            responsibilities and all applicable Janjeevan.store policies.</li>
                     </ul>
                 </div>
 
                 <label class="terms-checkbox">
                     <input id="agreeTerms" type="checkbox" required>
-                    <span>I agree to the TRIBES terms and conditions.</span>
+                    <span>I agree to the Delivery Partner Agreement terms and conditions.</span>
                 </label>
 
                 <label class="terms-checkbox donation-option">
                     <input id="donation" type="checkbox" checked required>
-                    <span>Add a ₹1 donation to support the TRIBES community.</span>
+                    <span>Add a ₹1 donation to support the Janjeevan.store community.</span>
                 </label>
 
                 <button type="submit" class="submit-btn">Complete Registration</button>
             </form>
 
-            <p class="Delivery Partner-helper-text">
+            <p class="delivery-partner-helper-text">
                 Already have a Delivery Partner account? <a href="Delivery Partner-login.html">Sign In</a>
             </p>
 
@@ -211,24 +233,27 @@
 
     <footer class="store-footer">
         <div class="footer-brand">
-            <img src="TribesLogo.jpg" alt="TRIBES logo">
+            <img src="TribesLogo.jpg" alt="Janjeevan.store logo">
             <div>
-                <span>TRIBES</span>
+                <span>Janjeevan.store</span>
                 <small>Made for everyday living</small>
             </div>
         </div>
         <div class="social-links" aria-label="Social media links">
-            <a href="https://wa.me/?text=Discover%20TRIBES" target="_blank" rel="noopener" aria-label="WhatsApp"><span
+            <a href="https://wa.me/?text=Discover%20Janjeevan.store" target="_blank" rel="noopener" aria-label="WhatsApp"><span
                     class="social-symbol whatsapp">WA</span><span>WhatsApp</span></a>
             <a href="https://www.facebook.com/sharer/sharer.php" target="_blank" rel="noopener"
                 aria-label="Facebook"><span class="social-symbol facebook">f</span><span>Facebook</span></a>
             <a href="https://www.instagram.com/" target="_blank" rel="noopener" aria-label="Instagram"><span
                     class="social-symbol instagram">◎</span><span>Instagram</span></a>
+            <a href="https://t.me/share/url?url=https%3A%2F%2Fwww.janjeevan.store&amp;text=Discover%20Janjeevan.store"
+                target="_blank" rel="noopener" aria-label="Share Janjeevan.store on Telegram" title="Telegram"><span
+                    class="social-symbol telegram">TG</span><span>Telegram</span></a>
         </div>
         <div class="footer-meta">
             <a href="mailto:comtribes@gmail.com">Contact us: comtribes@gmail.com</a>
             <div class="viewer-pill"><span class="viewer-label">Viewers</span><strong id="viewer-count">0</strong></div>
-            <small>© 2026 TRIBES. All rights reserved.</small>
+            <small>© 2026 Janjeevan.store. All rights reserved.</small>
         </div>
     </footer>
 
@@ -236,7 +261,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.0/jspdf.umd.min.js"></script>
     <script src="js/api-config.js"></script>
     <script type="module" src="js/viewers.js"></script>
-    <script src="js/Delivery Partner-registration.js"></script>
+    <script type="module" src="js/delivery-partner-registration.js"></script>
     <script src="js/chatbot.js"></script>
 </body>
 

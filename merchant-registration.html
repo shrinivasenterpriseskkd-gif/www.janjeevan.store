@@ -4,14 +4,14 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>TRIBES | Merchant Registration</title>
-    <meta name="description" content="Register as a merchant with TRIBES and download your registration PDF agreement.">
+    <title>Janjeevan.store | Merchant Registration</title>
+    <meta name="description" content="Register as a merchant with Janjeevan.store and download your registration PDF agreement.">
     <link rel="stylesheet" href="css/style.css">
 </head>
 
 <body class="merchant-page">
     <header class="store-header">
-        <a class="store-brand" href="index.html"><img src="TribesLogo.jpg" alt="TRIBES logo"><span>TRIBES</span></a>
+        <a class="store-brand" href="index.html"><img src="TribesLogo.jpg" alt="Janjeevan.store logo"><span>Janjeevan.store</span></a>
         <nav aria-label="Main navigation">
             <a href="index.html">Shop</a>
             <a href="cart.html">Cart</a>
@@ -22,7 +22,7 @@
     <main class="merchant-wrap">
         <section class="merchant-card">
             <div class="merchant-header">
-                <p class="store-kicker">TRIBES partnership</p>
+                <p class="store-kicker">Janjeevan.store partnership</p>
                 <h1>Merchant Registration</h1>
             </div>
 
@@ -50,9 +50,55 @@
 
                 <div class="field-row single">
                     <label>
+                        GST Number (GSTIN, if registered)
+                        <input id="gstNumber" name="gstNumber" type="text" maxlength="15"
+                            placeholder="e.g. 37ABCDE1234F1Z5" pattern="[0-9]{2}[A-Za-z]{5}[0-9]{4}[A-Za-z][A-Za-z0-9][Zz][A-Za-z0-9]"
+                            autocomplete="off" aria-describedby="gst-number-hint">
+                        <small id="gst-number-hint">Optional. Enter the 15-character GSTIN issued to your business.</small>
+                    </label>
+                </div>
+
+                <div class="field-row single">
+                    <label>
                         Full Address
                         <textarea id="address" name="address" rows="4"
                             placeholder="Enter full residential or business address" required></textarea>
+                    </label>
+                </div>
+
+                <div class="field-row single">
+                    <label>
+                        Shop Category
+                        <select id="shopCategory" name="shopCategory" required>
+                            <option value="">Select shop category</option>
+                            <option value="Beauty / Parlour">Beauty / Parlour</option>
+                            <option value="Barber Shop">Barber Shop</option>
+                            <option value="Kirana Store">Kirana Store</option>
+                            <option value="General Store">General Store</option>
+                            <option value="Garage">Garage</option>
+                            <option value="Welding Shop">Welding Shop</option>
+                            <option value="Cycle Shop">Cycle Shop</option>
+                            <option value="Hotel">Hotel</option>
+                            <option value="Lodge">Lodge</option>
+                            <option value="Mechanic Shop">Mechanic Shop</option>
+                            <option value="Driving School">Driving School</option>
+                            <option value="Book Shop">Book Shop</option>
+                            <option value="Stationery Shop">Stationery Shop</option>
+                            <option value="Clothing Store">Clothing Store</option>
+                            <option value="Footwear Shop">Footwear Shop</option>
+                            <option value="Electronics Shop">Electronics Shop</option>
+                            <option value="Mobile Phone Shop">Mobile Phone Shop</option>
+                            <option value="Hardware Store">Hardware Store</option>
+                            <option value="Electrical Shop">Electrical Shop</option>
+                            <option value="Pharmacy">Pharmacy</option>
+                            <option value="Restaurant">Restaurant</option>
+                            <option value="Bakery">Bakery</option>
+                            <option value="Dairy Shop">Dairy Shop</option>
+                            <option value="Fruit and Vegetable Shop">Fruit and Vegetable Shop</option>
+                            <option value="Tailoring Shop">Tailoring Shop</option>
+                            <option value="Agricultural Supplies">Agricultural Supplies</option>
+                            <option value="Other">Other</option>
+                        </select>
                     </label>
                 </div>
 
@@ -123,7 +169,16 @@
                     <label>
                         Aadhar Number
                         <input id="aadharNumber" name="aadharNumber" type="text"
-                            placeholder="Enter 12-digit Aadhar Number" required>
+                            placeholder="Enter 12-digit Aadhar Number" inputmode="numeric" minlength="12"
+                            maxlength="12" pattern="[0-9]{12}" aria-describedby="aadhar-number-hint" required>
+                        <small id="aadhar-number-hint">Enter exactly 12 digits. Letters and extra digits are not accepted.</small>
+                    </label>
+                    <label>
+                        PAN Number
+                        <input id="panNumber" name="panNumber" type="text" placeholder="Enter 10-character PAN"
+                            minlength="10" maxlength="10" pattern="[A-Za-z]{5}[0-9]{4}[A-Za-z]"
+                            autocomplete="off" aria-describedby="pan-number-hint" required>
+                        <small id="pan-number-hint">Format: 5 letters, 4 digits, and 1 letter.</small>
                     </label>
                 </div>
 
@@ -140,6 +195,13 @@
                         <img id="aadharPreview" alt="Aadhar preview" hidden>
                     </label>
 
+                    <label class="upload-box" for="panPhoto">
+                        <span>PAN Card Photo Upload</span>
+                        <input id="panPhoto" name="panPhoto" type="file" accept="image/jpeg,image/png,image/webp" required>
+                        <small>JPG, PNG, or WebP; up to 5 MB.</small>
+                        <img id="panPreview" alt="PAN card preview" hidden>
+                    </label>
+
                     <label class="upload-box" for="shopPhoto">
                         <span>Merchant Shop Photo Upload</span>
                         <input id="shopPhoto" name="shopPhoto" type="file" accept="image/*" required>
@@ -148,30 +210,33 @@
                 </div>
 
                 <div class="terms-box">
-                    <h3>TRIBES Terms & Conditions</h3>
+                    <h3>Janjeevan.store Terms & Conditions</h3>
                     <ul>
                         <li>The merchant agrees to provide accurate identity and address information.</li>
-                        <li>TRIBES may verify submitted identity documents as required for onboarding.</li>
+                        <li>Janjeevan.store may verify submitted identity documents as required for onboarding.</li>
                         <li>All submitted products, pricing, and catalog details must comply with applicable rules and
                             community standards.</li>
-                        <li>TRIBES reserves the right to approve, reject, or pause merchant onboarding at its
+                        <li>Janjeevan.store reserves the right to approve, reject, or pause merchant onboarding at its
                             discretion.</li>
-                        <li>By submitting this form, the merchant agrees to comply with all TRIBES policies and
+                        <li>By submitting this form, the merchant agrees to comply with all Janjeevan.store policies and
                             procedures.</li>
                     </ul>
                 </div>
 
                 <label class="terms-checkbox">
                     <input id="agreeTerms" type="checkbox" required>
-                    <span>I agree to the TRIBES terms and conditions.</span>
+                    <span>I agree to the Janjeevan.store terms and conditions.</span>
                 </label>
 
-                <label class="terms-checkbox donation-option">
-                    <input id="donation" type="checkbox" checked>
-                    <span>Add a voluntary ₹1 donation to support the TRIBES community.</span>
-                </label>
+                <div class="terms-checkbox registration-fee-option">
+                    <input id="registration-fee-consent" type="checkbox" required>
+                    <label for="registration-fee-consent">
+                        Registration requires a one-time ₹1 fee, paid through checkout. This is charged once only;
+                        there is no monthly fee, recurring charge, or auto-pay.
+                    </label>
+                </div>
 
-                <button type="submit" class="submit-btn">Complete Registration</button>
+                <button type="submit" class="submit-btn">Pay ₹1 &amp; Complete Registration</button>
             </form>
 
             <p class="merchant-helper-text">
@@ -179,29 +244,50 @@
             </p>
 
             <div id="status" class="status-message" aria-live="polite"></div>
+            <section id="merchant-registration-credentials" class="merchant-registration-credentials" hidden
+                aria-labelledby="merchant-credentials-title">
+                <h2 id="merchant-credentials-title">Your merchant login details</h2>
+                <p>Registration is complete. Save these details securely; your password is shown here only for this
+                    registration.</p>
+                <dl>
+                    <div>
+                        <dt>Merchant ID</dt>
+                        <dd><code id="registration-merchant-id"></code></dd>
+                    </div>
+                    <div>
+                        <dt>Password</dt>
+                        <dd><code id="registration-merchant-password"></code></dd>
+                    </div>
+                </dl>
+                <p class="merchant-credentials-note">Your password is not saved in the Admin dashboard. Keep these
+                    sign-in details somewhere secure.</p>
+            </section>
         </section>
     </main>
 
     <footer class="store-footer">
         <div class="footer-brand">
-            <img src="TribesLogo.jpg" alt="TRIBES logo">
+            <img src="TribesLogo.jpg" alt="Janjeevan.store logo">
             <div>
-                <span>TRIBES</span>
+                <span>Janjeevan.store</span>
                 <small>Made for everyday living</small>
             </div>
         </div>
         <div class="social-links" aria-label="Social media links">
-            <a href="https://wa.me/?text=Discover%20TRIBES" target="_blank" rel="noopener" aria-label="WhatsApp"><span
+            <a href="https://wa.me/?text=Discover%20Janjeevan.store" target="_blank" rel="noopener" aria-label="WhatsApp"><span
                     class="social-symbol whatsapp">WA</span><span>WhatsApp</span></a>
             <a href="https://www.facebook.com/sharer/sharer.php" target="_blank" rel="noopener"
                 aria-label="Facebook"><span class="social-symbol facebook">f</span><span>Facebook</span></a>
             <a href="https://www.instagram.com/" target="_blank" rel="noopener" aria-label="Instagram"><span
                     class="social-symbol instagram">◎</span><span>Instagram</span></a>
+            <a href="https://t.me/share/url?url=https%3A%2F%2Fwww.janjeevan.store&amp;text=Discover%20Janjeevan.store"
+                target="_blank" rel="noopener" aria-label="Share Janjeevan.store on Telegram" title="Telegram"><span
+                    class="social-symbol telegram">TG</span><span>Telegram</span></a>
         </div>
         <div class="footer-meta">
             <a href="mailto:comtribes@gmail.com">Contact us: comtribes@gmail.com</a>
             <div class="viewer-pill"><span class="viewer-label">Viewers</span><strong id="viewer-count">0</strong></div>
-            <small>© 2026 TRIBES. All rights reserved.</small>
+            <small>© 2026 Janjeevan.store. All rights reserved.</small>
         </div>
     </footer>
 
@@ -209,7 +295,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.0/jspdf.umd.min.js"></script>
     <script src="js/api-config.js"></script>
     <script type="module" src="js/viewers.js"></script>
-    <script src="js/merchant-registration.js"></script>
+    <script type="module" src="js/merchant-registration.js"></script>
     <script src="js/chatbot.js"></script>
 </body>
 

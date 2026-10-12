@@ -54,6 +54,7 @@
 					<h2>Merchant Registration</h2>
 					<p>Join our seller network and bring your products to more customers.</p><a
 						href="merchant-registration.html">Register as a merchant <span>→</span></a>
+					<p>Promote your shop on our storefront.</p><a href="advertisement-registration.html">Register an advertisement <span>→</span></a>
 				</div>
 			</article>
 			<article class="service-card donation-service"><span class="service-icon">♡</span>
@@ -65,6 +66,22 @@
 						<span>→</span></a>
 				</div>
 			</article>
+		</section>
+		<section class="store-advertisements" id="store-advertisements" aria-labelledby="store-advertisements-heading" hidden>
+			<div class="section-heading">
+				<div>
+					<p class="store-kicker">From our merchants</p>
+					<h2 id="store-advertisements-heading">Featured offers</h2>
+				</div>
+				<div class="carousel-tools">
+					<span id="advertisement-count" class="product-count"></span>
+					<button class="carousel-button" id="previous-advertisement" type="button" aria-label="Previous advertisements">←</button>
+					<button class="carousel-button" id="next-advertisement" type="button" aria-label="Next advertisements">→</button>
+				</div>
+			</div>
+			<div class="advertisement-carousel-window" id="advertisement-carousel-window">
+				<div id="store-advertisement-list" class="store-advertisement-list" aria-live="polite"></div>
+			</div>
 		</section>
 		<section class="product-section" id="products-section">
 			<div class="section-heading">
@@ -106,6 +123,8 @@
 			<small>© 2026 TRIBES. All rights reserved.</small>
 		</div>
 	</footer>
+	<script src="js/api-config.js"></script>
+	<script type="module" src="js/store-advertisements.js"></script>
 	<script type="module" src="js/products.js?v=2"></script>
 	<script type="module" src="js/viewers.js"></script>
 	<script src="js/chatbot.js"></script>

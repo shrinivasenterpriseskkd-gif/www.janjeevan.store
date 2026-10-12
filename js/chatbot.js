@@ -1,10 +1,10 @@
 (() => {
     const chatMarkup = `
-        <section class="tribes-chat" aria-label="TRIBES support chat">
-            <div class="tribes-chat-panel" id="tribes-chat-panel" role="dialog" aria-label="TRIBES support assistant" hidden>
+        <section class="tribes-chat" aria-label="Janjeevan.store support chat">
+            <div class="tribes-chat-panel" id="tribes-chat-panel" role="dialog" aria-label="Janjeevan.store support assistant" hidden>
                 <header class="tribes-chat-header">
-                    <span class="tribes-chat-mark" aria-hidden="true">T</span>
-                    <div><strong>TRIBES support</strong><small>Quick answers</small></div>
+                    <span class="tribes-chat-mark" aria-hidden="true">J</span>
+                    <div><strong>Janjeevan.store support</strong><small>Quick answers</small></div>
                     <button class="tribes-chat-close" type="button" aria-label="Close chat">&times;</button>
                 </header>
                 <div class="tribes-chat-messages" role="log" aria-live="polite" aria-relevant="additions"></div>
@@ -13,7 +13,7 @@
                     <button type="button">Delivery help</button>
                     <button type="button">Merchant account</button>
                 </div>
-                <a class="tribes-chat-email" href="mailto:comtribes@gmail.com?subject=TRIBES%20Support">Email support</a>
+                <a class="tribes-chat-email" href="mailto:comtribes@gmail.com?subject=Janjeevan.store%20Support">Email support</a>
                 <form class="tribes-chat-form">
                     <label class="tribes-chat-sr-only" for="tribes-chat-input">Type your question</label>
                     <input id="tribes-chat-input" type="text" maxlength="240" placeholder="Ask a question..." autocomplete="off" required>
@@ -57,7 +57,7 @@
             return 'Browse the Shop page for current products and availability. Add an item to your cart to continue.';
         }
         if (/human|person|contact|support|help|email/.test(text)) {
-            return 'You can reach the TRIBES team at comtribes@gmail.com using the Email support link above.';
+            return 'You can reach the Janjeevan.store team at comtribes@gmail.com using the Email support link above.';
         }
         return 'I can help with shopping, payments, delivery, and merchant accounts. Choose a suggested question or email comtribes@gmail.com for anything else.';
     };

@@ -4,11 +4,87 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>TRIBES | Admin Dashboard</title>
+    <title>Janjeevan.store | Admin Dashboard</title>
     <link rel="stylesheet" href="../css/style.css">
     <style>
         .admin-page .admin-topbar {
             color: var(--ink)
+        }
+        .merchant-approval-list {
+            display: grid;
+            gap: 16px;
+        }
+        .merchant-approval-card {
+            display: grid;
+            gap: 18px;
+            padding: 20px;
+            background: #fff;
+            border: 1px solid var(--brand-line);
+            border-radius: 16px;
+        }
+        .merchant-approval-card h3,
+        .merchant-approval-card p {
+            margin: 0;
+        }
+        .merchant-approval-card-header,
+        .merchant-approval-actions {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+        .merchant-approval-fields {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+            margin: 0;
+        }
+        .merchant-approval-fields div {
+            min-width: 0;
+            padding: 12px;
+            background: #f8f6f0;
+            border-radius: 10px;
+        }
+        .merchant-approval-fields dt {
+            margin-bottom: 4px;
+            color: var(--brand-muted);
+            font-size: .8rem;
+        }
+        .merchant-approval-fields dd {
+            margin: 0;
+            overflow-wrap: anywhere;
+            font-weight: 600;
+        }
+        .merchant-approval-fields a {
+            overflow-wrap: anywhere;
+        }
+        .merchant-approval-badge {
+            display: inline-flex;
+            padding: 6px 10px;
+            border-radius: 999px;
+            background: #fff0d1;
+            color: #795400;
+            font-size: .8rem;
+            font-weight: 700;
+            text-transform: capitalize;
+        }
+        .merchant-approval-badge.approved {
+            background: #e2f4e8;
+            color: #20633a;
+        }
+        .merchant-approval-badge.rejected {
+            background: #fde7e4;
+            color: #9d3227;
+        }
+        .merchant-approval-actions button:disabled {
+            cursor: wait;
+            opacity: .6;
+        }
+        @media (max-width: 600px) {
+            .merchant-approval-card {
+                padding: 16px;
+            }
         }
     </style>
 </head>
@@ -16,12 +92,15 @@
 <body class="admin-page">
     <div class="admin-shell">
         <aside class="admin-sidebar">
-            <a class="brand" href="../index.html"><span class="brand-mark">T</span><span>TRIBES<small>Commerce
+            <a class="brand" href="../index.html"><span class="brand-mark">J</span><span>Janjeevan.store<small>Commerce
                         Studio</small></span></a>
             <nav class="admin-nav" aria-label="Admin navigation">
-                <a class="active" href="index.html"><span>▦</span> Overview</a>
+                <a class="active" href="#overview"><span>▦</span> Overview</a>
+                <a href="#accounts"><span aria-hidden="true">♙</span> Login IDs</a>
+                <a href="#merchant-approvals"><span aria-hidden="true">✓</span> Merchant Approval</a>
                 <a href="#catalog"><span>◈</span> Catalog</a>
-                <a href="#reports"><span>⌁</span> Reports</a>
+                <a href="#advertisements"><span aria-hidden="true">▣</span> Advertisements</a>
+                <a href="#reports"><span>⌁</span> Live Tracking</a>
             </nav>
             <div class="sidebar-foot"><span class="status-dot"></span> Firebase connected<a href="../index.html">View
                     storefront ↗</a></div>
@@ -31,12 +110,15 @@
             <header class="admin-topbar">
                 <div>
                     <p class="eyebrow">Workspace / Overview</p>
-                    <h1>Good morning, <span id="merchant-name">Merchant</span></h1>
+                    <h1>Welcome, <span id="admin-name">Admin</span></h1>
                 </div>
-                <a class="store-link" href="../index.html">Open storefront <span>↗</span></a>
+                <div class="admin-header-actions">
+                    <a class="store-link" href="../index.html">Open storefront <span>↗</span></a>
+                    <button class="button secondary" id="admin-sign-out" type="button">Sign out</button>
+                </div>
             </header>
 
-            <section class="stats-grid" aria-label="Store summary">
+            <section class="stats-grid admin-view" id="overview" aria-label="Store summary">
                 <article class="stat-card">
                     <div class="stat-icon orange">◈</div>
                     <div><span>Total products</span><strong id="total-products">--</strong><small>Items in your
@@ -53,8 +135,56 @@
                 </article>
             </section>
 
-            <section class="dashboard-grid">
-                <article class="panel product-panel" id="catalog">
+            <section class="panel login-ids-panel admin-view" id="accounts" aria-labelledby="login-ids-heading" hidden>
+                <div class="panel-heading">
+                    <div>
+                        <p class="eyebrow">Account directory</p>
+                        <h2 id="login-ids-heading">Customer, Merchant &amp; Delivery Partner Accounts</h2>
+                    </div>
+                    <button class="button secondary" type="button" id="refresh-login-ids">↻ Refresh</button>
+                </div>
+                <p class="login-ids-notice">Customers, Merchants, and Delivery Partners sign in with their registered email. Account passwords are managed by Firebase Authentication and are not visible here.</p>
+                <div class="catalog-tools">
+                    <label class="search-box"><span>⌕</span><input id="login-id-search" type="search"
+                            placeholder="Search accounts or names..." aria-label="Search account records"></label>
+                    <span class="result-count" id="login-id-count" aria-live="polite">Loading...</span>
+                </div>
+                <div id="login-id-list" class="login-id-list" aria-live="polite">
+                    <div class="empty-state"><span class="loader"></span><p>Loading account records...</p></div>
+                </div>
+                <p id="login-id-status" class="form-message" role="status"></p>
+            </section>
+
+            <section class="panel admin-view" id="merchant-approvals" aria-labelledby="merchant-approvals-heading" hidden>
+                <div class="panel-heading">
+                    <div>
+                        <p class="eyebrow">Merchant onboarding</p>
+                        <h2 id="merchant-approvals-heading">Merchant Approval</h2>
+                    </div>
+                    <button class="button secondary" type="button" id="refresh-merchant-approvals">↻ Refresh</button>
+                </div>
+                <p class="login-ids-notice">Review merchant details and payment information, then update each merchant's approval status. This status is for Admin tracking and does not restrict merchant portal access.</p>
+                <div class="catalog-tools">
+                    <label class="search-box"><span>⌕</span><input id="merchant-approval-search" type="search"
+                            placeholder="Search merchants..." aria-label="Search merchants"></label>
+                    <label>Show
+                        <select id="merchant-approval-filter" aria-label="Filter merchants by approval status">
+                            <option value="pending">Pending</option>
+                            <option value="all">All statuses</option>
+                            <option value="approved">Approved</option>
+                            <option value="rejected">Rejected</option>
+                        </select>
+                    </label>
+                    <span class="result-count" id="merchant-approval-count" aria-live="polite">Loading...</span>
+                </div>
+                <p id="merchant-approval-status" class="form-message" role="status" aria-live="polite"></p>
+                <div id="merchant-approval-list" class="merchant-approval-list" aria-live="polite">
+                    <div class="empty-state"><span class="loader"></span><p>Loading merchant records...</p></div>
+                </div>
+            </section>
+
+            <section class="dashboard-grid admin-view" id="catalog" hidden>
+                <article class="panel product-panel">
                     <div class="panel-heading">
                         <div>
                             <p class="eyebrow">Your inventory</p>
@@ -97,6 +227,8 @@
                                     <option value="meter">Meter</option>
                                 </select></label><label>Price (₹)<input id="price" type="number" min="0" step=".01"
                                     placeholder="0.00" required></label></div>
+                                <label>Discount (%)<input id="discount" type="number" min="0" max="100" step="1"
+                                        value="0" required><small>Enter 0 for no discount, or a whole number up to 100.</small></label>
                         <div class="form-row"><label>Quantity<input id="quantity" type="number" min="0"
                                     placeholder="0"></label><label>Available stock<input id="stock" type="number"
                                     min="0" placeholder="0" required></label></div>
@@ -141,12 +273,55 @@
                     </form>
                 </article>
             </section>
+            <section class="dashboard-grid admin-view" id="advertisements" aria-labelledby="advertisements-heading" hidden>
+                <article class="panel advertisement-list-panel">
+                    <div class="panel-heading">
+                        <div>
+                            <p class="eyebrow">Storefront promotions</p>
+                            <h2 id="advertisements-heading">Advertisements</h2>
+                        </div>
+                        <button class="button secondary" type="button" id="refresh-advertisements">↻ Refresh</button>
+                    </div>
+                    <p class="login-ids-notice">Published advertisements appear on the storefront below the hero. Remove an ad here to take it down.</p>
+                    <div id="advertisement-list" class="advertisement-list" aria-live="polite">
+                        <div class="empty-state"><span class="loader"></span><p>Loading advertisements...</p></div>
+                    </div>
+                </article>
+                <article class="panel add-panel">
+                    <div class="panel-heading">
+                        <div>
+                            <p class="eyebrow">Promotion management</p>
+                            <h2>Add an advertisement</h2>
+                        </div><span class="plus-badge">+</span>
+                    </div>
+                    <form id="advertisement-form">
+                        <div class="image-drop"><input id="advertisement-image" type="file" accept="image/jpeg,image/png,image/webp" required>
+                            <div class="image-preview" id="advertisement-image-preview"><span>＋</span><strong>Choose advertisement image</strong><small>PNG, JPG, or WebP under 5 MB</small></div>
+                        </div>
+                        <label>Headline<input id="advertisement-title" maxlength="100" placeholder="e.g. Discover this season's collection" required></label>
+                        <label>Message <small>(optional)</small><textarea id="advertisement-description" maxlength="240" rows="3" placeholder="A short description for shoppers"></textarea></label>
+                        <label>Destination link <small>(optional)</small><input id="advertisement-link" type="text" maxlength="500" placeholder="https://example.com or /index.html#products-section"></label>
+                        <label class="advertisement-publish-option"><input id="advertisement-active" type="checkbox" checked> Publish on the storefront immediately</label>
+                        <button class="button primary" type="submit" id="save-advertisement"><span>＋</span> Add advertisement</button>
+                        <p class="form-message" id="advertisement-message" role="status"></p>
+                    </form>
+                </article>
+            </section>
+            <section class="panel admin-view" id="reports" aria-labelledby="reports-heading" hidden>
+                <div class="panel-heading">
+                    <div>
+                        <p class="eyebrow">Active orders</p>
+                        <h2 id="reports-heading">GPS Live Tracking</h2>
+                    </div>
+                    <button class="button secondary" id="share-merchant-location" type="button">Share this device's pickup location</button>
+                </div>
+                <p class="login-ids-notice">Sharing is optional. This device's GPS appears as the Merchant pickup point for active orders and syncs with authorized participants. Precise location fields are cleared when an order is delivered.</p>
+                <p id="tracking-status" class="form-message" role="status" aria-live="polite">Merchant pickup GPS sharing is off.</p>
+                <div id="admin-tracking-orders" class="admin-tracking-orders" aria-live="polite"></div>
+            </section>
         </main>
     </div>
-    <script>
-        const currentMerchant = JSON.parse(localStorage.getItem('tribesCurrentMerchant') || 'null');
-        document.getElementById('merchant-name').textContent = currentMerchant?.fullName || 'Merchant';
-    </script>
+    <script src="../js/api-config.js"></script>
     <script type="module" src="../js/admin.js"></script>
     <script src="../js/chatbot.js"></script>
 </body>

@@ -1,0 +1,204 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - link "Janjeevan.store logo Janjeevan.store" [ref=e3] [cursor=pointer]:
+      - /url: index.html
+      - img "Janjeevan.store logo" [ref=e4]
+      - generic [ref=e5]: Janjeevan.store
+    - navigation "Main navigation" [ref=e6]:
+      - link "Shop" [ref=e7] [cursor=pointer]:
+        - /url: index.html
+      - link "Cart" [ref=e8] [cursor=pointer]:
+        - /url: cart.html
+      - link "Merchant Registration" [ref=e9] [cursor=pointer]:
+        - /url: merchant-registration.html
+  - main [ref=e10]:
+    - generic [ref=e11]:
+      - generic [ref=e12]:
+        - paragraph [ref=e13]: Janjeevan.store partnership
+        - heading "Merchant Registration" [level=1] [ref=e14]
+      - generic [ref=e15]:
+        - generic [ref=e16]:
+          - generic [ref=e17]:
+            - text: Full Name of the Merchant
+            - textbox "Full Name of the Merchant" [ref=e18]:
+              - /placeholder: Enter full name
+          - generic [ref=e19]:
+            - text: Phone No
+            - textbox "Phone No" [ref=e20]:
+              - /placeholder: Enter 10-digit phone number
+        - generic [ref=e22]:
+          - text: Email Address
+          - textbox "Email Address" [ref=e23]:
+            - /placeholder: Enter email address
+        - generic [ref=e25]:
+          - text: GST Number (GSTIN, if registered)
+          - textbox "GST Number (GSTIN, if registered) Optional. Enter the 15-character GSTIN issued to your business." [ref=e26]:
+            - /placeholder: e.g. 37ABCDE1234F1Z5
+          - text: Optional. Enter the 15-character GSTIN issued to your business.
+        - generic [ref=e28]:
+          - text: Full Address
+          - textbox "Full Address" [ref=e29]:
+            - /placeholder: Enter full residential or business address
+        - generic [ref=e31]:
+          - text: Shop Category
+          - combobox "Shop Category" [ref=e32]:
+            - option "Select shop category" [selected]
+            - option "Beauty / Parlour"
+            - option "Barber Shop"
+            - option "Kirana Store"
+            - option "General Store"
+            - option "Garage"
+            - option "Welding Shop"
+            - option "Cycle Shop"
+            - option "Hotel"
+            - option "Lodge"
+            - option "Mechanic Shop"
+            - option "Driving School"
+            - option "Book Shop"
+            - option "Stationery Shop"
+            - option "Clothing Store"
+            - option "Footwear Shop"
+            - option "Electronics Shop"
+            - option "Mobile Phone Shop"
+            - option "Hardware Store"
+            - option "Electrical Shop"
+            - option "Pharmacy"
+            - option "Restaurant"
+            - option "Bakery"
+            - option "Dairy Shop"
+            - option "Fruit and Vegetable Shop"
+            - option "Tailoring Shop"
+            - option "Agricultural Supplies"
+            - option "Other"
+        - generic [ref=e33]:
+          - generic [ref=e34]:
+            - text: State
+            - combobox "State" [ref=e35]:
+              - option "Select state" [selected]
+              - option "Andhra Pradesh"
+              - option "Arunachal Pradesh"
+              - option "Assam"
+              - option "Bihar"
+              - option "Chhattisgarh"
+              - option "Goa"
+              - option "Gujarat"
+              - option "Haryana"
+              - option "Himachal Pradesh"
+              - option "Jharkhand"
+              - option "Karnataka"
+              - option "Kerala"
+              - option "Madhya Pradesh"
+              - option "Maharashtra"
+              - option "Manipur"
+              - option "Meghalaya"
+              - option "Mizoram"
+              - option "Nagaland"
+              - option "Odisha"
+              - option "Punjab"
+              - option "Rajasthan"
+              - option "Sikkim"
+              - option "Tamil Nadu"
+              - option "Telangana"
+              - option "Tripura"
+              - option "Uttar Pradesh"
+              - option "Uttarakhand"
+              - option "West Bengal"
+              - option "Andaman and Nicobar Islands"
+              - option "Chandigarh"
+              - option "Dadra and Nagar Haveli and Daman and Diu"
+              - option "Delhi"
+              - option "Jammu and Kashmir"
+              - option "Ladakh"
+              - option "Lakshadweep"
+              - option "Puducherry"
+          - generic [ref=e36]:
+            - text: Language
+            - combobox "Language" [ref=e37]:
+              - option "Select language" [selected]
+              - option "English"
+              - option "Hindi"
+              - option "Kannada"
+              - option "Tamil"
+              - option "Telugu"
+              - option "Malayalam"
+              - option "Marathi"
+              - option "Gujarati"
+              - option "Punjabi"
+              - option "Bengali"
+        - generic [ref=e38]:
+          - generic [ref=e39]:
+            - text: Aadhar Number
+            - textbox "Aadhar Number Enter exactly 12 digits. Letters and extra digits are not accepted." [ref=e40]:
+              - /placeholder: Enter 12-digit Aadhar Number
+            - text: Enter exactly 12 digits. Letters and extra digits are not accepted.
+          - generic [ref=e41]:
+            - text: PAN Number
+            - 'textbox "PAN Number Format: 5 letters, 4 digits, and 1 letter." [ref=e42]':
+              - /placeholder: Enter 10-character PAN
+            - text: "Format: 5 letters, 4 digits, and 1 letter."
+        - generic [ref=e43]:
+          - generic [ref=e44] [cursor=pointer]:
+            - text: Merchant Photo Upload
+            - button "Merchant Photo Upload Merchant preview" [ref=e45]
+            - img "Merchant preview" [ref=e46]
+          - generic [ref=e47] [cursor=pointer]:
+            - text: Aadhar Photo Upload
+            - button "Aadhar Photo Upload Aadhar preview" [ref=e48]
+            - img "Aadhar preview" [ref=e49]
+          - generic [ref=e50] [cursor=pointer]:
+            - text: PAN Card Photo Upload
+            - button "PAN Card Photo Upload JPG, PNG, or WebP; up to 5 MB. PAN card preview" [ref=e51]
+            - text: JPG, PNG, or WebP; up to 5 MB.
+            - img "PAN card preview" [ref=e52]
+          - generic [ref=e53] [cursor=pointer]:
+            - text: Merchant Shop Photo Upload
+            - button "Merchant Shop Photo Upload Shop preview" [ref=e54]
+            - img "Shop preview" [ref=e55]
+        - generic [ref=e56]:
+          - heading "Janjeevan.store Terms & Conditions" [level=3] [ref=e57]
+          - list [ref=e58]:
+            - listitem [ref=e59]: The merchant agrees to provide accurate identity and address information.
+            - listitem [ref=e60]: Janjeevan.store may verify submitted identity documents as required for onboarding.
+            - listitem [ref=e61]: All submitted products, pricing, and catalog details must comply with applicable rules and community standards.
+            - listitem [ref=e62]: Janjeevan.store reserves the right to approve, reject, or pause merchant onboarding at its discretion.
+            - listitem [ref=e63]: By submitting this form, the merchant agrees to comply with all Janjeevan.store policies and procedures.
+        - generic [ref=e64]:
+          - checkbox "I agree to the Janjeevan.store terms and conditions." [ref=e65]
+          - text: I agree to the Janjeevan.store terms and conditions.
+        - generic [ref=e66]:
+          - checkbox "Registration requires a one-time ₹1 fee, paid through checkout. This is charged once only; there is no monthly fee, recurring charge, or auto-pay." [ref=e67]
+          - generic [ref=e68]: Registration requires a one-time ₹1 fee, paid through checkout. This is charged once only; there is no monthly fee, recurring charge, or auto-pay.
+        - button "Pay ₹1 & Complete Registration" [ref=e69] [cursor=pointer]
+      - paragraph [ref=e70]:
+        - text: Already have a merchant account?
+        - link "Sign In" [ref=e71] [cursor=pointer]:
+          - /url: merchant-login.html
+  - contentinfo [ref=e72]:
+    - generic [ref=e73]:
+      - img "Janjeevan.store logo" [ref=e74]
+      - generic [ref=e75]:
+        - generic [ref=e76]: Janjeevan.store
+        - generic [ref=e77]: Made for everyday living
+    - generic "Social media links" [ref=e78]:
+      - link "WhatsApp" [ref=e79] [cursor=pointer]:
+        - /url: https://wa.me/?text=Discover%20Janjeevan.store
+        - generic [ref=e80]: WA
+      - link "Facebook" [ref=e82] [cursor=pointer]:
+        - /url: https://www.facebook.com/sharer/sharer.php
+        - generic [ref=e83]: f
+      - link "Instagram" [ref=e85] [cursor=pointer]:
+        - /url: https://www.instagram.com/
+        - generic [ref=e86]: ◎
+      - link "Share Janjeevan.store on Telegram" [ref=e88] [cursor=pointer]:
+        - /url: https://t.me/share/url?url=https%3A%2F%2Fwww.janjeevan.store&text=Discover%20Janjeevan.store
+        - generic [ref=e89]: TG
+        - generic [ref=e90]: Telegram
+    - generic [ref=e91]:
+      - 'link "Contact us: comtribes@gmail.com" [ref=e92] [cursor=pointer]':
+        - /url: mailto:comtribes@gmail.com
+      - generic [ref=e93]:
+        - generic [ref=e94]: Viewers
+        - strong [ref=e95]: "4"
+      - generic [ref=e96]: © 2026 Janjeevan.store. All rights reserved.
+  - region "Janjeevan.store support chat" [ref=e97]:
+    - button "Chat" [ref=e98] [cursor=pointer]
