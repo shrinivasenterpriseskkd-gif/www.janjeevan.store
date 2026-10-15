@@ -26,20 +26,22 @@
                 <h1>Welcome, <span id="merchant-welcome-name">Merchant</span></h1>
                 <p>View your product photos and set prices and discounts for new listings.</p>
             </div>
-            <aside class="merchant-profile-card" aria-label="Merchant shop profile">
-                <div class="merchant-profile-photo">
-                    <img id="merchant-shop-photo" alt="Merchant shop" hidden>
-                    <p id="merchant-shop-photo-empty">Shop photo not added yet.</p>
-                    <div class="merchant-profile-details">
-                        <h2 id="merchant-proprietor-name">Merchant</h2>
-                        <p><span>Phone:</span> <span id="merchant-phone">Not provided</span></p>
-                        <p><span>Shop category:</span> <span id="merchant-shop-category">Not provided</span></p>
-                        <p><span>GSTIN:</span> <span id="merchant-gstin">Not provided</span></p>
-                        <p><span>Bank account:</span> <span id="merchant-bank-account">Not provided</span></p>
-                        <p><span>IFSC code:</span> <span id="merchant-ifsc-code">Not provided</span></p>
-                        <p><span>UPI link:</span> <span id="merchant-upi-link">Not provided</span></p>
-                    </div>
-                </div>
+            <span class="merchant-portal-badge">My catalog</span>
+            <div class="merchant-profile-details" aria-label="Merchant details">
+                <p><span>Merchant name:</span> <span id="merchant-proprietor-name">Merchant</span></p>
+                <p><span>Phone No:</span> <span id="merchant-phone">Not provided</span></p>
+                <p><span>Shop category:</span> <span id="merchant-shop-category">Not provided</span></p>
+                <p><span>GSTIN:</span> <span id="merchant-gstin">Not provided</span></p>
+                <p><span>Bank account:</span> <span id="merchant-bank-account">Not provided</span></p>
+                <p><span>IFSC code:</span> <span id="merchant-ifsc-code">Not provided</span></p>
+                <p><span>UPI link:</span> <span id="merchant-upi-link">Not provided</span></p>
+            </div>
+        </header>
+        <aside class="merchant-profile-card" aria-label="Merchant shop profile">
+            <div class="merchant-profile-photo">
+                <img id="merchant-shop-photo" alt="Merchant shop" hidden>
+                <p id="merchant-shop-photo-empty">Shop photo not added yet.</p>
+            </div>
                 <details class="merchant-gstin-editor">
                     <summary>Edit GSTIN</summary>
                     <form id="merchant-gstin-form" class="merchant-gstin-form">
@@ -78,9 +80,7 @@
                     <button class="secondary-btn" id="merchant-shop-photo-save" type="submit">Save shop photo</button>
                 </form>
                 <p id="merchant-shop-photo-status" class="merchant-shop-photo-status" role="status" aria-live="polite"></p>
-            </aside>
-            <span class="merchant-portal-badge">My catalog</span>
-        </header>
+        </aside>
 
         <section class="merchant-portal-section" aria-labelledby="merchant-orders-heading">
             <div class="merchant-portal-section-heading">
@@ -164,6 +164,10 @@
                     </label>
                     <label>Village / town
                         <input id="merchant-product-village" type="text" maxlength="100" placeholder="Enter village or town" required>
+                    </label>
+                    <label>Shipping weight (g)
+                        <input id="merchant-product-weight" type="number" min="1" max="100000" step="1" placeholder="Weight per sale unit">
+                        <small>Required for India Post parcel delivery; enter the packed weight of one sale unit.</small>
                     </label>
                 </div>
                 <div class="merchant-product-form-actions">

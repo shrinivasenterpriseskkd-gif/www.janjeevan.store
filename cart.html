@@ -27,6 +27,11 @@
         </div>
         <div id="cart" class="cart-list"></div>
         <section class="checkout-panel">
+            <fieldset class="checkout-choice-group">
+                <legend>Delivery method</legend>
+                <label><input type="radio" name="delivery-method" value="delivery_partner" checked> Local Delivery Partner</label>
+                <label><input type="radio" name="delivery-method" value="india_post"> India Post Retail Parcel</label>
+            </fieldset>
             <label class="delivery-state-field" for="delivery-state">Delivery state
                 <select id="delivery-state" required>
                     <option value="">Choose delivery state</option>
@@ -45,13 +50,30 @@
                     <option>Puducherry</option>
                 </select>
             </label>
-            <div class="delivery-location-field">
+            <div id="postal-address-fields" class="postal-address-fields" hidden>
+                <label for="postal-address">Postal delivery address
+                    <textarea id="postal-address" maxlength="500" rows="3" autocomplete="street-address" placeholder="House / street, village or town, district" required></textarea>
+                </label>
+                <label for="postal-pincode">PIN code
+                    <input id="postal-pincode" type="text" inputmode="numeric" autocomplete="postal-code" maxlength="6" pattern="[1-9][0-9]{5}" placeholder="6-digit PIN code" required>
+                </label>
+                <p id="postal-charge" class="postal-charge" aria-live="polite">Postal charge will be calculated from parcel weight and destination.</p>
+            </div>
+            <div id="delivery-location-field" class="delivery-location-field">
                 <button type="button" id="share-customer-location" class="delivery-location-button">Share my delivery location</button>
                 <p id="customer-location-status" role="status" aria-live="polite">Share your delivery pin for this order. It is saved with the order and visible only to you, the assigned Delivery Partner, and Admin.</p>
             </div>
+            <fieldset class="checkout-choice-group">
+                <legend>Payment method</legend>
+                <label><input type="radio" name="payment-method" value="phonepe" checked> PhonePe (UPI via Razorpay)</label>
+                <label><input type="radio" name="payment-method" value="googlepay"> Google Pay (UPI via Razorpay)</label>
+                <label><input type="radio" name="payment-method" value="razorpay"> Razorpay (other available methods)</label>
+            </fieldset>
+            <div><span>Items</span><strong id="cart-subtotal">₹0</strong></div>
+            <div><span>Postal charge</span><strong id="cart-postal-charge">₹0</strong></div>
             <div><span>Total</span><strong id="cart-total">₹0</strong></div>
-            <p class="checkout-payment-note">Pay through Razorpay using Google Pay, PhonePe, or another available payment method.</p>
-            <button id="pay" class="hero-button">Pay securely with Razorpay <span>→</span></button>
+            <p class="checkout-payment-note">PhonePe and Google Pay are presented as UPI app choices in Razorpay Checkout. Payment is verified securely before the order is saved.</p>
+            <button id="pay" class="hero-button">Continue to payment <span>→</span></button>
             <p id="status" role="status"></p>
         </section>
     </main>

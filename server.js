@@ -153,6 +153,101 @@ const requireFirebaseUser = async request => {
   }
 };
 
+const getPostalRate = deliveryState => {
+  let rateConfig;
+  try {
+    rateConfig = JSON.parse(process.env.INDIA_POST_RETAIL_RATES_JSON || "null");
+  } catch {
+    const error = new Error("India Post Retail Parcel rates are not valid JSON. Update INDIA_POST_RETAIL_RATES_JSON on the server.");
+    error.status = 503;
+    throw error;
+  }
+  const rate = rateConfig?.states?.[deliveryState] || rateConfig?.default;
+  if (!rate || !Number.isFinite(Number(rate.first500g)) || Number(rate.first500g) <= 0 ||
+    !Number.isFinite(Number(rate.additional500g)) || Number(rate.additional500g) < 0 ||
+    !Number.isFinite(Number(rate.gstPercent)) || Number(rate.gstPercent) < 0 || Number(rate.gstPercent) > 100) {
+    const error = new Error("India Post Retail Parcel rates are not configured for this destination. Configure a default or destination-state rate on the server.");
+    error.status = 503;
+    throw error;
+  }
+  return rate;
+};
+
+const calculatePostalCharge = (weightGrams, deliveryState) => {
+  if (!Number.isInteger(weightGrams) || weightGrams < 1) {
+    const error = new Error("Enter a packed shipping weight for every product before choosing India Post.");
+    error.status = 400;
+    throw error;
+  }
+  const rate = getPostalRate(deliveryState);
+  const weightBands = Math.ceil(weightGrams / 500);
+  const beforeTax = Number(rate.first500g) + (weightBands - 1) * Number(rate.additional500g);
+  return Math.round(beforeTax * (1 + Number(rate.gstPercent) / 100) * 100);
+};
+
+const loadCheckoutItems = async requestedItems => {
+  if (!Array.isArray(requestedItems) || !requestedItems.length || requestedItems.length > 20) {
+    const error = new Error("Cart must contain between 1 and 20 products.");
+    error.status = 400;
+    throw error;
+  }
+  const quantities = new Map();
+  for (const item of requestedItems) {
+    const id = String(item?.id || "").trim();
+    const quantity = Number(item?.quantity);
+    if (!id || !Number.isInteger(quantity) || quantity < 1 || quantity > 100) {
+      const error = new Error("Cart contains an invalid product or quantity.");
+      error.status = 400;
+      throw error;
+    }
+    quantities.set(id, (quantities.get(id) || 0) + quantity);
+  }
+
+  const items = [];
+  let itemSubtotal = 0;
+  let totalWeightGrams = 0;
+  for (const [productId, quantity] of quantities) {
+    const productSnapshot = await firebaseAdminDb.collection("products").doc(productId).get();
+    if (!productSnapshot.exists) {
+      const error = new Error("A product in your cart is no longer available.");
+      error.status = 409;
+      throw error;
+    }
+    const product = productSnapshot.data();
+    const price = Number(product.price);
+    const discount = Number(product.discountPercent) || 0;
+    const stock = Number(product.avlbStk);
+    if (!Number.isFinite(price) || price < 0 || !Number.isFinite(stock) || stock < quantity ||
+      !Number.isFinite(discount) || discount < 0 || discount > 100) {
+      const error = new Error(`${product.name || "A product"} has insufficient stock or invalid pricing.`);
+      error.status = 409;
+      throw error;
+    }
+    const salePrice = Math.round(price * (1 - discount / 100) * 100) / 100;
+    itemSubtotal += Math.round(salePrice * 100) * quantity;
+    const weightGrams = Number(product.weightGrams);
+    if (Number.isInteger(weightGrams) && weightGrams > 0 && weightGrams <= 100000) {
+      totalWeightGrams += weightGrams * quantity;
+    }
+    items.push({
+      productId,
+      quantity,
+      name: String(product.name || "Product"),
+      price: salePrice,
+      listPrice: price,
+      discountPercent: discount,
+      weightGrams: Number.isInteger(weightGrams) && weightGrams > 0 && weightGrams <= 100000 ? weightGrams : null,
+      merchantId: String(product.merchantId || ""),
+      area: String(product.area || ""),
+      village: String(product.village || ""),
+      merchantLocation: Number.isFinite(Number(product.latitude)) && Number.isFinite(Number(product.longitude))
+        ? { latitude: Number(product.latitude), longitude: Number(product.longitude), label: product.village || product.area || "Merchant pickup area" }
+        : null
+    });
+  }
+  return { items, itemSubtotal, totalWeightGrams };
+};
+
 if (!razorpay) console.warn("Razorpay keys are missing. Add them to .env before checkout.");
 app.use(express.json({ limit: "8mb" }));
 app.get("/healthz", (request, response) => response.status(200).json({ status: "ok" }));
