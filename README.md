@@ -6,9 +6,10 @@
 2. Set a unique `ADMIN_LOGIN_ID` and a strong `ADMIN_PASSWORD` in `.env`; these are server-only credentials and are not committed to the frontend.
 3. Set `FIREBASE_PROJECT_ID` and configure Firebase Admin SDK Application Default Credentials for the Node server. Locally, set `GOOGLE_APPLICATION_CREDENTIALS` to a service-account key path outside the repository; in production, use the host's managed identity or workload identity. The server needs Firebase Authentication verification plus Firestore read/write access. Never commit a service-account key.
 4. Add your Razorpay **Test** API key ID and secret to `.env`.
-5. Run `npm start` and open `http://localhost:5500/cart.html`.
-6. Open `http://localhost:5500/admin/index.html`; unauthenticated requests are sent to the Admin sign-in page.
-7. Use Razorpay test payment details while testing. Never commit `.env` or production secrets.
+5. To enable India Post Retail Parcel checkout, set `INDIA_POST_RETAIL_RATES_JSON` to the current verified pre-GST tariff in INR (first 500 g, each additional 500 g, and GST percent); optional `states` entries override `default` for destination states. Leave it unset to disable postal checkout until rates are configured.
+6. Run `npm start` and open `http://localhost:5500/cart.html`.
+7. Open `http://localhost:5500/admin/index.html`; unauthenticated requests are sent to the Admin sign-in page.
+8. Use Razorpay test payment details while testing. Never commit `.env` or production secrets.
 
 The Admin session is held in an HTTP-only cookie and expires after eight hours. The Express server protects `/admin` and provides Admin sign-in, session, and sign-out endpoints. Host the Admin pages and server on the same origin for server-enforced route protection. GitHub Pages is static hosting and cannot protect the Admin route; do not use it to host a production Admin portal. If hosting the frontend separately, set `APP_ALLOWED_ORIGINS` to the exact comma-separated customer/delivery origins and `ADMIN_ALLOWED_ORIGIN` to the exact Admin origin, set `window.TRIBES_API_BASE_URL` in `js/api-config.js` to the backend HTTPS URL, and run the backend with `NODE_ENV=production`.
 
@@ -39,7 +40,7 @@ GitHub Pages cannot run the Node/Razorpay server. The frontend uses `https://api
 
 After the service is healthy at `/healthz`, add `api.janjeevan.store` as a custom domain on the Render service and create the DNS record Render provides. Keep `www.janjeevan.store` pointed at GitHub Pages. Add `www.janjeevan.store` to Firebase Authentication's authorized domains and publish `firestore.rules` for `janjeevanstore`. Product photos require a Cloudflare R2 bucket and the `CLOUDFLARE_R2_*` environment variables; add these privately in Render before enabling image uploads. The Render free plan may sleep when idle; use an always-on plan for production checkout and Admin availability.
 
-The checkout uses `/api/orders` to create a server-priced Razorpay order and `/api/payments/verify` to verify its signature and persist the paid order. Add Razorpay webhook handling and reconciliation before production deployment.
+The checkout uses `/api/orders` to create a server-priced Razorpay order and `/api/payments/verify` to verify its signature and persist the paid order. PhonePe and Google Pay are UPI-app choices presented through Razorpay Checkout; the selected app is chosen in the Razorpay UPI flow. Postal orders require a packed product weight in grams, a postal address, a 6-digit PIN code, and configured India Post rates. The server calculates postage from the total packed weight in 500 g bands and the destination state's configured tariff, then includes it in the Razorpay amount. Postal parcels are saved as awaiting postal dispatch and are not assigned to a Delivery Partner. Add Razorpay webhook handling and reconciliation before production deployment.
 
 ## Local GPS order tracking
 
@@ -51,5 +52,5 @@ Customer and Delivery Partner GPS sharing is opt-in from their order pages. Admi
 2. Enable Email/Password in Firebase Authentication and authorize each deployed frontend hostname.
 3. Publish `firestore.rules`.
 4. Give the Node server Firebase Admin credentials through Application Default Credentials with Firestore access; keep the credential file outside the repository.
-5. Create and configure Cloudflare R2, then set `FIREBASE_PROJECT_ID`, `APP_ALLOWED_ORIGINS`, `ADMIN_ALLOWED_ORIGIN`, R2 credentials/public URL, Razorpay keys, and the Admin password on the server.
+5. Create and configure Cloudflare R2, then set `FIREBASE_PROJECT_ID`, `APP_ALLOWED_ORIGINS`, `ADMIN_ALLOWED_ORIGIN`, R2 credentials/public URL, Razorpay keys, `INDIA_POST_RETAIL_RATES_JSON` (if postal checkout is enabled), and the Admin password on the server.
 6. Keep Razorpay secrets, R2 credentials, and Firebase Admin credentials out of frontend files, GitHub, and static hosting.

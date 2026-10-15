@@ -103,7 +103,7 @@ service cloud.firestore {
         && request.resource.data.keys().hasOnly([
           'ownerUid', 'merchantId', 'merchantName', 'name', 'uom', 'price',
           'category', 'discountPercent', 'gstPercent', 'quantity', 'avlbStk', 'area',
-          'village', 'imageUrl', 'createdAt'
+          'village', 'imageUrl', 'weightGrams', 'createdAt'
         ])
         && request.resource.data.ownerUid == request.auth.uid
         && request.resource.data.merchantId == get(/databases/$(database)/documents/merchantAccounts/$(request.auth.uid)).data.merchantId
@@ -129,6 +129,11 @@ service cloud.firestore {
         && request.resource.data.village is string
         && request.resource.data.imageUrl is string
         && request.resource.data.createdAt is timestamp
+        && (!('weightGrams' in request.resource.data)
+          || request.resource.data.weightGrams == null
+          || (request.resource.data.weightGrams is int
+            && request.resource.data.weightGrams >= 1
+            && request.resource.data.weightGrams <= 100000))
         && (!('gstPercent' in request.resource.data)
           || (request.resource.data.gstPercent is number
             && request.resource.data.gstPercent >= 0
@@ -142,11 +147,11 @@ service cloud.firestore {
         && request.resource.data.keys().hasOnly([
           'ownerUid', 'merchantId', 'merchantName', 'name', 'uom', 'price',
           'category', 'discountPercent', 'gstPercent', 'quantity', 'avlbStk', 'area',
-          'village', 'imageUrl', 'createdAt'
+          'village', 'imageUrl', 'weightGrams', 'createdAt'
         ])
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
           'name', 'uom', 'price', 'category', 'discountPercent', 'gstPercent',
-          'quantity', 'avlbStk', 'area', 'village', 'imageUrl'
+          'quantity', 'avlbStk', 'area', 'village', 'imageUrl', 'weightGrams'
         ])
         && request.resource.data.name is string
         && request.resource.data.name.size() > 0
@@ -168,6 +173,11 @@ service cloud.firestore {
         && request.resource.data.area is string
         && request.resource.data.village is string
         && request.resource.data.imageUrl is string
+        && (!('weightGrams' in request.resource.data)
+          || request.resource.data.weightGrams == null
+          || (request.resource.data.weightGrams is int
+            && request.resource.data.weightGrams >= 1
+            && request.resource.data.weightGrams <= 100000))
         && (!('gstPercent' in request.resource.data)
           || (request.resource.data.gstPercent is number
             && request.resource.data.gstPercent >= 0
