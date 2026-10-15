@@ -1,4 +1,9 @@
-import { sendPasswordResetEmail, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
+import {
+    browserLocalPersistence,
+    sendPasswordResetEmail,
+    setPersistence,
+    signInWithEmailAndPassword
+} from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
 import { auth } from "./firebase-config.js";
 
 const form = document.getElementById('delivery-partner-login-form');
@@ -47,6 +52,7 @@ form.addEventListener('submit', async event => {
     const email = document.getElementById('delivery-partner-email').value.trim();
     const password = document.getElementById('password').value;
     try {
+        await setPersistence(auth, browserLocalPersistence);
         await signInWithEmailAndPassword(auth, email, password);
     } catch (error) {
         console.error('Delivery Partner sign-in failed.', error);

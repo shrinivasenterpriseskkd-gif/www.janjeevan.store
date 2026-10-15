@@ -79,7 +79,7 @@ service cloud.firestore {
       allow update: if request.auth != null
         && request.auth.uid == uid
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
-          'gstNumber', 'bankAccountNumber', 'ifscCode', 'upiLink'
+          'merchantId', 'gstNumber', 'bankAccountNumber', 'ifscCode', 'upiLink'
         ])
         && (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['gstNumber'])
           || (request.resource.data.gstNumber is string

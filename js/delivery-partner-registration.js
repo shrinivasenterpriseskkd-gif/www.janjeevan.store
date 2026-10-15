@@ -1,4 +1,9 @@
-import { createUserWithEmailAndPassword, deleteUser } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
+import {
+    browserLocalPersistence,
+    createUserWithEmailAndPassword,
+    deleteUser,
+    setPersistence
+} from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
 import { doc, serverTimestamp, setDoc } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore.js";
 import { auth, db } from "./firebase-config.js";
 
@@ -203,6 +208,7 @@ form.addEventListener('submit', async (event) => {
     };
     let user;
     try {
+        await setPersistence(auth, browserLocalPersistence);
         user = (await createUserWithEmailAndPassword(auth, registration.email, registration.password)).user;
         await setDoc(doc(db, 'deliveryPartnerAccounts', user.uid), {
             role: 'deliveryPartner',

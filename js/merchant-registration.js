@@ -1,13 +1,9 @@
-<<<<<<< HEAD
 import {
     browserLocalPersistence,
     createUserWithEmailAndPassword,
     deleteUser,
     setPersistence
 } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
-=======
-import { createUserWithEmailAndPassword, deleteUser } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
->>>>>>> 5d13eafd5f985e4911dd75a50f73b745606da752
 import { doc, serverTimestamp, setDoc } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore.js";
 import { auth, db } from "./firebase-config.js";
 
@@ -230,6 +226,7 @@ form.addEventListener('submit', async (event) => {
     let savedCredentials = null;
     let firebaseUser;
     let accountSaved = false;
+    let paymentCompleted = false;
 
     const fullName = document.getElementById('fullName').value.trim();
     const phoneNo = document.getElementById('phoneNo').value.trim();
@@ -279,13 +276,14 @@ form.addEventListener('submit', async (event) => {
         const password = generatePassword();
         registration.shopPhotoDataUrl = await compressShopPhoto(shopPhoto);
 
-<<<<<<< HEAD
         await setPersistence(auth, browserLocalPersistence);
-=======
->>>>>>> 5d13eafd5f985e4911dd75a50f73b745606da752
         firebaseUser = (await createUserWithEmailAndPassword(auth, registration.email, password)).user;
         showStatus('Opening secure one-time ₹1 registration-fee checkout...', 'pending');
         await collectRegistrationFee(registration);
+        paymentCompleted = true;
+
+        savedCredentials = { merchantId: registration.merchantId, password };
+        showMerchantCredentials(savedCredentials.merchantId, savedCredentials.password);
 
         const createdAt = new Date().toISOString();
         await setDoc(doc(db, 'merchantAccounts', firebaseUser.uid), {
@@ -299,10 +297,8 @@ form.addEventListener('submit', async (event) => {
             language: registration.language,
             createdAt: serverTimestamp()
         });
-        const merchantId = registration.merchantId;
-        savedCredentials = { merchantId, password };
         accountSaved = true;
-        showMerchantCredentials(merchantId, password);
+        const merchantId = savedCredentials.merchantId;
 
         const merchantStore = JSON.parse(localStorage.getItem('tribesMerchants') || '[]');
         if (!Array.isArray(merchantStore)) throw new Error('Saved merchant registrations are not in a valid list format.');
@@ -428,7 +424,7 @@ form.addEventListener('submit', async (event) => {
         showStatus('Registration completed. Save your Merchant ID and password below; the password is not stored in the Admin dashboard.', 'success');
     } catch (error) {
         console.error(error);
-        if (firebaseUser && !accountSaved) {
+        if (firebaseUser && !accountSaved && !paymentCompleted) {
             try {
                 await deleteUser(firebaseUser);
             } catch (cleanupError) {
@@ -437,13 +433,16 @@ form.addEventListener('submit', async (event) => {
         }
         if (savedCredentials) {
             showMerchantCredentials(savedCredentials.merchantId, savedCredentials.password);
-            showStatus(`Your registration was saved, but the registration PDF could not be completed. Your login details are shown below. ${error.message || ''}`, 'error');
+            showStatus(accountSaved
+                ? `Your registration was saved, but the registration PDF could not be completed. Your login details are shown below. ${error.message || ''}`
+                : 'Payment succeeded, but your merchant profile could not be saved. Keep these login details and contact comtribes@gmail.com. Do not pay again.',
+            'error');
             return;
         }
         if (error.code === 'auth/email-already-in-use') {
             showStatus('This email already has an account. Use Merchant Sign In or the password reset option. If registration was interrupted before you received your Merchant ID, contact support at comtribes@gmail.com.', 'error');
             return;
         }
-        showStatus(error.message || 'Registration could not be completed. Please try again.', 'error');
+        showStatus(`Registration was not completed, so no merchant ID or password was issued. ${error.message || 'Please try again after the registration service is available.'}`, 'error');
     }
 });

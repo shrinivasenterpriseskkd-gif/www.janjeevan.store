@@ -246,8 +246,9 @@ onAuthStateChanged(auth, async user => {
     try {
         const profile = await getDoc(doc(db, 'deliveryPartnerAccounts', user.uid));
         if (!profile.exists()) {
-            await signOut(auth);
-            window.location.replace('Delivery Partner-login.html');
+            ordersStatus.textContent = 'You are signed in, but no Delivery Partner profile is linked to this account. Sign out and use the email registered for Delivery Partner access, or contact support.';
+            ordersStatus.className = 'delivery-orders-status error';
+            orderList.innerHTML = '<div class="delivery-orders-empty"><h2>Partner profile not found</h2><p>Your session is still active. Contact support if this is the registered account.</p></div>';
             return;
         }
         currentPartner = { ...profile.data(), uid: user.uid };

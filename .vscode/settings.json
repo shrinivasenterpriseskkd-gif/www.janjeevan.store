@@ -1,3 +1,6 @@
 {
-    "envWatcher.enabled": false
+    "envWatcher.enabled": false,
+    "githubPullRequests.ignoredPullRequestBranches": [
+        "main"
+    ]
 }
