@@ -1,12 +1,18 @@
-<<<<<<< HEAD
 {
+  "functions": {
+    "source": ".",
+    "runtime": "nodejs24",
+    "ignore": [
+      ".git",
+      ".github",
+      "node_modules",
+      "functions",
+      ".env",
+      "firebase-debug.log",
+      "firebase-debug.*.log"
+    ]
+  },
   "firestore": {
     "rules": "firestore.rules"
   }
-=======
-{
-  "firestore": {
-    "rules": "firestore.rules"
-  }
->>>>>>> 5d13eafd5f985e4911dd75a50f73b745606da752
 }

@@ -109,7 +109,7 @@ export const createCheckoutRouter = ({
         orderId: order.id,
         amount: order.amount,
         currency: order.currency,
-        keyId: razorpayKeyId,
+        keyId: typeof razorpayKeyId === "function" ? razorpayKeyId() : razorpayKeyId,
         itemSubtotal: itemSubtotal / 100,
         postalCharge: postalCharge / 100
       });

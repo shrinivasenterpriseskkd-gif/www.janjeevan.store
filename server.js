@@ -8,26 +8,33 @@ import { DeleteObjectCommand, PutObjectCommand, S3Client } from "@aws-sdk/client
 import { applicationDefault, cert, initializeApp as initializeFirebaseAdmin } from "firebase-admin/app";
 import { getAuth as getFirebaseAdminAuth } from "firebase-admin/auth";
 import { FieldValue, getFirestore as getFirebaseAdminFirestore } from "firebase-admin/firestore";
+import { defineSecret } from "firebase-functions/params";
+import { onRequest } from "firebase-functions/v2/https";
 import { createCheckoutRouter } from "./routes.js";
 const app = express();
 app.set("trust proxy", 1);
 const port = process.env.PORT || 5500;
 const root = path.dirname(fileURLToPath(import.meta.url));
-if (process.env.NODE_ENV === "production") {
-  const requiredEnvironment = ["FIREBASE_SERVICE_ACCOUNT_JSON", "ADMIN_LOGIN_ID", "ADMIN_PASSWORD", "RAZORPAY_KEY_ID", "RAZORPAY_KEY_SECRET", "APP_ALLOWED_ORIGINS", "ADMIN_ALLOWED_ORIGIN"];
-  const missingEnvironment = requiredEnvironment.filter(name => !process.env[name]?.trim());
-  if (missingEnvironment.length) {
-    throw new Error(`Missing required production environment variables: ${missingEnvironment.join(", ")}`);
-  }
-}
-const razorpay = process.env.RAZORPAY_KEY_ID && process.env.RAZORPAY_KEY_SECRET ? new Razorpay({ key_id: process.env.RAZORPAY_KEY_ID, key_secret: process.env.RAZORPAY_KEY_SECRET }) : null;
+const adminLoginIdSecret = defineSecret("ADMIN_LOGIN_ID");
+const adminPasswordSecret = defineSecret("ADMIN_PASSWORD");
+const razorpayKeyIdSecret = defineSecret("RAZORPAY_KEY_ID");
+const razorpayKeySecretSecret = defineSecret("RAZORPAY_KEY_SECRET");
+const postalRatesSecret = defineSecret("INDIA_POST_RETAIL_RATES_JSON");
+const r2AccountIdSecret = defineSecret("CLOUDFLARE_R2_ACCOUNT_ID");
+const r2AccessKeyIdSecret = defineSecret("CLOUDFLARE_R2_ACCESS_KEY_ID");
+const r2SecretAccessKeySecret = defineSecret("CLOUDFLARE_R2_SECRET_ACCESS_KEY");
+const r2BucketNameSecret = defineSecret("CLOUDFLARE_R2_BUCKET_NAME");
+const r2PublicUrlSecret = defineSecret("CLOUDFLARE_R2_PUBLIC_URL");
+let razorpay = process.env.RAZORPAY_KEY_ID && process.env.RAZORPAY_KEY_SECRET
+  ? new Razorpay({ key_id: process.env.RAZORPAY_KEY_ID, key_secret: process.env.RAZORPAY_KEY_SECRET })
+  : null;
 const adminSessions = new Map();
 const loginAttempts = new Map();
 const adminSessionDuration = 8 * 60 * 60 * 1000;
 const loginAttemptWindow = 15 * 60 * 1000;
 const maxLoginAttempts = 5;
-const adminAllowedOrigin = process.env.ADMIN_ALLOWED_ORIGIN || "";
-const appAllowedOrigins = new Set([
+let adminAllowedOrigin = process.env.ADMIN_ALLOWED_ORIGIN || "https://www.janjeevan.store";
+let appAllowedOrigins = new Set([
   ...(process.env.APP_ALLOWED_ORIGINS || "").split(",").map(origin => origin.trim()),
   adminAllowedOrigin
 ].filter(Boolean).map(origin => {
@@ -66,12 +73,12 @@ const firebaseAdminApp = initializeFirebaseAdmin({
 }, "tribes-server");
 const firebaseAdminAuth = getFirebaseAdminAuth(firebaseAdminApp);
 const firebaseAdminDb = getFirebaseAdminFirestore(firebaseAdminApp);
-const r2AccountId = process.env.CLOUDFLARE_R2_ACCOUNT_ID || "";
-const r2AccessKeyId = process.env.CLOUDFLARE_R2_ACCESS_KEY_ID || "";
-const r2SecretAccessKey = process.env.CLOUDFLARE_R2_SECRET_ACCESS_KEY || "";
-const r2BucketName = process.env.CLOUDFLARE_R2_BUCKET_NAME || "";
-const r2PublicUrl = (process.env.CLOUDFLARE_R2_PUBLIC_URL || "").replace(/\/+$/, "");
-const r2Client = r2AccountId && r2AccessKeyId && r2SecretAccessKey
+let r2AccountId = process.env.CLOUDFLARE_R2_ACCOUNT_ID || "";
+let r2AccessKeyId = process.env.CLOUDFLARE_R2_ACCESS_KEY_ID || "";
+let r2SecretAccessKey = process.env.CLOUDFLARE_R2_SECRET_ACCESS_KEY || "";
+let r2BucketName = process.env.CLOUDFLARE_R2_BUCKET_NAME || "";
+let r2PublicUrl = (process.env.CLOUDFLARE_R2_PUBLIC_URL || "").replace(/\/+$/, "");
+let r2Client = r2AccountId && r2AccessKeyId && r2SecretAccessKey
   ? new S3Client({
     region: "auto",
     endpoint: `https://${r2AccountId}.r2.cloudflarestorage.com`,
@@ -280,8 +287,6 @@ app.use((request, response, next) => {
   next();
 });
 
-const secureCookie = process.env.NODE_ENV === "production";
-const cookieSameSite = adminAllowedOrigin ? "None" : "Strict";
 const readAdminSession = request => {
   const cookieHeader = request.headers.cookie || "";
   const token = cookieHeader.split(";").map(cookie => cookie.trim()).find(cookie => cookie.startsWith("tribes_admin_session="))?.slice("tribes_admin_session=".length);
@@ -294,7 +299,11 @@ const readAdminSession = request => {
   }
   return true;
 };
-const adminCookie = (token, maxAge) => `tribes_admin_session=${token}; Path=/; HttpOnly; SameSite=${cookieSameSite}; Max-Age=${maxAge}${secureCookie ? "; Secure" : ""}`;
+const adminCookie = (token, maxAge) => {
+  const cookieSameSite = adminAllowedOrigin ? "None" : "Strict";
+  const secureCookie = process.env.NODE_ENV === "production";
+  return `tribes_admin_session=${token}; Path=/; HttpOnly; SameSite=${cookieSameSite}; Max-Age=${maxAge}${secureCookie ? "; Secure" : ""}`;
+};
 const adminPageProtection = (request, response, next) => {
   if (request.path === "/login.html") return next();
   if (readAdminSession(request)) return next();
@@ -814,11 +823,11 @@ app.post("/api/admin/orders/:orderId/location", async (request, response) => {
 app.use("/api", createCheckoutRouter({
   requireFirebaseUser,
   firebaseAdminDb,
-  razorpay,
+  razorpay: { orders: { create: options => razorpay.orders.create(options) } },
   FieldValue,
   loadCheckoutItems,
   calculatePostalCharge,
-  razorpayKeyId: process.env.RAZORPAY_KEY_ID
+  razorpayKeyId: () => process.env.RAZORPAY_KEY_ID
 }));
 app.use(express.static(root));
 
@@ -2402,4 +2411,81 @@ app.post("/api/orders/:orderId/status", async (request, response) => {
 });
 
 */
-app.listen(port, () => console.log(`Janjeevan.store running at http://localhost:${port}`));
+const functionSecrets = [
+  adminLoginIdSecret,
+  adminPasswordSecret,
+  razorpayKeyIdSecret,
+  razorpayKeySecretSecret,
+  postalRatesSecret,
+  r2AccountIdSecret,
+  r2AccessKeyIdSecret,
+  r2SecretAccessKeySecret,
+  r2BucketNameSecret,
+  r2PublicUrlSecret
+];
+
+export const api = onRequest({
+  region: "us-central1",
+  maxInstances: 10,
+  secrets: functionSecrets
+}, (request, response) => {
+  try {
+    process.env.ADMIN_LOGIN_ID = adminLoginIdSecret.value();
+    process.env.ADMIN_PASSWORD = adminPasswordSecret.value();
+    process.env.RAZORPAY_KEY_ID = razorpayKeyIdSecret.value();
+    process.env.RAZORPAY_KEY_SECRET = razorpayKeySecretSecret.value();
+    const optionalSecrets = [
+      ["INDIA_POST_RETAIL_RATES_JSON", postalRatesSecret],
+      ["CLOUDFLARE_R2_ACCOUNT_ID", r2AccountIdSecret],
+      ["CLOUDFLARE_R2_ACCESS_KEY_ID", r2AccessKeyIdSecret],
+      ["CLOUDFLARE_R2_SECRET_ACCESS_KEY", r2SecretAccessKeySecret],
+      ["CLOUDFLARE_R2_BUCKET_NAME", r2BucketNameSecret],
+      ["CLOUDFLARE_R2_PUBLIC_URL", r2PublicUrlSecret]
+    ];
+    for (const [name, secret] of optionalSecrets) {
+      const value = secret.value();
+      process.env[name] = value === "disabled" ? "" : value;
+    }
+    if (!razorpay) {
+      razorpay = new Razorpay({
+        key_id: process.env.RAZORPAY_KEY_ID,
+        key_secret: process.env.RAZORPAY_KEY_SECRET
+      });
+    }
+    r2AccountId = process.env.CLOUDFLARE_R2_ACCOUNT_ID || "";
+    r2AccessKeyId = process.env.CLOUDFLARE_R2_ACCESS_KEY_ID || "";
+    r2SecretAccessKey = process.env.CLOUDFLARE_R2_SECRET_ACCESS_KEY || "";
+    r2BucketName = process.env.CLOUDFLARE_R2_BUCKET_NAME || "";
+    r2PublicUrl = (process.env.CLOUDFLARE_R2_PUBLIC_URL || "").replace(/\/+$/, "");
+    if (!r2Client && r2AccountId && r2AccessKeyId && r2SecretAccessKey) {
+      r2Client = new S3Client({
+        region: "auto",
+        endpoint: `https://${r2AccountId}.r2.cloudflarestorage.com`,
+        credentials: {
+          accessKeyId: r2AccessKeyId,
+          secretAccessKey: r2SecretAccessKey
+        }
+      });
+    }
+    const origins = [
+      ...(process.env.APP_ALLOWED_ORIGINS || "https://www.janjeevan.store,https://janjeevan.store").split(","),
+      process.env.ADMIN_ALLOWED_ORIGIN || "https://www.janjeevan.store"
+    ].map(origin => origin.trim()).filter(Boolean);
+    adminAllowedOrigin = process.env.ADMIN_ALLOWED_ORIGIN || "https://www.janjeevan.store";
+    appAllowedOrigins = new Set(origins.map(origin => {
+      try {
+        return new URL(origin).origin;
+      } catch {
+        return origin;
+      }
+    }));
+  } catch (error) {
+    console.error("Firebase Functions API secrets are not configured.", error);
+    return response.status(503).json({ error: "The secure API is not configured. Ask the Firebase project administrator to set its required secrets." });
+  }
+  app(request, response);
+});
+
+if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  app.listen(port, () => console.log(`Janjeevan.store running at http://localhost:${port}`));
+}

@@ -11,7 +11,7 @@
 7. Open `http://localhost:5500/admin/index.html`; unauthenticated requests are sent to the Admin sign-in page.
 8. Use Razorpay test payment details while testing. Never commit `.env` or production secrets.
 
-The Admin session is held in an HTTP-only cookie and expires after eight hours. The Express server protects `/admin` and provides Admin sign-in, session, and sign-out endpoints. Host the Admin pages and server on the same origin for server-enforced route protection. GitHub Pages is static hosting and cannot protect the Admin route; do not use it to host a production Admin portal. If hosting the frontend separately, set `APP_ALLOWED_ORIGINS` to the exact comma-separated customer/delivery origins and `ADMIN_ALLOWED_ORIGIN` to the exact Admin origin, set `window.TRIBES_API_BASE_URL` in `js/api-config.js` to the backend HTTPS URL, and run the backend with `NODE_ENV=production`.
+The Admin session is held in an HTTP-only cookie and expires after eight hours. The Express server protects `/admin` and provides Admin sign-in, session, and sign-out endpoints. Host the Admin pages and server on the same origin for server-enforced route protection. GitHub Pages is static hosting and cannot protect the Admin route; do not use it to host a production Admin portal. The API can run locally with the Express server or be deployed as a Firebase HTTPS Function. The production frontend uses the Firebase Function URL from `js/api-config.js`.
 
 Use **Advertisements** in the Admin sidebar to upload a banner, add a headline and optional message/link, and choose whether to publish it immediately or save it as a draft. Published advertisements appear below the storefront hero; remove an advertisement in Admin to take it down.
 
@@ -32,13 +32,34 @@ Accounts and orders previously stored only in browser `localStorage` cannot be s
 
 The storefront market-photo carousel uses photographs from Wikimedia Commons of weekly markets in Araku Valley, Andhra Pradesh. Each photo links to its source and lists its artist and Creative Commons license.
 
-GitHub Pages cannot run the Node/Razorpay server. The frontend uses `https://janjeevan-store-api.onrender.com` for its backend; merchant registration, checkout, Admin, and Delivery Partner APIs require that service to be deployed.
+GitHub Pages cannot run the Node/Razorpay server. The backend API is deployed as the `api` HTTPS function in the `janjeevanstore` Firebase project.
 
-## Backend deployment with Render
+## Firebase Functions API deployment
 
-`render.yaml` defines the Node API service. Create a Render Blueprint from this repository and set the prompted `FIREBASE_SERVICE_ACCOUNT_JSON`, `ADMIN_LOGIN_ID`, `ADMIN_PASSWORD`, `RAZORPAY_KEY_ID`, and `RAZORPAY_KEY_SECRET` values privately in Render. Use a newly rotated Razorpay key pair from one mode (test or live) and a new, strong Admin password. Never put credentials in GitHub, frontend files, or chat.
+Run `npm install` to synchronize dependencies and the lockfile, install the Firebase CLI, then sign in with an account that has access to the `janjeevanstore` Firebase project. Enable billing plus the Cloud Functions, Cloud Build, Artifact Registry, and Secret Manager APIs. The project default is recorded in `.firebaserc`; `firebase.json` deploys the Express API from the repository root as a Node.js 24 HTTPS Function in `us-central1`.
 
-Confirm `https://janjeevan-store-api.onrender.com/healthz` returns `{"status":"ok"}` before relying on the API. You may add `api.janjeevan.store` as a custom domain after removing any conflicting `api` DNS records, then update `js/api-config.js` to use it. Keep `www.janjeevan.store` pointed at GitHub Pages. Add `www.janjeevan.store` to Firebase Authentication's authorized domains and publish `firestore.rules` for `janjeevanstore`. Product photos require a Cloudflare R2 bucket and the `CLOUDFLARE_R2_*` environment variables; add these privately in Render before enabling image uploads. The Render free plan may sleep when idle; use an always-on plan for production checkout and Admin availability.
+Set the required secrets without putting their values in Git:
+
+```sh
+firebase functions:secrets:set ADMIN_LOGIN_ID
+firebase functions:secrets:set ADMIN_PASSWORD
+firebase functions:secrets:set RAZORPAY_KEY_ID
+firebase functions:secrets:set RAZORPAY_KEY_SECRET
+firebase functions:secrets:set INDIA_POST_RETAIL_RATES_JSON
+firebase functions:secrets:set CLOUDFLARE_R2_ACCOUNT_ID
+firebase functions:secrets:set CLOUDFLARE_R2_ACCESS_KEY_ID
+firebase functions:secrets:set CLOUDFLARE_R2_SECRET_ACCESS_KEY
+firebase functions:secrets:set CLOUDFLARE_R2_BUCKET_NAME
+firebase functions:secrets:set CLOUDFLARE_R2_PUBLIC_URL
+```
+
+Use a newly rotated Razorpay key pair from one mode (test or live) and a strong Admin password. If India Post or R2 is not configured yet, set the postal-rates secret to the literal JSON value `null` and each R2 secret to `disabled`; those backend features remain unavailable until real values are configured. Then deploy the API and Firestore rules:
+
+```sh
+firebase deploy --only functions:api,firestore:rules
+```
+
+The API health check is `https://us-central1-janjeevanstore.cloudfunctions.net/api/healthz`; it must return `{"status":"ok"}` before relying on registration or checkout. Add `www.janjeevan.store` and `janjeevan.store` to Firebase Authentication's authorized domains. GitHub Pages remains the static frontend host; Firebase Functions supplies the server-side Razorpay and Firebase Admin API. The function binds the Admin, Razorpay, postal-rate, and R2 secrets listed above.
 
 The checkout uses `/api/orders` to create a server-priced Razorpay order and `/api/payments/verify` to verify its signature and persist the paid order. PhonePe and Google Pay are UPI-app choices presented through Razorpay Checkout; the selected app is chosen in the Razorpay UPI flow. Postal orders require a packed product weight in grams, a postal address, a 6-digit PIN code, and configured India Post rates. The server calculates postage from the total packed weight in 500 g bands and the destination state's configured tariff, then includes it in the Razorpay amount. Postal parcels are saved as awaiting postal dispatch and are not assigned to a Delivery Partner. Add Razorpay webhook handling and reconciliation before production deployment.
 
@@ -51,6 +72,6 @@ Customer and Delivery Partner GPS sharing is opt-in from their order pages. Admi
 1. Create the Firebase project, Firestore database, and web app; update `js/firebase-config.js` with its web configuration.
 2. Enable Email/Password in Firebase Authentication and authorize each deployed frontend hostname.
 3. Publish `firestore.rules`.
-4. Give the Node server Firebase Admin credentials through Application Default Credentials with Firestore access; keep the credential file outside the repository.
-5. Create and configure Cloudflare R2, then set `FIREBASE_PROJECT_ID`, `APP_ALLOWED_ORIGINS`, `ADMIN_ALLOWED_ORIGIN`, R2 credentials/public URL, Razorpay keys, `INDIA_POST_RETAIL_RATES_JSON` (if postal checkout is enabled), and the Admin password on the server.
+4. Deploy the Node API as the Firebase HTTPS Function using the Firebase CLI. Its runtime service account must have Firebase Authentication and Firestore access; do not upload a service-account key.
+5. Set all function secrets listed in the deployment section above, then deploy `functions:api` and `firestore:rules`.
 6. Keep Razorpay secrets, R2 credentials, and Firebase Admin credentials out of frontend files, GitHub, and static hosting.
