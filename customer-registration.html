@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <!doctype html>
 <html lang="en">
 
@@ -104,3 +105,111 @@
 </body>
 
 </html>
+=======
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Janjeevan.store | Customer Registration</title>
+    <meta name="description" content="Create your Janjeevan.store customer account.">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body class="merchant-page customer-page">
+    <header class="store-header">
+        <a class="store-brand" href="index.html"><img src="TribesLogo.jpg" alt="Janjeevan.store logo"><span>Janjeevan.store</span></a>
+        <nav aria-label="Main navigation">
+            <a href="index.html">Shop</a>
+            <a href="cart.html">Cart</a>
+            <a href="customer-login.html">Customer Sign In</a>
+        </nav>
+    </header>
+
+    <main class="merchant-wrap">
+        <section class="merchant-card customer-auth-card">
+            <div class="merchant-header">
+                <p class="store-kicker">Join Janjeevan</p>
+                <h1>Create your customer account</h1>
+                <p>Register once to view your customer profile and order history.</p>
+            </div>
+
+            <form id="customer-registration-form" novalidate>
+                <label>Full Name
+                    <input id="customer-name" name="name" type="text" autocomplete="name" maxlength="100"
+                        placeholder="Enter your full name" required>
+                </label>
+                <label>Date of Birth
+                    <input id="customer-date-of-birth" name="dateOfBirth" type="date" autocomplete="bday" required>
+                </label>
+                <label>Mobile Number
+                    <input id="customer-mobile" name="mobile" type="tel" inputmode="numeric" autocomplete="tel-national"
+                        minlength="10" maxlength="10" pattern="[0-9]{10}" placeholder="10-digit mobile number"
+                        aria-describedby="customer-mobile-hint" required>
+                    <small id="customer-mobile-hint">Enter 10 digits without country code.</small>
+                </label>
+                <label>Email Address
+                    <input id="customer-email" name="email" type="email" autocomplete="email"
+                        placeholder="Enter your email address" required>
+                </label>
+                <label>State / Area
+                    <select id="customer-state" name="state" autocomplete="address-level1" required>
+                        <option value="">Select your state / area</option>
+                        <option>Andhra Pradesh</option><option>Arunachal Pradesh</option><option>Assam</option>
+                        <option>Bihar</option><option>Chhattisgarh</option><option>Goa</option><option>Gujarat</option>
+                        <option>Haryana</option><option>Himachal Pradesh</option><option>Jharkhand</option>
+                        <option>Karnataka</option><option>Kerala</option><option>Madhya Pradesh</option>
+                        <option>Maharashtra</option><option>Manipur</option><option>Meghalaya</option>
+                        <option>Mizoram</option><option>Nagaland</option><option>Odisha</option>
+                        <option>Punjab</option><option>Rajasthan</option><option>Sikkim</option>
+                        <option>Tamil Nadu</option><option>Telangana</option><option>Tripura</option>
+                        <option>Uttar Pradesh</option><option>Uttarakhand</option><option>West Bengal</option>
+                        <option>Andaman and Nicobar Islands</option><option>Chandigarh</option>
+                        <option>Dadra and Nagar Haveli and Daman and Diu</option><option>Delhi</option>
+                        <option>Jammu and Kashmir</option><option>Ladakh</option><option>Lakshadweep</option>
+                        <option>Puducherry</option>
+                    </select>
+                </label>
+                <label>Password
+                    <input id="customer-password" name="password" type="password" autocomplete="new-password"
+                        minlength="8" placeholder="At least 8 characters" required>
+                </label>
+                <label>Confirm Password
+                    <input id="customer-confirm-password" name="confirmPassword" type="password"
+                        autocomplete="new-password" minlength="8" placeholder="Enter password again" required>
+                </label>
+                <button type="submit" class="submit-btn">Create account</button>
+            </form>
+
+            <p id="customer-status" class="status-message" role="status" aria-live="polite"></p>
+            <p class="customer-auth-switch">Already have an account? <a href="customer-login.html">Sign in</a></p>
+        </section>
+    </main>
+
+    <footer class="store-footer">
+        <div class="footer-brand">
+            <img src="TribesLogo.jpg" alt="Janjeevan.store logo">
+            <div><span>Janjeevan.store</span><small>Made for everyday living</small></div>
+        </div>
+        <div class="social-links" aria-label="Social media links">
+            <a href="https://wa.me/?text=Discover%20Janjeevan.store" target="_blank" rel="noopener" aria-label="WhatsApp"><span
+                    class="social-symbol whatsapp">WA</span><span>WhatsApp</span></a>
+            <a href="https://www.facebook.com/sharer/sharer.php" target="_blank" rel="noopener" aria-label="Facebook"><span
+                    class="social-symbol facebook">f</span><span>Facebook</span></a>
+            <a href="https://www.instagram.com/" target="_blank" rel="noopener" aria-label="Instagram"><span
+                    class="social-symbol instagram">◎</span><span>Instagram</span></a>
+            <a href="https://t.me/share/url?url=https%3A%2F%2Fwww.janjeevan.store&amp;text=Discover%20Janjeevan.store"
+                target="_blank" rel="noopener" aria-label="Share Janjeevan.store on Telegram" title="Telegram"><span
+                    class="social-symbol telegram">TG</span><span>Telegram</span></a>
+        </div>
+        <div class="footer-meta">
+            <a href="mailto:comtribes@gmail.com">Contact us: comtribes@gmail.com</a>
+            <small>© 2026 Janjeevan.store. All rights reserved.</small>
+        </div>
+    </footer>
+    <script type="module" src="js/customer-registration.js"></script>
+</body>
+
+</html>
+>>>>>>> 5d13eafd5f985e4911dd75a50f73b745606da752

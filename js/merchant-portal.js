@@ -16,7 +16,10 @@ const apiBase = (window.TRIBES_API_BASE_URL || "").replace(/\/$/, "");
 const merchantList = document.querySelector("#merchant-product-list");
 const catalogStatus = document.querySelector("#merchant-catalog-status");
 const productForm = document.querySelector("#merchant-product-form");
+<<<<<<< HEAD
 const productStatus = document.querySelector("#merchant-product-status");
+=======
+>>>>>>> 5d13eafd5f985e4911dd75a50f73b745606da752
 const imageInput = document.querySelector("#merchant-product-image");
 const imagePreview = document.querySelector("#merchant-product-preview");
 const submitButton = document.querySelector("#merchant-product-submit");
@@ -37,6 +40,7 @@ const gstinForm = document.querySelector("#merchant-gstin-form");
 const gstinInput = document.querySelector("#merchant-gstin-input");
 const gstinStatus = document.querySelector("#merchant-gstin-status");
 const gstinSaveButton = document.querySelector("#merchant-gstin-save");
+<<<<<<< HEAD
 const paymentDetailsForm = document.querySelector("#merchant-payment-details-form");
 const bankAccountInput = document.querySelector("#merchant-bank-account-input");
 const ifscCodeInput = document.querySelector("#merchant-ifsc-code-input");
@@ -46,6 +50,8 @@ const paymentDetailsSaveButton = document.querySelector("#merchant-payment-detai
 const merchantOrderList = document.querySelector("#merchant-order-list");
 const merchantOrdersStatus = document.querySelector("#merchant-orders-status");
 const merchantOrderNotificationsButton = document.querySelector("#enable-merchant-order-notifications");
+=======
+>>>>>>> 5d13eafd5f985e4911dd75a50f73b745606da752
 const escapeHtml = value => String(value ?? "").replace(/[&<>'"]/g, character => ({
     "&": "&amp;",
     "<": "&lt;",
@@ -61,11 +67,14 @@ const money = value => new Intl.NumberFormat("en-IN", {
 const formatPercent = value => Number(value || 0).toLocaleString("en-IN", {
     maximumFractionDigits: 2
 });
+<<<<<<< HEAD
 const merchantOrderMoney = value => new Intl.NumberFormat("en-IN", {
     style: "currency",
     currency: "INR",
     maximumFractionDigits: 2
 }).format(Number(value) || 0);
+=======
+>>>>>>> 5d13eafd5f985e4911dd75a50f73b745606da752
 const effectivePrice = (price, discount) =>
     Math.round((Number(price) || 0) * (1 - Math.min(100, Math.max(0, Number(discount) || 0)) / 100) * 100) / 100;
 const fileToDataUrl = file => new Promise((resolve, reject) => {
@@ -82,7 +91,10 @@ const workbookColumns = [
     "Discount Percent",
     "GST Percent",
     "Available Stock",
+<<<<<<< HEAD
     "Shipping Weight (g)",
+=======
+>>>>>>> 5d13eafd5f985e4911dd75a50f73b745606da752
     "Area",
     "Village / Town",
     "Image Filename"
@@ -107,7 +119,10 @@ document.querySelector("#download-product-template").addEventListener("click", (
             "Discount Percent": 0,
             "GST Percent": 0,
             "Available Stock": 10,
+<<<<<<< HEAD
             "Shipping Weight (g)": 250,
+=======
+>>>>>>> 5d13eafd5f985e4911dd75a50f73b745606da752
             Area: "Araku Valley",
             "Village / Town": "Araku",
             "Image Filename": "sample-basket.jpg"
@@ -118,7 +133,10 @@ document.querySelector("#download-product-template").addEventListener("click", (
             ["Enter one product per row on the Products sheet. Keep the column headings unchanged."],
             ["Required: Product Name, Category, Unit, Price, Available Stock, Area, Village / Town, Image Filename."],
             ["Optional: Discount Percent and GST Percent. Leave blank to use 0."],
+<<<<<<< HEAD
             ["Shipping Weight (g) is the packed weight of one sale unit; enter it for India Post parcel orders."],
+=======
+>>>>>>> 5d13eafd5f985e4911dd75a50f73b745606da752
             ["Select the image files with the matching names from the Image Filename column."],
             ["Accepted image types: JPG, PNG, WebP; each file must be smaller than 5 MB."],
             ["Supported units: piece, kg, g, litre, ml, box, pack, dozen, meter."],
@@ -156,7 +174,10 @@ document.querySelector("#export-merchant-products").addEventListener("click", ()
                 "Discount Percent": Number(product.discountPercent) || 0,
                 "GST Percent": Number(product.gstPercent) || 0,
                 "Available Stock": Number(product.avlbStk ?? product.quantity) || 0,
+<<<<<<< HEAD
                 "Shipping Weight (g)": Number(product.weightGrams) || "",
+=======
+>>>>>>> 5d13eafd5f985e4911dd75a50f73b745606da752
                 Area: product.area || "",
                 "Village / Town": product.village || "",
                 "Image URL": product.imageUrl || ""
@@ -260,12 +281,18 @@ const parseProductWorkbook = async (workbookFile, imageFiles) => {
         const discountValue = value("Discount Percent");
         const gstValue = value("GST Percent");
         const stockValue = value("Available Stock");
+<<<<<<< HEAD
         const weightValue = value("Shipping Weight (g)");
+=======
+>>>>>>> 5d13eafd5f985e4911dd75a50f73b745606da752
         const price = Number(priceValue);
         const discountPercent = discountValue == null || discountValue === "" ? 0 : Number(discountValue);
         const gstPercent = gstValue == null || gstValue === "" ? 0 : Number(gstValue);
         const avlbStk = Number(stockValue);
+<<<<<<< HEAD
         const weightGrams = weightValue == null || weightValue === "" ? null : Number(weightValue);
+=======
+>>>>>>> 5d13eafd5f985e4911dd75a50f73b745606da752
         const rowErrors = [];
 
         if (!name || name.length > 120) rowErrors.push("Product Name is required (max 120 characters)");
@@ -275,7 +302,10 @@ const parseProductWorkbook = async (workbookFile, imageFiles) => {
         if (!Number.isInteger(discountPercent) || discountPercent < 0 || discountPercent > 100) rowErrors.push("Discount Percent must be a whole number from 0 to 100");
         if (!Number.isFinite(gstPercent) || gstPercent < 0 || gstPercent > 100) rowErrors.push("GST Percent must be from 0 to 100");
         if (stockValue == null || stockValue === "" || !Number.isInteger(avlbStk) || avlbStk < 0) rowErrors.push("Available Stock must be a non-negative whole number");
+<<<<<<< HEAD
         if (weightGrams !== null && (!Number.isInteger(weightGrams) || weightGrams < 1 || weightGrams > 100000)) rowErrors.push("Shipping Weight (g) must be a whole number from 1 to 100000");
+=======
+>>>>>>> 5d13eafd5f985e4911dd75a50f73b745606da752
         if (!area || area.length > 100) rowErrors.push("Area is required (max 100 characters)");
         if (!village || village.length > 100) rowErrors.push("Village / Town is required (max 100 characters)");
         if (!imageFilename || !image) rowErrors.push(`No selected image matches "${imageFilename || "(empty)"}"`);
@@ -294,7 +324,10 @@ const parseProductWorkbook = async (workbookFile, imageFiles) => {
                 price,
                 discountPercent,
                 gstPercent,
+<<<<<<< HEAD
                 weightGrams,
+=======
+>>>>>>> 5d13eafd5f985e4911dd75a50f73b745606da752
                 quantity: avlbStk,
                 avlbStk,
                 area,
@@ -311,12 +344,16 @@ const parseProductWorkbook = async (workbookFile, imageFiles) => {
 
 bulkProductForm.addEventListener("submit", async event => {
     event.preventDefault();
+<<<<<<< HEAD
     if (!currentMerchant?.merchantId || !merchantAccount) {
         bulkStatus.textContent = "Products cannot be imported because this signed-in account has no merchant profile and Merchant ID in Firestore. Contact comtribes@gmail.com to restore the merchant profile.";
         bulkStatus.className = "merchant-portal-status error";
         return;
     }
     if (!bulkProductForm.reportValidity()) return;
+=======
+    if (!currentMerchant?.merchantId || !bulkProductForm.reportValidity()) return;
+>>>>>>> 5d13eafd5f985e4911dd75a50f73b745606da752
 
     const workbookFile = bulkWorkbookInput.files?.[0];
     const imageFiles = Array.from(bulkImagesInput.files || []);
@@ -384,6 +421,7 @@ bulkProductForm.addEventListener("submit", async event => {
 let currentMerchant;
 let merchantAccount;
 let merchantProducts = [];
+<<<<<<< HEAD
 let merchantOrders = [];
 let knownMerchantOrderIds = null;
 let orderNotificationPermission = typeof Notification === "undefined" ? "unsupported" : Notification.permission;
@@ -508,16 +546,24 @@ merchantOrderNotificationsButton.addEventListener("click", async () => {
     }
 });
 
+=======
+let shopPhotoPreviewUrl;
+let editingProductId = null;
+
+>>>>>>> 5d13eafd5f985e4911dd75a50f73b745606da752
 const showStatus = (message, type = "") => {
     catalogStatus.textContent = message;
     catalogStatus.className = `merchant-portal-status ${type}`.trim();
 };
 
+<<<<<<< HEAD
 const showProductStatus = (message, type = "") => {
     productStatus.textContent = message;
     productStatus.className = `merchant-portal-status ${type}`.trim();
 };
 
+=======
+>>>>>>> 5d13eafd5f985e4911dd75a50f73b745606da752
 const renderProducts = () => {
     if (!merchantProducts.length) {
         merchantList.innerHTML = '<p class="merchant-product-empty">No products in your catalog yet. Add your first product below.</p>';
@@ -535,7 +581,10 @@ const renderProducts = () => {
                 <p>${escapeHtml(product.area || "Area not set")} · ${escapeHtml(product.village || "Village not set")}</p>
                 <p class="merchant-product-sale-price">${money(effectivePrice(product.price, discount))}<span> / ${escapeHtml(product.uom || "unit")}</span></p>
                 <p class="merchant-product-price-detail">Price: ${money(product.price)} · Discount: ${discount}% · GST: ${formatPercent(gstPercent)}%</p>
+<<<<<<< HEAD
                 <p class="merchant-product-price-detail">Packed weight: ${product.weightGrams ? `${escapeHtml(product.weightGrams)} g` : "Not set"}</p>
+=======
+>>>>>>> 5d13eafd5f985e4911dd75a50f73b745606da752
                 <button class="secondary-btn merchant-product-save" type="button" data-product-id="${escapeHtml(id)}">Edit product</button>
             </div>
         </article>`;
@@ -555,6 +604,7 @@ const resetProductForm = () => {
     document.querySelector("#merchant-product-cancel").hidden = true;
 };
 
+<<<<<<< HEAD
 const disableCatalogSubmission = message => {
     submitButton.disabled = true;
     bulkSubmitButton.disabled = true;
@@ -562,6 +612,8 @@ const disableCatalogSubmission = message => {
     showProductStatus(message, "error");
 };
 
+=======
+>>>>>>> 5d13eafd5f985e4911dd75a50f73b745606da752
 const editProduct = ({ id, product }) => {
     editingProductId = id;
     document.querySelector("#merchant-product-name").value = product.name || "";
@@ -571,7 +623,10 @@ const editProduct = ({ id, product }) => {
     document.querySelector("#merchant-product-discount").value = product.discountPercent ?? 0;
     document.querySelector("#merchant-product-gst").value = product.gstPercent ?? 0;
     document.querySelector("#merchant-product-stock").value = product.avlbStk ?? 0;
+<<<<<<< HEAD
     document.querySelector("#merchant-product-weight").value = product.weightGrams ?? "";
+=======
+>>>>>>> 5d13eafd5f985e4911dd75a50f73b745606da752
     document.querySelector("#merchant-product-area").value = product.area || "";
     document.querySelector("#merchant-product-village").value = product.village || "";
     imageInput.value = "";
@@ -588,11 +643,16 @@ const editProduct = ({ id, product }) => {
 };
 
 const loadProducts = async () => {
+<<<<<<< HEAD
     if (!currentMerchant?.uid) return;
+=======
+    if (!currentMerchant?.merchantId) return;
+>>>>>>> 5d13eafd5f985e4911dd75a50f73b745606da752
 
     merchantList.innerHTML = '<p class="merchant-product-empty">Loading your catalog…</p>';
     showStatus("");
     try {
+<<<<<<< HEAD
         const productsCollection = collection(db, "products");
         const productQueries = [
             getDocs(query(productsCollection, where("ownerUid", "==", currentMerchant.uid)))
@@ -605,6 +665,14 @@ const loadProducts = async () => {
             ...productSnapshots.flatMap(snapshot => snapshot.docs)
         ].map(productDocument => [productDocument.id, productDocument]));
         merchantProducts = [...productDocuments.values()].map(productDocument => ({
+=======
+        const productsQuery = query(
+            collection(db, "products"),
+            where("ownerUid", "==", currentMerchant.uid)
+        );
+        const snapshot = await getDocs(productsQuery);
+        merchantProducts = snapshot.docs.map(productDocument => ({
+>>>>>>> 5d13eafd5f985e4911dd75a50f73b745606da752
             id: productDocument.id,
             product: productDocument.data()
         }));
@@ -704,6 +772,7 @@ gstinForm.addEventListener("submit", async event => {
     }
 });
 
+<<<<<<< HEAD
 ifscCodeInput.addEventListener("input", () => {
     ifscCodeInput.value = ifscCodeInput.value.toUpperCase().replace(/[^0-9A-Z]/g, "").slice(0, 11);
 });
@@ -757,6 +826,8 @@ paymentDetailsForm.addEventListener("submit", async event => {
     }
 });
 
+=======
+>>>>>>> 5d13eafd5f985e4911dd75a50f73b745606da752
 shopPhotoForm.addEventListener("submit", async event => {
     event.preventDefault();
     const file = shopPhotoInput.files?.[0];
@@ -789,6 +860,7 @@ shopPhotoForm.addEventListener("submit", async event => {
 
 productForm.addEventListener("submit", async event => {
     event.preventDefault();
+<<<<<<< HEAD
     if (!currentMerchant?.merchantId || !merchantAccount) {
         showProductStatus("Product upload is unavailable because this signed-in account has no merchant profile and Merchant ID in Firestore. Contact comtribes@gmail.com to restore the merchant profile.", "error");
         return;
@@ -798,32 +870,53 @@ productForm.addEventListener("submit", async event => {
     const file = imageInput.files?.[0];
     if (!editingProductId && !file) {
         showProductStatus("Choose a product photo before uploading.", "error");
+=======
+    if (!currentMerchant?.merchantId || !productForm.reportValidity()) return;
+
+    const file = imageInput.files?.[0];
+    if (!editingProductId && !file) {
+        showStatus("Choose a product photo before uploading.", "error");
+>>>>>>> 5d13eafd5f985e4911dd75a50f73b745606da752
         return;
     }
     const price = Number(document.querySelector("#merchant-product-price").value);
     const discountPercent = Number(document.querySelector("#merchant-product-discount").value);
     const gstPercent = Number(document.querySelector("#merchant-product-gst").value);
     const avlbStk = Number(document.querySelector("#merchant-product-stock").value);
+<<<<<<< HEAD
     const weightInput = document.querySelector("#merchant-product-weight").value.trim();
     const weightGrams = weightInput ? Number(weightInput) : null;
     const productName = document.querySelector("#merchant-product-name").value.trim();
     if (!productName) {
         showProductStatus("Enter a product name.", "error");
+=======
+    const productName = document.querySelector("#merchant-product-name").value.trim();
+    if (!productName) {
+        showStatus("Enter a product name.", "error");
+>>>>>>> 5d13eafd5f985e4911dd75a50f73b745606da752
         return;
     }
     if (!Number.isFinite(price) || price < 0 || !Number.isInteger(discountPercent) ||
         discountPercent < 0 || discountPercent > 100 || !Number.isFinite(gstPercent) ||
         gstPercent < 0 || gstPercent > 100 || !Number.isInteger(avlbStk) || avlbStk < 0) {
+<<<<<<< HEAD
         showProductStatus("Enter a valid price, discount (0–100), GST percentage (0–100), and non-negative stock.", "error");
         return;
     }
     if (weightGrams !== null && (!Number.isInteger(weightGrams) || weightGrams < 1 || weightGrams > 100000)) {
         showProductStatus("Shipping weight must be a whole number from 1 to 100000 grams, or left blank.", "error");
+=======
+        showStatus("Enter a valid price, discount (0–100), GST percentage (0–100), and non-negative stock.", "error");
+>>>>>>> 5d13eafd5f985e4911dd75a50f73b745606da752
         return;
     }
 
     submitButton.disabled = true;
+<<<<<<< HEAD
     showProductStatus(file ? "Uploading your product photo and saving the listing…" : "Saving your product changes…");
+=======
+    showStatus(file ? "Uploading your product photo and saving the listing…" : "Saving your product changes…");
+>>>>>>> 5d13eafd5f985e4911dd75a50f73b745606da752
     let saveStage = "product listing";
     try {
         const existingProduct = editingProductId
@@ -856,7 +949,10 @@ productForm.addEventListener("submit", async event => {
             price,
             discountPercent,
             gstPercent,
+<<<<<<< HEAD
             weightGrams,
+=======
+>>>>>>> 5d13eafd5f985e4911dd75a50f73b745606da752
             quantity: avlbStk,
             avlbStk,
             area: document.querySelector("#merchant-product-area").value.trim(),
@@ -880,7 +976,11 @@ productForm.addEventListener("submit", async event => {
         const successMessage = wasEditing
             ? "Product updated in your catalog."
             : "Product photo, price, discount, and GST rate added to your catalog.";
+<<<<<<< HEAD
         showProductStatus(refreshed
+=======
+        showStatus(refreshed
+>>>>>>> 5d13eafd5f985e4911dd75a50f73b745606da752
             ? successMessage
             : "Product was saved, but the catalog could not refresh. Use Refresh catalog to try again.",
         refreshed ? "" : "error");
@@ -890,7 +990,11 @@ productForm.addEventListener("submit", async event => {
         const message = errorCode === "permission-denied"
             ? `Firebase Firestore denied the product ${editingProductId ? "update" : "listing"}. Verify the products collection permissions.`
             : error.message || `Could not save the ${saveStage}${errorCode ? ` (${errorCode})` : ""}. Check the browser console and try again.`;
+<<<<<<< HEAD
         showProductStatus(message, "error");
+=======
+        showStatus(message, "error");
+>>>>>>> 5d13eafd5f985e4911dd75a50f73b745606da752
     } finally {
         submitButton.disabled = false;
     }
@@ -923,30 +1027,41 @@ onAuthStateChanged(auth, async user => {
     try {
         const merchantSnapshot = await getDoc(doc(db, "merchantAccounts", user.uid));
         if (!merchantSnapshot.exists()) {
+<<<<<<< HEAD
             disableCatalogSubmission("Your sign-in succeeded, but this account has no merchant profile saved in Firestore. Product uploads are disabled until the merchant profile and Merchant ID are restored. Contact comtribes@gmail.com.");
             merchantList.innerHTML = '<p class="merchant-product-empty">Your merchant profile is missing, so the catalog cannot be loaded yet.</p>';
+=======
+            await signOut(auth);
+            window.location.replace("merchant-login.html");
+>>>>>>> 5d13eafd5f985e4911dd75a50f73b745606da752
             return;
         }
 
         merchantAccount = merchantSnapshot.data();
         currentMerchant = { uid: user.uid, merchantId: merchantAccount.merchantId };
+<<<<<<< HEAD
         if (!currentMerchant.merchantId) {
             disableCatalogSubmission("This merchant profile has no Merchant ID. Product uploads are disabled until the profile is corrected. Contact comtribes@gmail.com.");
             merchantList.innerHTML = '<p class="merchant-product-empty">Your Merchant ID is missing, so the catalog cannot be loaded yet.</p>';
             return;
         }
+=======
+>>>>>>> 5d13eafd5f985e4911dd75a50f73b745606da752
         document.querySelector("#merchant-welcome-name").textContent = merchantAccount.fullName || "Merchant";
         document.querySelector("#merchant-gstin").textContent = merchantAccount.gstNumber || "Not provided";
         document.querySelector("#merchant-proprietor-name").textContent = merchantAccount.fullName || "Merchant";
         document.querySelector("#merchant-phone").textContent = merchantAccount.phoneNo || "Not provided";
         document.querySelector("#merchant-shop-category").textContent = merchantAccount.shopCategory || "Not provided";
         gstinInput.value = merchantAccount.gstNumber || "";
+<<<<<<< HEAD
         bankAccountInput.value = merchantAccount.bankAccountNumber || "";
         ifscCodeInput.value = merchantAccount.ifscCode || "";
         upiLinkInput.value = merchantAccount.upiLink || "";
         document.querySelector("#merchant-bank-account").textContent = merchantAccount.bankAccountNumber || "Not provided";
         document.querySelector("#merchant-ifsc-code").textContent = merchantAccount.ifscCode || "Not provided";
         document.querySelector("#merchant-upi-link").textContent = merchantAccount.upiLink || "Not provided";
+=======
+>>>>>>> 5d13eafd5f985e4911dd75a50f73b745606da752
         let shopPhoto = localStorage.getItem(`tribesMerchantShopPhoto:${user.uid}`);
         if (!shopPhoto) {
             try {
@@ -963,6 +1078,7 @@ onAuthStateChanged(auth, async user => {
             shopPhotoImage.hidden = false;
             shopPhotoEmpty.hidden = true;
         }
+<<<<<<< HEAD
         const initialLoads = await Promise.allSettled([
             loadMerchantOrders(),
             loadProducts()
@@ -975,6 +1091,9 @@ onAuthStateChanged(auth, async user => {
             }
         });
         window.setInterval(loadMerchantOrders, 15000);
+=======
+        await loadProducts();
+>>>>>>> 5d13eafd5f985e4911dd75a50f73b745606da752
     } catch (error) {
         console.error("Could not load the authenticated merchant profile.", error);
         showStatus("Your merchant profile could not be loaded. Check Firebase permissions and try again.", "error");

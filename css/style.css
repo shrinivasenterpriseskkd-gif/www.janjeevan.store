@@ -1442,6 +1442,7 @@ button {
     color: var(--store-accent)
 }
 
+<<<<<<< HEAD
 .store-advertisements {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(min(100%, 360px), 1fr));
@@ -1524,6 +1525,8 @@ button {
     }
 }
 
+=======
+>>>>>>> 5d13eafd5f985e4911dd75a50f73b745606da752
 .service-section {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -2266,6 +2269,7 @@ button {
     align-items: start
 }
 
+<<<<<<< HEAD
 .advertisement-list {
     display: grid;
     gap: 12px;
@@ -2352,6 +2356,8 @@ button {
     }
 }
 
+=======
+>>>>>>> 5d13eafd5f985e4911dd75a50f73b745606da752
 .admin-view[hidden] {
     display: none !important;
 }
@@ -5153,11 +5159,14 @@ button {
     color: #a93232;
 }
 
+<<<<<<< HEAD
 .merchant-portal-status.success {
     color: #245c3a;
     font-weight: 600;
 }
 
+=======
+>>>>>>> 5d13eafd5f985e4911dd75a50f73b745606da752
 .merchant-product-list {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
@@ -5790,6 +5799,7 @@ button {
 
 .delivery-login-card .reset-link:hover {
     text-decoration: underline;
+<<<<<<< HEAD
 }
 .cart-page .checkout-choice-group {
     display: grid;
@@ -5841,4 +5851,6 @@ button {
 .cart-page .postal-charge {
     margin: 0;
     color: var(--brand-muted);
+=======
+>>>>>>> 5d13eafd5f985e4911dd75a50f73b745606da752
 }

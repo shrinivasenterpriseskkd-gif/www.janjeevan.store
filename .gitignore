@@ -1,4 +1,10 @@
+<<<<<<< HEAD
 node_modules/
 .env
 *-firebase-adminsdk-*.json
+=======
+node_modules/
+.env
+*-firebase-adminsdk-*.json
+>>>>>>> 5d13eafd5f985e4911dd75a50f73b745606da752
 service-account*.json

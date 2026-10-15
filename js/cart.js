@@ -9,6 +9,7 @@ const cart = document.querySelector("#cart");
 const payButton = document.querySelector("#pay");
 const status = document.querySelector("#status");
 const deliveryState = document.querySelector("#delivery-state");
+<<<<<<< HEAD
 const postalAddressFields = document.querySelector("#postal-address-fields");
 const postalAddress = document.querySelector("#postal-address");
 const postalPincode = document.querySelector("#postal-pincode");
@@ -20,12 +21,19 @@ const shareLocationButton = document.querySelector("#share-customer-location");
 const customerLocationStatus = document.querySelector("#customer-location-status");
 const deliveryMethodInputs = [...document.querySelectorAll('input[name="delivery-method"]')];
 const paymentMethodInputs = [...document.querySelectorAll('input[name="payment-method"]')];
+=======
+const shareLocationButton = document.querySelector("#share-customer-location");
+const customerLocationStatus = document.querySelector("#customer-location-status");
+>>>>>>> 5d13eafd5f985e4911dd75a50f73b745606da752
 let currentCustomer;
 let currentUser;
 let products = [];
 let customerLocation = null;
+<<<<<<< HEAD
 let postalQuote = null;
 let quoteRequestId = 0;
+=======
+>>>>>>> 5d13eafd5f985e4911dd75a50f73b745606da752
 
 const money = value => new Intl.NumberFormat("en-IN", {
     style: "currency",
@@ -33,6 +41,7 @@ const money = value => new Intl.NumberFormat("en-IN", {
     maximumFractionDigits: 2
 }).format(value || 0);
 const effectivePrice = product => Math.round((Number(product.price) || 0) * (1 - Math.min(100, Math.max(0, Number(product.discountPercent) || 0)) / 100) * 100) / 100;
+<<<<<<< HEAD
 const selectedDeliveryMethod = () => deliveryMethodInputs.find(input => input.checked)?.value || "delivery_partner";
 const selectedPaymentMethod = () => paymentMethodInputs.find(input => input.checked)?.value || "phonepe";
 const requestedItems = () => Array.from(products.reduce((quantities, product) =>
@@ -102,6 +111,8 @@ function updateDeliveryFields() {
     shareLocationButton.disabled = postalDelivery;
     refreshPostalQuote();
 }
+=======
+>>>>>>> 5d13eafd5f985e4911dd75a50f73b745606da752
 
 const escapeHtml = value => String(value ?? "").replace(/[&<>'"]/g, char => ({
     "&": "&amp;",
@@ -118,12 +129,19 @@ async function loadCart() {
         products = ids.map(id => productMap.get(id)).filter(Boolean);
         const total = products.reduce((sum, product) => sum + effectivePrice(product), 0);
         document.querySelector("#cart-count").textContent = `${products.length} item${products.length === 1 ? "" : "s"}`;
+<<<<<<< HEAD
         updateTotals(total);
+=======
+        document.querySelector("#cart-total").textContent = money(total);
+>>>>>>> 5d13eafd5f985e4911dd75a50f73b745606da752
         cart.innerHTML = products.length
             ? products.map(product => {const discount=Math.min(100,Math.max(0,Number(product.discountPercent)||0));return `<article class="cart-item"><div class="cart-image"><img src="${escapeHtml(product.imageUrl || "https://via.placeholder.com/200x200?text=Janjeevan.store")}" alt="${escapeHtml(product.name)}"></div><div><h2>${escapeHtml(product.name || "Product")}</h2><p>${escapeHtml(product.uom || "Unit")} · ${product.avlbStk ?? 0} available</p></div><strong>${money(effectivePrice(product))}${discount?`<small class="cart-original-price"><s>${money(product.price)}</s> · ${discount}% off</small>`:""}</strong></article>`}).join("")
             : "<div class=\"cart-empty\"><h2>Your cart is empty</h2><p>Explore the collection to find something you love.</p><a class=\"hero-button\" href=\"index.html\">Browse products <span>→</span></a></div>";
         payButton.disabled = !products.length;
+<<<<<<< HEAD
         if (selectedDeliveryMethod() === "india_post") refreshPostalQuote();
+=======
+>>>>>>> 5d13eafd5f985e4911dd75a50f73b745606da752
     } catch (error) {
         const permissionDenied = error?.code === "permission-denied";
         cart.innerHTML = `<div class="cart-empty"><h2>Cart unavailable</h2><p>${permissionDenied ? "Firestore rules are blocking product reads. Publish the project rules, then reload this page." : "We could not load your products. Please try again."}</p></div>`;
@@ -132,9 +150,12 @@ async function loadCart() {
     }
 }
 
+<<<<<<< HEAD
 deliveryMethodInputs.forEach(input => input.addEventListener("change", updateDeliveryFields));
 deliveryState.addEventListener("change", refreshPostalQuote);
 
+=======
+>>>>>>> 5d13eafd5f985e4911dd75a50f73b745606da752
 shareLocationButton.addEventListener("click", () => {
     if (!navigator.geolocation) {
         customerLocationStatus.textContent = "This browser does not support location sharing.";
@@ -172,12 +193,17 @@ payButton.addEventListener("click", async () => {
         deliveryState.reportValidity();
         return;
     }
+<<<<<<< HEAD
     const deliveryMethod = selectedDeliveryMethod();
     if (deliveryMethod === "delivery_partner" && !customerLocation) {
+=======
+    if (!customerLocation) {
+>>>>>>> 5d13eafd5f985e4911dd75a50f73b745606da752
         customerLocationStatus.textContent = "Share your delivery location before placing this order.";
         shareLocationButton.focus();
         return;
     }
+<<<<<<< HEAD
     if (deliveryMethod === "india_post") {
         if (!postalAddress.reportValidity() || !postalPincode.reportValidity()) return;
         if (!postalQuote) {
@@ -188,6 +214,8 @@ payButton.addEventListener("click", async () => {
             }
         }
     }
+=======
+>>>>>>> 5d13eafd5f985e4911dd75a50f73b745606da752
 
     payButton.disabled = true;
     status.textContent = apiBase ? "Preparing secure checkout..." : "Payments need a deployed checkout server.";
@@ -197,7 +225,10 @@ payButton.addEventListener("click", async () => {
     }
 
     try {
+<<<<<<< HEAD
         const paymentMethod = selectedPaymentMethod();
+=======
+>>>>>>> 5d13eafd5f985e4911dd75a50f73b745606da752
         const response = await fetch(`${apiBase}/api/orders`, {
             method: "POST",
             headers: {
@@ -205,6 +236,7 @@ payButton.addEventListener("click", async () => {
                 "Authorization": `Bearer ${await currentUser.getIdToken()}`
             },
             body: JSON.stringify({
+<<<<<<< HEAD
                 items: requestedItems(),
                 deliveryState: deliveryState.value,
                 deliveryMethod,
@@ -212,6 +244,13 @@ payButton.addEventListener("click", async () => {
                 postalAddress: deliveryMethod === "india_post" ? postalAddress.value.trim() : "",
                 postalPincode: deliveryMethod === "india_post" ? postalPincode.value.trim() : "",
                 customerLocation: deliveryMethod === "delivery_partner" ? customerLocation : null
+=======
+                items: Array.from(products.reduce((quantities, product) =>
+                    quantities.set(product.id, (quantities.get(product.id) || 0) + 1), new Map()),
+                ([id, quantity]) => ({ id, quantity })),
+                deliveryState: deliveryState.value,
+                customerLocation
+>>>>>>> 5d13eafd5f985e4911dd75a50f73b745606da752
             })
         });
         const order = await response.json();
@@ -226,6 +265,7 @@ payButton.addEventListener("click", async () => {
             order_id: order.orderId,
             prefill: { name: currentCustomer?.name || "", contact: currentCustomer?.mobile || "" },
             theme: { color: "#ef6b3f" },
+<<<<<<< HEAD
             config: ["phonepe", "googlepay"].includes(paymentMethod) ? {
                 display: {
                     blocks: {
@@ -238,6 +278,8 @@ payButton.addEventListener("click", async () => {
                     preferences: { show_default_blocks: false }
                 }
             } : undefined,
+=======
+>>>>>>> 5d13eafd5f985e4911dd75a50f73b745606da752
             handler: async payment => {
                 try {
                     status.textContent = "Verifying payment...";
@@ -252,11 +294,17 @@ payButton.addEventListener("click", async () => {
                     const result = await verification.json();
                     if (!verification.ok || !result.verified) throw new Error(result.error || "Payment verification failed");
                     localStorage.removeItem("tribesCart");
+<<<<<<< HEAD
                     status.textContent = result.deliveryMethod === "india_post"
                         ? "Payment successful. Your order is awaiting India Post dispatch."
                         : result.assignedPartnerId
                             ? "Payment successful. Your order was assigned to a Delivery Partner."
                             : "Payment successful. No Delivery Partner is registered in this state yet; your order needs assignment.";
+=======
+                    status.textContent = result.assignedPartnerId
+                        ? "Payment successful. Your order was assigned to a Delivery Partner."
+                        : "Payment successful. No Delivery Partner is registered in this state yet; your order needs assignment.";
+>>>>>>> 5d13eafd5f985e4911dd75a50f73b745606da752
                     payButton.textContent = "Order complete";
                 } catch (error) {
                     console.error("Could not finalize the paid order.", error);
@@ -288,8 +336,14 @@ onAuthStateChanged(auth, async user => {
         console.error("Could not load the signed-in customer profile for checkout.", error);
         status.textContent = "Customer profile could not be loaded. Sign in again and retry.";
     }
+<<<<<<< HEAD
     if (selectedDeliveryMethod() === "india_post") refreshPostalQuote();
 });
 
 loadCart();
 updateDeliveryFields();
+=======
+});
+
+loadCart();
+>>>>>>> 5d13eafd5f985e4911dd75a50f73b745606da752

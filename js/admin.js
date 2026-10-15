@@ -53,12 +53,15 @@ const renderLoginIds = () => {
         ? visible.map(record => `<article class="login-id-row"><div class="login-id-account"><span class="login-id-type">${escapeLoginIdValue(record.type)}</span><strong class="login-id-name">${escapeLoginIdValue(record.name)}</strong></div><div class="login-id-credentials"><span><small>Account ID</small><code class="login-id-value">${escapeLoginIdValue(record.id)}</code></span></div><div class="login-id-contact"><span><small>Email</small>${record.email ? escapeLoginIdValue(record.email) : "Not provided"}</span><span><small>Phone</small>${record.phone ? escapeLoginIdValue(record.phone) : "Not provided"}</span><span><small>Area</small>${record.area ? escapeLoginIdValue(record.area) : "Not provided"}</span></div></article>`).join("")
         : '<div class="empty-state"><p>No account records found.</p></div>';
 };
+<<<<<<< HEAD
 const getFetchErrorMessage = error => {
     if (error instanceof TypeError && /fetch/i.test(error.message)) {
         return "The admin API could not be reached. Verify the backend URL and CORS settings.";
     }
     return error?.message || "Account records could not be loaded. Refresh and try again.";
 };
+=======
+>>>>>>> 5d13eafd5f985e4911dd75a50f73b745606da752
 const loadLoginIds = async () => {
     loginIdStatus.textContent = "Loading account records...";
     loginIdStatus.classList.remove("error");
@@ -71,12 +74,17 @@ const loadLoginIds = async () => {
         loginIdStatus.textContent = "";
     } catch (error) {
         console.error("Could not load Firebase account records.", error);
+<<<<<<< HEAD
         loginIdStatus.textContent = getFetchErrorMessage(error);
+=======
+        loginIdStatus.textContent = error.message || "Account records could not be loaded. Refresh and try again.";
+>>>>>>> 5d13eafd5f985e4911dd75a50f73b745606da752
         loginIdStatus.classList.add("error");
     }
 };
 document.querySelector("#refresh-login-ids").addEventListener("click", loadLoginIds);
 loginIdSearch.addEventListener("input", renderLoginIds);
+<<<<<<< HEAD
 const merchantApprovalList = document.querySelector("#merchant-approval-list");
 const merchantApprovalSearch = document.querySelector("#merchant-approval-search");
 const merchantApprovalFilter = document.querySelector("#merchant-approval-filter");
@@ -195,6 +203,11 @@ merchantApprovalList.addEventListener("click", async event => {
 const updateAdminNavigation = () => {
     const targetId = window.location.hash.slice(1);
     const activeId = ["overview", "accounts", "merchant-approvals", "catalog", "advertisements", "reports"].includes(targetId)
+=======
+const updateAdminNavigation = () => {
+    const targetId = window.location.hash.slice(1);
+    const activeId = ["overview", "accounts", "catalog", "reports"].includes(targetId)
+>>>>>>> 5d13eafd5f985e4911dd75a50f73b745606da752
         ? targetId
         : "overview";
     document.querySelectorAll(".admin-view").forEach(view => {
@@ -204,13 +217,20 @@ const updateAdminNavigation = () => {
         link.classList.toggle("active", link.getAttribute("href") === `#${activeId}`)
     );
     const heading = document.querySelector(".admin-topbar .eyebrow");
+<<<<<<< HEAD
     const labels = { accounts: "Login IDs", "merchant-approvals": "Merchant Approval", advertisements: "Advertisements", reports: "Live Tracking" };
+=======
+    const labels = { accounts: "Login IDs", reports: "Live Tracking" };
+>>>>>>> 5d13eafd5f985e4911dd75a50f73b745606da752
     heading.textContent = `Workspace / ${labels[activeId] || activeId.charAt(0).toUpperCase() + activeId.slice(1)}`;
 };
 window.addEventListener("hashchange", updateAdminNavigation);
 updateAdminNavigation();
 loadLoginIds();
+<<<<<<< HEAD
 loadMerchantApprovals();
+=======
+>>>>>>> 5d13eafd5f985e4911dd75a50f73b745606da752
 const trackingOrders = document.querySelector("#admin-tracking-orders");
 const trackingStatus = document.querySelector("#tracking-status");
 const merchantLocationButton = document.querySelector("#share-merchant-location");
@@ -230,7 +250,11 @@ const renderTrackingOrders = async () => {
         orders = (await loadAdminOrders()).filter(isActiveOrder);
     } catch (error) {
         console.error("Could not load orders for Admin GPS tracking.", error);
+<<<<<<< HEAD
         trackingStatus.textContent = getFetchErrorMessage(error);
+=======
+        trackingStatus.textContent = error.message || "Orders could not be loaded.";
+>>>>>>> 5d13eafd5f985e4911dd75a50f73b745606da752
         trackingStatus.className = "form-message error";
         return;
     }
@@ -242,7 +266,11 @@ const renderTrackingOrders = async () => {
         trackingStatus.textContent = "Merchant location sharing stopped because there are no active orders.";
     }
     trackingOrders.innerHTML = orders.length
+<<<<<<< HEAD
         ? orders.slice().reverse().map(order => `<article class="admin-tracking-card"><div class="admin-tracking-heading"><div><small>Order</small><strong>${escapeLoginIdValue(order.orderId)}</strong></div><span class="customer-order-status">${escapeLoginIdValue(order.status)}</span></div><p>${escapeLoginIdValue(order.customerName || "Customer")} · ${escapeLoginIdValue(order.assignedPartnerId || "No Delivery Partner assigned")} · ${escapeLoginIdValue(order.deliveryState || "Area not set")}</p><p>Delivery: ${escapeLoginIdValue(order.deliveryMethod === "india_post" ? "India Post Retail Parcel" : "Delivery Partner")} · Payment: ${escapeLoginIdValue(order.paymentMethod === "phonepe" ? "PhonePe UPI" : order.paymentMethod === "googlepay" ? "Google Pay UPI" : "Razorpay")}</p><ul>${(Array.isArray(order.items) ? order.items : []).map(item => `<li>${escapeLoginIdValue(item.name)} × ${escapeLoginIdValue(item.quantity)}</li>`).join("")}</ul>${renderOrderMap(order)}</article>`).join("")
+=======
+        ? orders.slice().reverse().map(order => `<article class="admin-tracking-card"><div class="admin-tracking-heading"><div><small>Order</small><strong>${escapeLoginIdValue(order.orderId)}</strong></div><span class="customer-order-status">${escapeLoginIdValue(order.status)}</span></div><p>${escapeLoginIdValue(order.customerName || "Customer")} · ${escapeLoginIdValue(order.assignedPartnerId || "No Delivery Partner assigned")} · ${escapeLoginIdValue(order.deliveryState || "Area not set")}</p><ul>${(Array.isArray(order.items) ? order.items : []).map(item => `<li>${escapeLoginIdValue(item.name)} × ${escapeLoginIdValue(item.quantity)}</li>`).join("")}</ul>${renderOrderMap(order)}</article>`).join("")
+>>>>>>> 5d13eafd5f985e4911dd75a50f73b745606da752
         : '<div class="empty-state"><p>No active orders.</p></div>';
 };
 const updateAdminOrderLocation = async (order, location, clear = false) => {
@@ -368,6 +396,7 @@ const villageOptions={
 const updateVillageOptions=()=>{const selectedArea=area.value.split("|")[0]||"";const options=villageOptions[selectedArea]||[];village.innerHTML=options.length?`<option value="">Select village</option>${options.map(item=>`<option value="${item}">${item}</option>`).join("")}`:`<option value="">Select village</option>`;village.disabled=!options.length;village.value="";};
 area.addEventListener("change",()=>{const[areaName,lat,long]=area.value.split("|");latitude.value=lat||"";longitude.value=long||"";updateVillageOptions();});
 updateVillageOptions();
+<<<<<<< HEAD
 const fileToDataUrl=(file,imageLabel="product image")=>new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=()=>reject(new Error(`Could not read the selected ${imageLabel}.`));reader.readAsDataURL(file)});
 const advertisementForm=document.querySelector("#advertisement-form");
 const advertisementImage=document.querySelector("#advertisement-image");
@@ -382,6 +411,9 @@ advertisementImage.addEventListener("change",()=>{const file=advertisementImage.
 advertisementList.addEventListener("click",async event=>{const button=event.target.closest("[data-advertisement-id]");if(!button)return;button.disabled=true;advertisementMessage.textContent="Removing advertisement...";advertisementMessage.classList.remove("error");try{const response=await fetch(`${adminApiBase}/api/admin/advertisements/${encodeURIComponent(button.dataset.advertisementId)}`,{method:"DELETE",credentials:"include"});const result=await response.json();if(!response.ok)throw new Error(result.error||"Advertisement could not be removed.");advertisements=advertisements.filter(advertisement=>advertisement.id!==button.dataset.advertisementId);renderAdvertisements();advertisementMessage.textContent=result.imageCleanupWarning?"Advertisement was removed, but its uploaded image could not be deleted from storage.":"Advertisement removed."}catch(error){console.error("Could not remove Admin advertisement.",error);advertisementMessage.textContent=error.message||"Advertisement could not be removed.";advertisementMessage.classList.add("error");button.disabled=false}});
 advertisementForm.addEventListener("submit",async event=>{event.preventDefault();if(!advertisementForm.checkValidity()){advertisementForm.reportValidity();return}const file=advertisementImage.files?.[0];if(!file){advertisementMessage.textContent="Choose an advertisement image before saving.";advertisementMessage.classList.add("error");return}if(!["image/jpeg","image/png","image/webp"].includes(file.type)||file.size>=5*1024*1024){advertisementMessage.textContent="Choose a JPG, PNG, or WebP image smaller than 5 MB.";advertisementMessage.classList.add("error");return}const button=document.querySelector("#save-advertisement");button.disabled=true;advertisementMessage.classList.remove("error");advertisementMessage.textContent="Uploading advertisement...";try{const advertisement={title:document.querySelector("#advertisement-title").value.trim(),description:document.querySelector("#advertisement-description").value.trim(),linkUrl:document.querySelector("#advertisement-link").value.trim(),active:document.querySelector("#advertisement-active").checked};const response=await fetch(`${adminApiBase}/api/admin/advertisements`,{method:"POST",credentials:"include",headers:{"Content-Type":"application/json"},body:JSON.stringify({advertisement,imageDataUrl:await fileToDataUrl(file,"advertisement image")})});const result=await response.json();if(!response.ok)throw new Error(result.error||"Advertisement could not be saved.");advertisements.unshift(result.advertisement);renderAdvertisements();advertisementMessage.textContent=advertisement.active?"Advertisement published on the storefront.":"Advertisement saved as a draft.";event.target.reset();advertisementPreview.innerHTML="<span>＋</span><strong>Choose advertisement image</strong><small>PNG, JPG, or WebP under 5 MB</small>"}catch(error){console.error("Could not save Admin advertisement.",error);advertisementMessage.textContent=error.message||"Advertisement could not be saved.";advertisementMessage.classList.add("error")}finally{button.disabled=false}});
 loadAdvertisements();
+=======
+const fileToDataUrl=file=>new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=()=>reject(new Error("Could not read the selected product image."));reader.readAsDataURL(file)});
+>>>>>>> 5d13eafd5f985e4911dd75a50f73b745606da752
 form.onsubmit=async e=>{
     e.preventDefault();
     if(!form.checkValidity()){form.reportValidity();return}
@@ -392,13 +424,21 @@ form.onsubmit=async e=>{
     const saveButton=document.querySelector("#save-button");saveButton.disabled=true;msg.textContent="Uploading product...";
     try{
         const[areaName]=area.value.split("|");
+<<<<<<< HEAD
         const weightInput=document.querySelector("#weight-grams").value.trim(),weightGrams=weightInput?Number(weightInput):null;
         if(weightGrams!==null&&(!Number.isInteger(weightGrams)||weightGrams<1||weightGrams>100000)){msg.textContent="Shipping weight must be a whole number from 1 to 100000 grams, or left blank.";return}
         const product={name:pname.value.trim(),uom:uom.value,quantity:+quantity.value||0,avlbStk:+stock.value||0,price:+price.value||0,discountPercent,weightGrams,area:areaName,village:village.value.trim(),latitude:+latitude.value||0,longitude:+longitude.value||0};
+=======
+        const product={name:pname.value.trim(),uom:uom.value,quantity:+quantity.value||0,avlbStk:+stock.value||0,price:+price.value||0,discountPercent,area:areaName,village:village.value.trim(),latitude:+latitude.value||0,longitude:+longitude.value||0};
+>>>>>>> 5d13eafd5f985e4911dd75a50f73b745606da752
         const response=await fetch(`${adminApiBase}/api/admin/products`,{method:"POST",credentials:"include",headers:{"Content-Type":"application/json"},body:JSON.stringify({product,imageDataUrl:await fileToDataUrl(file)})});
         const result=await response.json();if(!response.ok)throw new Error(result.error||"Product could not be saved.");
         catalogProducts.unshift({id:result.id,product:result.product});msg.textContent="Product saved.";e.target.reset();imagePreview.innerHTML="<span>＋</span><strong>Choose product image</strong><small>PNG, JPG up to 5MB</small>";village.value="";updateVillageOptions();latitude.value="";longitude.value="";renderProducts();
     }catch(error){console.error(error);msg.textContent=error.message||"Product could not be saved."}
     finally{saveButton.disabled=false}
 };
+<<<<<<< HEAD
 document.querySelector("#export").onclick=async()=>{try{const s=await getDocs(collection(db,"products"));const quote=value=>`"${String(value??"").replace(/"/g,'""')}"`;const rows=[["Product Name","UOM","Quantity","Available Stock","Price","Discount Percent","Sale Price","Shipping Weight (g)","Area","Village","Latitude","Longitude","Image URL"],...s.docs.map(d=>{const p=d.data();return[p.name,p.uom,p.quantity,p.avlbStk,p.price,p.discountPercent||0,effectivePrice(p),p.weightGrams,p.area,p.village,p.latitude,p.longitude,p.imageUrl]})];const csv=rows.map(row=>row.map(quote).join(",")).join("\r\n");const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"}));a.download="tribes-products.csv";a.click();window.setTimeout(()=>URL.revokeObjectURL(a.href),1000)}catch(error){console.error("Could not export product catalog.",error);msg.textContent="Products could not be exported. Check Firebase permissions and try again."}};
+=======
+document.querySelector("#export").onclick=async()=>{try{const s=await getDocs(collection(db,"products"));const quote=value=>`"${String(value??"").replace(/"/g,'""')}"`;const rows=[["Product Name","UOM","Quantity","Available Stock","Price","Discount Percent","Sale Price","Area","Village","Latitude","Longitude","Image URL"],...s.docs.map(d=>{const p=d.data();return[p.name,p.uom,p.quantity,p.avlbStk,p.price,p.discountPercent||0,effectivePrice(p),p.area,p.village,p.latitude,p.longitude,p.imageUrl]})];const csv=rows.map(row=>row.map(quote).join(",")).join("\r\n");const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"}));a.download="tribes-products.csv";a.click();window.setTimeout(()=>URL.revokeObjectURL(a.href),1000)}catch(error){console.error("Could not export product catalog.",error);msg.textContent="Products could not be exported. Check Firebase permissions and try again."}};
+>>>>>>> 5d13eafd5f985e4911dd75a50f73b745606da752

@@ -1,9 +1,13 @@
+<<<<<<< HEAD
 import {
     browserLocalPersistence,
     createUserWithEmailAndPassword,
     deleteUser,
     setPersistence
 } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
+=======
+import { createUserWithEmailAndPassword, deleteUser } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
+>>>>>>> 5d13eafd5f985e4911dd75a50f73b745606da752
 import { doc, serverTimestamp, setDoc } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-firestore.js";
 import { auth, db } from "./firebase-config.js";
 
@@ -275,7 +279,10 @@ form.addEventListener('submit', async (event) => {
         const password = generatePassword();
         registration.shopPhotoDataUrl = await compressShopPhoto(shopPhoto);
 
+<<<<<<< HEAD
         await setPersistence(auth, browserLocalPersistence);
+=======
+>>>>>>> 5d13eafd5f985e4911dd75a50f73b745606da752
         firebaseUser = (await createUserWithEmailAndPassword(auth, registration.email, password)).user;
         showStatus('Opening secure one-time ₹1 registration-fee checkout...', 'pending');
         await collectRegistrationFee(registration);

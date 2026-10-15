@@ -54,10 +54,16 @@ function renderOrders() {
             <div><span>Order</span><h3>${escapeHtml(order.orderId)}</h3></div>
             <span class="customer-order-status">${escapeHtml(order.status)}</span>
             <p>${escapeHtml(order.deliveryState)} · ${escapeHtml(new Date(order.createdAt).toLocaleDateString('en-IN'))}</p>
+<<<<<<< HEAD
             <p>Payment: ${escapeHtml(order.paymentMethod === 'phonepe' ? 'PhonePe UPI' : order.paymentMethod === 'googlepay' ? 'Google Pay UPI' : 'Razorpay')}</p>
             <ul>${(Array.isArray(order.items) ? order.items : []).map(item => `<li>${escapeHtml(item.name)} × ${escapeHtml(item.quantity)}</li>`).join('')}</ul>
             <strong>${escapeHtml(new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(order.amount || 0))}</strong>
             ${isActiveOrder(order) && order.deliveryMethod !== 'india_post' ? `<div class="order-tracking-actions"><button class="button secondary" type="button" data-location-action="${customerWatchId === null ? 'start' : 'stop'}">${customerWatchId === null ? 'Share live location' : 'Stop sharing location'}</button><span>Sharing is optional and ends when you stop it or the order is delivered.</span></div>` : ''}
+=======
+            <ul>${(Array.isArray(order.items) ? order.items : []).map(item => `<li>${escapeHtml(item.name)} × ${escapeHtml(item.quantity)}</li>`).join('')}</ul>
+            <strong>${escapeHtml(new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(order.amount || 0))}</strong>
+            ${isActiveOrder(order) ? `<div class="order-tracking-actions"><button class="button secondary" type="button" data-location-action="${customerWatchId === null ? 'start' : 'stop'}">${customerWatchId === null ? 'Share live location' : 'Stop sharing location'}</button><span>Sharing is optional and ends when you stop it or the order is delivered.</span></div>` : ''}
+>>>>>>> 5d13eafd5f985e4911dd75a50f73b745606da752
             ${renderOrderMap(order)}
         </article>
     `).join('');
@@ -167,8 +173,13 @@ onAuthStateChanged(auth, async user => {
     try {
         const profile = await getDoc(doc(db, 'customerAccounts', user.uid));
         if (!profile.exists()) {
+<<<<<<< HEAD
             orderStatus.textContent = 'Your sign-in succeeded, but this account has no customer profile saved in Firestore. You are still signed in. Contact comtribes@gmail.com to restore the customer profile.';
             orderStatus.className = 'status-message error';
+=======
+            await signOut(auth);
+            window.location.replace('customer-login.html');
+>>>>>>> 5d13eafd5f985e4911dd75a50f73b745606da752
             return;
         }
         currentCustomer = profile.data();

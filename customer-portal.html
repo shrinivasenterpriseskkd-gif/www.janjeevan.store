@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <!doctype html>
 <html lang="en">
 
@@ -58,4 +59,66 @@
     <script type="module" src="js/customer-portal.js"></script>
 </body>
 
+=======
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Janjeevan.store | Customer Account</title>
+    <meta name="description" content="Manage your Janjeevan.store customer profile and see your orders.">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body class="store-page customer-portal-page">
+    <header class="store-header">
+        <a class="store-brand" href="index.html"><img src="TribesLogo.jpg" alt="Janjeevan.store logo" width="42" height="42"><span>Janjeevan.store</span></a>
+        <nav aria-label="Customer navigation">
+            <a href="index.html">Shop</a>
+            <a href="cart.html">Cart</a>
+            <button id="customer-sign-out" class="customer-sign-out" type="button">Sign out</button>
+        </nav>
+    </header>
+
+    <main class="customer-portal-main">
+        <section class="customer-profile-card">
+            <p class="store-kicker">Your account</p>
+            <h1>Hello, <span id="portal-customer-name"></span></h1>
+            <dl>
+                <div>
+                    <dt>Date of Birth</dt>
+                    <dd id="portal-customer-dob"></dd>
+                </div>
+                <div>
+                    <dt>Mobile Number</dt>
+                    <dd id="portal-customer-mobile"></dd>
+                </div>
+                <div>
+                    <dt>Email Address</dt>
+                    <dd id="portal-customer-email"></dd>
+                </div>
+                <div>
+                    <dt>State / Area</dt>
+                    <dd id="portal-customer-state"></dd>
+                </div>
+            </dl>
+            <a class="customer-shop-link" href="index.html">Continue shopping <span>→</span></a>
+        </section>
+
+        <section class="customer-orders-section">
+            <div class="customer-orders-heading">
+                <div>
+                    <p class="store-kicker">Your purchases</p>
+                    <h2>Order History</h2>
+                </div>
+            </div>
+            <p id="customer-orders-status" class="status-message" role="status" aria-live="polite"></p>
+            <div id="customer-orders-list" class="customer-orders-list"></div>
+        </section>
+    </main>
+    <script type="module" src="js/customer-portal.js"></script>
+</body>
+
+>>>>>>> 5d13eafd5f985e4911dd75a50f73b745606da752
 </html>

@@ -144,12 +144,15 @@ const escapeHtml = value => String(value ?? '').replace(/[&<>'"]/g, character =>
 })[character]);
 
 export function renderOrderMap(order) {
+<<<<<<< HEAD
     if (order.deliveryMethod === 'india_post') {
         const address = String(order.postalAddress || '').trim();
         const pincode = String(order.postalPincode || '').trim();
         const charge = Number(order.postalCharge) || 0;
         return `<div class="delivery-map-unavailable"><strong>India Post Retail Parcel</strong><br>${escapeHtml(address)}${pincode ? `<br>${escapeHtml(pincode)}` : ''}<br>Postal charge: ${escapeHtml(new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(charge))}</div>`;
     }
+=======
+>>>>>>> 5d13eafd5f985e4911dd75a50f73b745606da752
     if (!isActiveOrder(order)) {
         return '<div class="delivery-map-unavailable">Order completed; live GPS sharing has stopped.</div>';
     }
