@@ -54,9 +54,10 @@ function renderOrders() {
             <div><span>Order</span><h3>${escapeHtml(order.orderId)}</h3></div>
             <span class="customer-order-status">${escapeHtml(order.status)}</span>
             <p>${escapeHtml(order.deliveryState)} · ${escapeHtml(new Date(order.createdAt).toLocaleDateString('en-IN'))}</p>
+            <p>Payment: ${escapeHtml(order.paymentMethod === 'phonepe' ? 'PhonePe UPI' : order.paymentMethod === 'googlepay' ? 'Google Pay UPI' : 'Razorpay')}</p>
             <ul>${(Array.isArray(order.items) ? order.items : []).map(item => `<li>${escapeHtml(item.name)} × ${escapeHtml(item.quantity)}</li>`).join('')}</ul>
             <strong>${escapeHtml(new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(order.amount || 0))}</strong>
-            ${isActiveOrder(order) ? `<div class="order-tracking-actions"><button class="button secondary" type="button" data-location-action="${customerWatchId === null ? 'start' : 'stop'}">${customerWatchId === null ? 'Share live location' : 'Stop sharing location'}</button><span>Sharing is optional and ends when you stop it or the order is delivered.</span></div>` : ''}
+            ${isActiveOrder(order) && order.deliveryMethod !== 'india_post' ? `<div class="order-tracking-actions"><button class="button secondary" type="button" data-location-action="${customerWatchId === null ? 'start' : 'stop'}">${customerWatchId === null ? 'Share live location' : 'Stop sharing location'}</button><span>Sharing is optional and ends when you stop it or the order is delivered.</span></div>` : ''}
             ${renderOrderMap(order)}
         </article>
     `).join('');

@@ -153,6 +153,107 @@ const requireFirebaseUser = async request => {
   }
 };
 
+const getPostalRate = deliveryState => {
+  let rateConfig;
+  try {
+    rateConfig = JSON.parse(process.env.INDIA_POST_RETAIL_RATES_JSON || "null");
+  } catch {
+    const error = new Error("India Post Retail Parcel rates are not valid JSON. Update INDIA_POST_RETAIL_RATES_JSON on the server.");
+    error.status = 503;
+    throw error;
+  }
+  const rate = rateConfig?.states?.[deliveryState] || rateConfig?.default;
+  if (!rate || !Number.isFinite(Number(rate.first500g)) || Number(rate.first500g) <= 0 ||
+    !Number.isFinite(Number(rate.additional500g)) || Number(rate.additional500g) < 0 ||
+    !Number.isFinite(Number(rate.gstPercent)) || Number(rate.gstPercent) < 0 || Number(rate.gstPercent) > 100) {
+    const error = new Error("India Post Retail Parcel rates are not configured for this destination. Configure a default or destination-state rate on the server.");
+    error.status = 503;
+    throw error;
+  }
+  return rate;
+};
+
+const calculatePostalCharge = (weightGrams, deliveryState) => {
+  if (!Number.isInteger(weightGrams) || weightGrams < 1) {
+    const error = new Error("Enter a packed shipping weight for every product before choosing India Post.");
+    error.status = 400;
+    throw error;
+  }
+  const rate = getPostalRate(deliveryState);
+  const weightBands = Math.ceil(weightGrams / 500);
+  const beforeTax = Number(rate.first500g) + (weightBands - 1) * Number(rate.additional500g);
+  return Math.round(beforeTax * (1 + Number(rate.gstPercent) / 100) * 100);
+};
+
+const loadCheckoutItems = async requestedItems => {
+  if (!Array.isArray(requestedItems) || !requestedItems.length || requestedItems.length > 20) {
+    const error = new Error("Cart must contain between 1 and 20 products.");
+    error.status = 400;
+    throw error;
+  }
+  const quantities = new Map();
+  for (const item of requestedItems) {
+    const id = String(item?.id || "").trim();
+    const quantity = Number(item?.quantity);
+    if (!id || !Number.isInteger(quantity) || quantity < 1 || quantity > 100) {
+      const error = new Error("Cart contains an invalid product or quantity.");
+      error.status = 400;
+      throw error;
+    }
+    const combinedQuantity = (quantities.get(id) || 0) + quantity;
+    if (combinedQuantity > 100) {
+      const error = new Error("Cart quantity cannot exceed 100 for one product.");
+      error.status = 400;
+      throw error;
+    }
+    quantities.set(id, combinedQuantity);
+  }
+
+  const items = [];
+  let itemSubtotal = 0;
+  let totalWeightGrams = 0;
+  for (const [productId, quantity] of quantities) {
+    const productSnapshot = await firebaseAdminDb.collection("products").doc(productId).get();
+    if (!productSnapshot.exists) {
+      const error = new Error("A product in your cart is no longer available.");
+      error.status = 409;
+      throw error;
+    }
+    const product = productSnapshot.data();
+    const price = Number(product.price);
+    const discount = Number(product.discountPercent) || 0;
+    const stock = Number(product.avlbStk);
+    if (!Number.isFinite(price) || price < 0 || !Number.isFinite(stock) || stock < quantity ||
+      !Number.isFinite(discount) || discount < 0 || discount > 100) {
+      const error = new Error(`${product.name || "A product"} has insufficient stock or invalid pricing.`);
+      error.status = 409;
+      throw error;
+    }
+    const salePrice = Math.round(price * (1 - discount / 100) * 100) / 100;
+    itemSubtotal += Math.round(salePrice * 100) * quantity;
+    const weightGrams = Number(product.weightGrams);
+    if (Number.isInteger(weightGrams) && weightGrams > 0 && weightGrams <= 100000) {
+      totalWeightGrams += weightGrams * quantity;
+    }
+    items.push({
+      productId,
+      quantity,
+      name: String(product.name || "Product"),
+      price: salePrice,
+      listPrice: price,
+      discountPercent: discount,
+      weightGrams: Number.isInteger(weightGrams) && weightGrams > 0 && weightGrams <= 100000 ? weightGrams : null,
+      merchantId: String(product.merchantId || ""),
+      area: String(product.area || ""),
+      village: String(product.village || ""),
+      merchantLocation: Number.isFinite(Number(product.latitude)) && Number.isFinite(Number(product.longitude))
+        ? { latitude: Number(product.latitude), longitude: Number(product.longitude), label: product.village || product.area || "Merchant pickup area" }
+        : null
+    });
+  }
+  return { items, itemSubtotal, totalWeightGrams };
+};
+
 if (!razorpay) console.warn("Razorpay keys are missing. Add them to .env before checkout.");
 app.use(express.json({ limit: "8mb" }));
 app.get("/healthz", (request, response) => response.status(200).json({ status: "ok" }));
@@ -591,6 +692,11 @@ app.get("/api/merchant/orders", async (request, response) => {
         customerName: String(order.customerName || "Customer"),
         customerMobile: String(order.customerMobile || ""),
         deliveryState: String(order.deliveryState || ""),
+        deliveryMethod: String(order.deliveryMethod || "delivery_partner"),
+        postalAddress: String(order.postalAddress || ""),
+        postalPincode: String(order.postalPincode || ""),
+        postalCharge: Number(order.postalCharge) || 0,
+        paymentMethod: String(order.paymentMethod || "razorpay"),
         status: String(order.status || "Unassigned"),
         amount: Math.round(items.reduce((sum, item) => sum + item.price * item.quantity, 0) * 100) / 100,
         items,
@@ -613,10 +719,12 @@ app.post("/api/admin/products", async (request, response) => {
   const price = Number(submittedProduct?.price);
   const discountPercent = Number(submittedProduct?.discountPercent);
   const stock = Number(submittedProduct?.avlbStk);
+  const weightGrams = submittedProduct?.weightGrams == null ? null : Number(submittedProduct.weightGrams);
   const productName = String(submittedProduct?.name || "").trim();
   if (!productName || productName.length > 120 || !Number.isFinite(price) || price < 0 ||
     !Number.isInteger(discountPercent) || discountPercent < 0 || discountPercent > 100 ||
-    !Number.isInteger(stock) || stock < 0) {
+    !Number.isInteger(stock) || stock < 0 ||
+    (weightGrams !== null && (!Number.isInteger(weightGrams) || weightGrams < 1 || weightGrams > 100000))) {
     return response.status(400).json({ error: "Product name, price, discount, and stock are invalid." });
   }
 
@@ -634,6 +742,7 @@ app.post("/api/admin/products", async (request, response) => {
       avlbStk: stock,
       price,
       discountPercent,
+      weightGrams,
       area: String(submittedProduct.area || ""),
       village: String(submittedProduct.village || ""),
       latitude: Number(submittedProduct.latitude) || 0,
@@ -703,6 +812,31 @@ app.post("/api/admin/orders/:orderId/location", async (request, response) => {
 
 app.use(express.static(root));
 
+app.post("/api/postal/quote", async (request, response) => {
+  try {
+    const user = await requireFirebaseUser(request);
+    const customerSnapshot = await firebaseAdminDb.collection("customerAccounts").doc(user.uid).get();
+    if (!customerSnapshot.exists) return response.status(403).json({ error: "A customer account is required to check out." });
+    const deliveryState = String(request.body?.deliveryState || "").trim();
+    if (!deliveryState) return response.status(400).json({ error: "Choose a delivery state to calculate postage." });
+    const { items, itemSubtotal, totalWeightGrams } = await loadCheckoutItems(request.body?.items);
+    if (items.some(item => !item.weightGrams)) {
+      return response.status(400).json({ error: "Add a packed shipping weight to every cart product before using India Post." });
+    }
+    const postalCharge = calculatePostalCharge(totalWeightGrams, deliveryState);
+    response.json({
+      itemSubtotal: itemSubtotal / 100,
+      postalCharge: postalCharge / 100,
+      total: (itemSubtotal + postalCharge) / 100,
+      totalWeightGrams
+    });
+  } catch (error) {
+    if (error.status) return response.status(error.status).json({ error: error.message });
+    console.error("Could not calculate India Post Retail Parcel charges.", error);
+    response.status(503).json({ error: "India Post postage could not be calculated. Try again or contact support." });
+  }
+});
+
 app.post("/api/orders", async (request, response) => {
   try {
     const user = await requireFirebaseUser(request);
@@ -710,75 +844,76 @@ app.post("/api/orders", async (request, response) => {
     const customerSnapshot = await firebaseAdminDb.collection("customerAccounts").doc(user.uid).get();
     if (!customerSnapshot.exists) return response.status(403).json({ error: "A customer account is required to check out." });
     const customer = customerSnapshot.data();
-    const requestedItems = Array.isArray(request.body.items) ? request.body.items : [];
-    if (!requestedItems.length || requestedItems.length > 20) return response.status(400).json({ error: "Cart must contain between 1 and 20 products." });
-    const deliveryState = String(request.body.deliveryState || "").trim();
-    const location = request.body.customerLocation;
-    if (!deliveryState || !location || !Number.isFinite(Number(location.latitude)) ||
+    const body = request.body || {};
+    const deliveryState = String(body.deliveryState || "").trim();
+    const deliveryMethod = String(body.deliveryMethod || "");
+    const paymentMethod = String(body.paymentMethod || "");
+    const location = body.customerLocation;
+    const postalAddress = String(body.postalAddress || "").trim();
+    const postalPincode = String(body.postalPincode || "").trim();
+    if (!deliveryState || !["delivery_partner", "india_post"].includes(deliveryMethod) ||
+      !["phonepe", "googlepay", "razorpay"].includes(paymentMethod)) {
+      return response.status(400).json({ error: "Choose a valid delivery and payment method." });
+    }
+    if (deliveryMethod === "delivery_partner" && (!location || !Number.isFinite(Number(location.latitude)) ||
       !Number.isFinite(Number(location.longitude)) || Math.abs(Number(location.latitude)) > 90 ||
-      Math.abs(Number(location.longitude)) > 180) {
-      return response.status(400).json({ error: "A delivery area and valid delivery location are required." });
+      Math.abs(Number(location.longitude)) > 180)) {
+      return response.status(400).json({ error: "A delivery area and valid delivery location are required for Delivery Partner service." });
     }
-
-    const quantities = new Map();
-    for (const item of requestedItems) {
-      const id = String(item?.id || "").trim();
-      const quantity = Number(item?.quantity);
-      if (!id || !Number.isInteger(quantity) || quantity < 1 || quantity > 100) {
-        return response.status(400).json({ error: "Cart contains an invalid product or quantity." });
-      }
-      quantities.set(id, (quantities.get(id) || 0) + quantity);
+    if (deliveryMethod === "india_post" && (!postalAddress || postalAddress.length > 500 || !/^[1-9][0-9]{5}$/.test(postalPincode))) {
+      return response.status(400).json({ error: "Enter a postal address and a valid 6-digit Indian PIN code." });
     }
-
-    const items = [];
-    let amount = 0;
-    for (const [productId, quantity] of quantities) {
-      const productSnapshot = await firebaseAdminDb.collection("products").doc(productId).get();
-      if (!productSnapshot.exists) return response.status(409).json({ error: "A product in your cart is no longer available." });
-      const product = productSnapshot.data();
-      const price = Number(product.price);
-      const discount = Number(product.discountPercent) || 0;
-      const stock = Number(product.avlbStk);
-      if (!Number.isFinite(price) || price < 0 || !Number.isFinite(stock) || stock < quantity ||
-        !Number.isFinite(discount) || discount < 0 || discount > 100) {
-        return response.status(409).json({ error: `${product.name || "A product"} has insufficient stock or invalid pricing.` });
-      }
-      const salePrice = Math.round(price * (1 - discount / 100) * 100) / 100;
-      amount += Math.round(salePrice * 100) * quantity;
-      items.push({
-        productId,
-        quantity,
-        name: String(product.name || "Product"),
-        price: salePrice,
-        listPrice: price,
-        discountPercent: discount,
-        merchantId: String(product.merchantId || ""),
-        area: String(product.area || ""),
-        village: String(product.village || ""),
-        merchantLocation: Number.isFinite(Number(product.latitude)) && Number.isFinite(Number(product.longitude))
-          ? { latitude: Number(product.latitude), longitude: Number(product.longitude), label: product.village || product.area || "Merchant pickup area" }
-          : null
-      });
+    const { items, itemSubtotal, totalWeightGrams } = await loadCheckoutItems(body.items);
+    if (deliveryMethod === "india_post" && items.some(item => !item.weightGrams)) {
+      return response.status(400).json({ error: "Add a packed shipping weight to every cart product before using India Post." });
     }
+    const postalCharge = deliveryMethod === "india_post"
+      ? calculatePostalCharge(totalWeightGrams, deliveryState)
+      : 0;
+    const amount = itemSubtotal + postalCharge;
     if (amount < 100) return response.status(400).json({ error: "Order amount must be at least INR 1." });
 
-    const order = await razorpay.orders.create({ amount, currency: "INR", receipt: `tribes_${Date.now()}`, notes: { itemCount: String(items.length), customerUid: user.uid } });
+    const order = await razorpay.orders.create({
+      amount,
+      currency: "INR",
+      receipt: `tribes_${Date.now()}`,
+      notes: {
+        itemCount: String(items.length),
+        customerUid: user.uid,
+        deliveryMethod,
+        paymentMethod
+      }
+    });
     await firebaseAdminDb.collection("pendingCheckouts").doc(order.id).set({
       customerUid: user.uid,
       customerName: String(customer.name || ""),
       customerMobile: String(customer.mobile || ""),
       items,
       amount: order.amount,
+      itemSubtotal,
+      postalCharge,
+      totalWeightGrams,
       deliveryState,
-      customerLocation: {
+      deliveryMethod,
+      paymentMethod,
+      postalAddress: deliveryMethod === "india_post" ? postalAddress : "",
+      postalPincode: deliveryMethod === "india_post" ? postalPincode : "",
+      customerLocation: deliveryMethod === "delivery_partner" ? {
         latitude: Number(location.latitude),
         longitude: Number(location.longitude),
         accuracy: Math.max(0, Math.round(Number(location.accuracy) || 0)),
         updatedAt: new Date().toISOString()
-      },
+      } : null,
       createdAt: FieldValue.serverTimestamp()
     });
-    response.json({ orderId: order.id, amount: order.amount, currency: order.currency, keyId: process.env.RAZORPAY_KEY_ID });
+    response.json({
+      orderId: order.id,
+      amount: order.amount,
+      currency: order.currency,
+      keyId: process.env.RAZORPAY_KEY_ID,
+      itemSubtotal: itemSubtotal / 100,
+      postalCharge: postalCharge / 100
+    });
   } catch (error) {
     console.error("Unable to create authenticated checkout.", error);
     response.status(error.status || 503).json({ error: error.status ? error.message : "Firebase or Razorpay checkout is unavailable." });
@@ -832,7 +967,8 @@ app.post("/api/payments/verify", async (request, response) => {
           verified: true,
           orderId,
           status: existingOrder.data().status,
-          assignedPartnerId: existingOrder.data().assignedPartnerId || null
+          assignedPartnerId: existingOrder.data().assignedPartnerId || null,
+          deliveryMethod: existingOrder.data().deliveryMethod || "delivery_partner"
         });
       }
       const registrationFeeRef = firebaseAdminDb.collection("pendingDonations").doc(orderId);
@@ -881,16 +1017,18 @@ app.post("/api/payments/verify", async (request, response) => {
     const pending = pendingSnapshot.data();
     if (pending.customerUid !== user.uid) return response.status(403).json({ verified: false, error: "This checkout belongs to another account." });
 
-    const partnerSnapshots = await firebaseAdminDb.collection("deliveryPartnerAccounts")
-      .where("state", "==", pending.deliveryState).get();
     let assignedPartner = null;
-    if (!partnerSnapshots.empty) {
-      const candidateOrders = await Promise.all(partnerSnapshots.docs.map(async partner => ({
-        partner,
-        count: (await firebaseAdminDb.collection("orders").where("assignedPartnerUid", "==", partner.id).get())
-          .docs.filter(order => !["Delivered", "Cancelled"].includes(order.data().status)).length
-      })));
-      assignedPartner = candidateOrders.sort((first, second) => first.count - second.count)[0].partner;
+    if (pending.deliveryMethod !== "india_post") {
+      const partnerSnapshots = await firebaseAdminDb.collection("deliveryPartnerAccounts")
+        .where("state", "==", pending.deliveryState).get();
+      if (!partnerSnapshots.empty) {
+        const candidateOrders = await Promise.all(partnerSnapshots.docs.map(async partner => ({
+          partner,
+          count: (await firebaseAdminDb.collection("orders").where("assignedPartnerUid", "==", partner.id).get())
+            .docs.filter(order => !["Delivered", "Cancelled"].includes(order.data().status)).length
+        })));
+        assignedPartner = candidateOrders.sort((first, second) => first.count - second.count)[0].partner;
+      }
     }
 
     try {
@@ -928,12 +1066,21 @@ app.post("/api/payments/verify", async (request, response) => {
         customerMobile: currentPending.data().customerMobile,
         items: currentPending.data().items.map(({ productId, merchantLocation, ...item }) => ({ ...item, productId })),
         amount: currentPending.data().amount / 100,
+        itemSubtotal: currentPending.data().itemSubtotal / 100,
+        postalCharge: currentPending.data().postalCharge / 100,
+        totalWeightGrams: currentPending.data().totalWeightGrams,
         deliveryState: currentPending.data().deliveryState,
+        deliveryMethod: currentPending.data().deliveryMethod,
+        paymentMethod: currentPending.data().paymentMethod,
+        postalAddress: currentPending.data().postalAddress || "",
+        postalPincode: currentPending.data().postalPincode || "",
         customerLocation: currentPending.data().customerLocation,
         merchantLocations: currentPending.data().items.map(item => item.merchantLocation).filter(Boolean),
         assignedPartnerUid: assignedPartner?.id || null,
         assignedPartnerId: assignedPartner?.data().deliveryPartnerId || null,
-        status: assignedPartner ? "Awaiting pickup" : "Unassigned",
+        status: currentPending.data().deliveryMethod === "india_post"
+          ? "Awaiting postal dispatch"
+          : assignedPartner ? "Awaiting pickup" : "Unassigned",
         createdAt: FieldValue.serverTimestamp()
       });
       transaction.delete(pendingRef);
@@ -953,7 +1100,12 @@ app.post("/api/payments/verify", async (request, response) => {
     }
 
     const savedOrder = await orderRef.get();
-    response.json({ verified: true, orderId, assignedPartnerId: savedOrder.data()?.assignedPartnerId || null });
+    response.json({
+      verified: true,
+      orderId,
+      assignedPartnerId: savedOrder.data()?.assignedPartnerId || null,
+      deliveryMethod: savedOrder.data()?.deliveryMethod || "delivery_partner"
+    });
   } catch (error) {
     console.error("Payment verification or order persistence failed.", error);
     response.status(error.status || 503).json({ verified: false, error: error.status ? error.message : "Payment was verified but the order could not be finalized." });

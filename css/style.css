@@ -5791,3 +5791,54 @@ button {
 .delivery-login-card .reset-link:hover {
     text-decoration: underline;
 }
+.cart-page .checkout-choice-group {
+    display: grid;
+    gap: 10px;
+    margin: 18px 0;
+    padding: 14px;
+    border: 1px solid #e2e8e1;
+    border-radius: 12px;
+}
+
+.cart-page .checkout-choice-group legend {
+    padding: 0 6px;
+    font-weight: 700;
+}
+
+.cart-page .checkout-choice-group label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+}
+
+.cart-page .checkout-choice-group input[type="radio"] {
+    width: 18px;
+    height: 18px;
+    margin: 0;
+    accent-color: var(--brand-accent);
+}
+
+.cart-page .postal-address-fields {
+    display: grid;
+    gap: 12px;
+}
+
+.cart-page .postal-address-fields[hidden],
+.cart-page .delivery-location-field[hidden] {
+    display: none;
+}
+
+.cart-page .postal-address-fields textarea {
+    width: 100%;
+    min-height: 92px;
+    padding: 12px;
+    border: 1px solid #dce5dc;
+    border-radius: 10px;
+    font: inherit;
+}
+
+.cart-page .postal-charge {
+    margin: 0;
+    color: var(--brand-muted);
+}

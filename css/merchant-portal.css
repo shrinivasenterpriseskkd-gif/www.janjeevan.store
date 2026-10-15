@@ -10,17 +10,35 @@
 }
 
 .merchant-portal-page .merchant-portal-heading {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(280px, 360px);
+    grid-template-columns: minmax(0, 1fr) auto;
     align-items: center;
-    gap: 28px;
-    margin: 0 0 22px;
-    padding: clamp(24px, 4vw, 42px);
-    color: #fff;
-    background: linear-gradient(125deg, #1c352b, #315642 68%, #577958);
-    border: 1px solid rgba(255, 255, 255, .25);
-    border-radius: 26px;
-    box-shadow: 0 16px 38px rgba(24, 45, 34, .16);
+    gap: 24px;
+    min-height: 250px;
+    margin: 0 0 18px;
+    padding: clamp(28px, 5vw, 54px);
+    color: #49301e;
+    background:
+        radial-gradient(circle at 87% 18%, rgba(255, 255, 255, .78), transparent 19rem),
+        linear-gradient(115deg, #fff5e4 0%, #ffedcf 58%, #ffe3bd 100%);
+    border: 1px solid #f2d9b8;
+    border-radius: 22px;
+    box-shadow: 0 14px 32px rgba(105, 73, 39, .09);
+}
+
+.merchant-portal-page .merchant-portal-heading::after {
+    position: absolute;
+    z-index: -1;
+    right: 12%;
+    bottom: -168px;
+    width: 300px;
+    height: 300px;
+    border: 1px solid rgba(188, 104, 44, .14);
+    border-radius: 50%;
+    content: "";
 }
 
 .merchant-portal-page .merchant-portal-heading > div:first-child {
@@ -28,45 +46,90 @@
 }
 
 .merchant-portal-page .merchant-portal-heading .store-kicker {
-    color: #d5e5d8;
+    color: #a25225;
 }
 
 .merchant-portal-page .merchant-portal-heading h1 {
     margin: 0;
-    color: #fff;
-    font: 700 clamp(2rem, 4vw, 3.2rem)/1.08 'Space Grotesk', Arial, sans-serif;
+    color: #56371f;
+    font: 700 clamp(2rem, 4.5vw, 3.5rem)/1.08 'Space Grotesk', Arial, sans-serif;
     letter-spacing: -.045em;
 }
 
 .merchant-portal-page .merchant-portal-heading > div > p:last-child {
     margin: 12px 0 0;
-    color: rgba(255, 255, 255, .78);
+    color: #6c5a49;
     line-height: 1.6;
+}
+
+.merchant-portal-page .merchant-portal-heading .merchant-profile-details {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 10px;
+    padding: 14px;
+    background: rgba(255, 255, 255, .58);
+    border: 1px solid rgba(164, 102, 54, .16);
+    border-radius: 14px;
+}
+
+.merchant-portal-page .merchant-portal-heading .merchant-profile-details p {
+    min-width: 0;
+    margin: 0;
+    padding: 10px 11px;
+    color: #5c4938;
+    background: rgba(255, 255, 255, .78);
+    border: 1px solid rgba(164, 102, 54, .12);
+    border-radius: 9px;
+    font-size: .82rem;
+    line-height: 1.4;
+    overflow-wrap: anywhere;
+}
+
+.merchant-portal-page .merchant-portal-heading .merchant-profile-details p span:first-child {
+    display: block;
+    margin-bottom: 3px;
+    color: #93502a;
+    font-size: .72rem;
+    font-weight: 700;
+    letter-spacing: .02em;
 }
 
 .merchant-portal-page .merchant-profile-card {
     display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
     gap: 13px;
+    width: 100%;
     min-width: 0;
+    margin: 0 0 24px;
     padding: 18px;
     color: #24352c;
     background: #fff;
-    border: 1px solid rgba(255, 255, 255, .6);
-    border-radius: 18px;
-    box-shadow: 0 8px 22px rgba(13, 30, 21, .12);
+    border: 1px solid rgba(40, 67, 48, .12);
+    border-radius: 16px;
+    box-shadow: 0 8px 22px rgba(24, 45, 34, .06);
 }
 
 .merchant-portal-page .merchant-profile-photo {
+    grid-column: 1 / -1;
     display: grid;
-    grid-template-columns: 84px minmax(0, 1fr);
-    align-items: center;
+    grid-template-columns: 96px minmax(0, 1fr);
+    align-items: start;
     gap: 14px;
+    width: auto;
+    min-height: 0;
+    height: auto;
+    overflow: visible;
+    background: transparent;
+    border-radius: 0;
 }
 
 .merchant-portal-page #merchant-shop-photo,
 .merchant-portal-page #merchant-shop-photo-empty {
-    width: 84px;
-    height: 84px;
+    width: 96px;
+    height: 96px;
     margin: 0;
     object-fit: cover;
     border-radius: 13px;
@@ -88,7 +151,13 @@
 }
 
 .merchant-portal-page .merchant-profile-details {
+    position: static;
+    grid-column: 2;
+    grid-row: 1;
+    align-self: start;
     min-width: 0;
+    padding: 0;
+    background: transparent;
 }
 
 .merchant-portal-page .merchant-profile-details h2 {
@@ -162,12 +231,26 @@
 .merchant-portal-page .merchant-portal-badge {
     justify-self: start;
     padding: 9px 13px;
-    color: #254634;
-    background: #e5f2e7;
-    border: 1px solid #cce2d0;
+    color: #8c481f;
+    background: rgba(255, 255, 255, .72);
+    border: 1px solid rgba(175, 101, 47, .24);
     border-radius: 999px;
     font-size: .82rem;
     font-weight: 700;
+    white-space: nowrap;
+}
+
+.merchant-portal-page #merchant-gstin-status,
+.merchant-portal-page #merchant-payment-details-status,
+.merchant-portal-page #merchant-shop-photo-status {
+    grid-column: 1 / -1;
+    margin: 0;
+}
+
+.merchant-portal-page #merchant-gstin-status:empty,
+.merchant-portal-page #merchant-payment-details-status:empty,
+.merchant-portal-page #merchant-shop-photo-status:empty {
+    display: none;
 }
 
 .merchant-portal-page .merchant-portal-section {
@@ -368,6 +451,15 @@
 
     .merchant-portal-page .merchant-profile-card {
         max-width: none;
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .merchant-portal-page .merchant-profile-photo {
+        grid-column: auto;
+    }
+
+    .merchant-portal-page .merchant-portal-heading .merchant-profile-details {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 }
 
@@ -391,7 +483,17 @@
         grid-template-columns: minmax(0, 1fr);
     }
 
+    .merchant-portal-page .merchant-portal-heading .merchant-profile-details {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
     .merchant-portal-page .merchant-product-form-actions > button {
         width: 100%;
+    }
+}
+
+@media (max-width: 360px) {
+    .merchant-portal-page .merchant-portal-heading .merchant-profile-details {
+        grid-template-columns: minmax(0, 1fr);
     }
 }

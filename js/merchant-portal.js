@@ -82,6 +82,7 @@ const workbookColumns = [
     "Discount Percent",
     "GST Percent",
     "Available Stock",
+    "Shipping Weight (g)",
     "Area",
     "Village / Town",
     "Image Filename"
@@ -106,6 +107,7 @@ document.querySelector("#download-product-template").addEventListener("click", (
             "Discount Percent": 0,
             "GST Percent": 0,
             "Available Stock": 10,
+            "Shipping Weight (g)": 250,
             Area: "Araku Valley",
             "Village / Town": "Araku",
             "Image Filename": "sample-basket.jpg"
@@ -116,6 +118,7 @@ document.querySelector("#download-product-template").addEventListener("click", (
             ["Enter one product per row on the Products sheet. Keep the column headings unchanged."],
             ["Required: Product Name, Category, Unit, Price, Available Stock, Area, Village / Town, Image Filename."],
             ["Optional: Discount Percent and GST Percent. Leave blank to use 0."],
+            ["Shipping Weight (g) is the packed weight of one sale unit; enter it for India Post parcel orders."],
             ["Select the image files with the matching names from the Image Filename column."],
             ["Accepted image types: JPG, PNG, WebP; each file must be smaller than 5 MB."],
             ["Supported units: piece, kg, g, litre, ml, box, pack, dozen, meter."],
@@ -153,6 +156,7 @@ document.querySelector("#export-merchant-products").addEventListener("click", ()
                 "Discount Percent": Number(product.discountPercent) || 0,
                 "GST Percent": Number(product.gstPercent) || 0,
                 "Available Stock": Number(product.avlbStk ?? product.quantity) || 0,
+                "Shipping Weight (g)": Number(product.weightGrams) || "",
                 Area: product.area || "",
                 "Village / Town": product.village || "",
                 "Image URL": product.imageUrl || ""
@@ -256,10 +260,12 @@ const parseProductWorkbook = async (workbookFile, imageFiles) => {
         const discountValue = value("Discount Percent");
         const gstValue = value("GST Percent");
         const stockValue = value("Available Stock");
+        const weightValue = value("Shipping Weight (g)");
         const price = Number(priceValue);
         const discountPercent = discountValue == null || discountValue === "" ? 0 : Number(discountValue);
         const gstPercent = gstValue == null || gstValue === "" ? 0 : Number(gstValue);
         const avlbStk = Number(stockValue);
+        const weightGrams = weightValue == null || weightValue === "" ? null : Number(weightValue);
         const rowErrors = [];
 
         if (!name || name.length > 120) rowErrors.push("Product Name is required (max 120 characters)");
@@ -269,6 +275,7 @@ const parseProductWorkbook = async (workbookFile, imageFiles) => {
         if (!Number.isInteger(discountPercent) || discountPercent < 0 || discountPercent > 100) rowErrors.push("Discount Percent must be a whole number from 0 to 100");
         if (!Number.isFinite(gstPercent) || gstPercent < 0 || gstPercent > 100) rowErrors.push("GST Percent must be from 0 to 100");
         if (stockValue == null || stockValue === "" || !Number.isInteger(avlbStk) || avlbStk < 0) rowErrors.push("Available Stock must be a non-negative whole number");
+        if (weightGrams !== null && (!Number.isInteger(weightGrams) || weightGrams < 1 || weightGrams > 100000)) rowErrors.push("Shipping Weight (g) must be a whole number from 1 to 100000");
         if (!area || area.length > 100) rowErrors.push("Area is required (max 100 characters)");
         if (!village || village.length > 100) rowErrors.push("Village / Town is required (max 100 characters)");
         if (!imageFilename || !image) rowErrors.push(`No selected image matches "${imageFilename || "(empty)"}"`);
@@ -287,6 +294,7 @@ const parseProductWorkbook = async (workbookFile, imageFiles) => {
                 price,
                 discountPercent,
                 gstPercent,
+                weightGrams,
                 quantity: avlbStk,
                 avlbStk,
                 area,
@@ -394,6 +402,8 @@ const renderMerchantOrders = () => {
             <h3>Order ${escapeHtml(order.orderId)}</h3>
             <p>${escapeHtml(order.customerName || "Customer")}${order.customerMobile ? ` · ${escapeHtml(order.customerMobile)}` : ""}</p>
             <p>${escapeHtml(order.deliveryState || "Delivery area not provided")} · ${escapeHtml(order.createdAt ? new Date(order.createdAt).toLocaleString("en-IN") : "Date unavailable")}</p>
+            <p>Delivery: ${escapeHtml(order.deliveryMethod === "india_post" ? `India Post Retail Parcel · ${order.postalAddress || ""} ${order.postalPincode || ""}` : "Delivery Partner")}</p>
+            <p>Payment: ${escapeHtml(order.paymentMethod === "phonepe" ? "PhonePe UPI" : order.paymentMethod === "googlepay" ? "Google Pay UPI" : "Razorpay")}${order.deliveryMethod === "india_post" ? ` · Postal charge: ${merchantOrderMoney(order.postalCharge || 0)}` : ""}</p>
             <p class="merchant-product-price-detail">Status: ${escapeHtml(order.status || "Unassigned")}</p>
             <ul>${order.items.map(item => `<li>${escapeHtml(item.name)} × ${escapeHtml(item.quantity)} · ${merchantOrderMoney(item.price * item.quantity)}</li>`).join("")}</ul>
             <p class="merchant-product-sale-price">Your products subtotal: ${merchantOrderMoney(order.amount)}</p>
@@ -525,6 +535,7 @@ const renderProducts = () => {
                 <p>${escapeHtml(product.area || "Area not set")} · ${escapeHtml(product.village || "Village not set")}</p>
                 <p class="merchant-product-sale-price">${money(effectivePrice(product.price, discount))}<span> / ${escapeHtml(product.uom || "unit")}</span></p>
                 <p class="merchant-product-price-detail">Price: ${money(product.price)} · Discount: ${discount}% · GST: ${formatPercent(gstPercent)}%</p>
+                <p class="merchant-product-price-detail">Packed weight: ${product.weightGrams ? `${escapeHtml(product.weightGrams)} g` : "Not set"}</p>
                 <button class="secondary-btn merchant-product-save" type="button" data-product-id="${escapeHtml(id)}">Edit product</button>
             </div>
         </article>`;
@@ -560,6 +571,7 @@ const editProduct = ({ id, product }) => {
     document.querySelector("#merchant-product-discount").value = product.discountPercent ?? 0;
     document.querySelector("#merchant-product-gst").value = product.gstPercent ?? 0;
     document.querySelector("#merchant-product-stock").value = product.avlbStk ?? 0;
+    document.querySelector("#merchant-product-weight").value = product.weightGrams ?? "";
     document.querySelector("#merchant-product-area").value = product.area || "";
     document.querySelector("#merchant-product-village").value = product.village || "";
     imageInput.value = "";
@@ -792,6 +804,8 @@ productForm.addEventListener("submit", async event => {
     const discountPercent = Number(document.querySelector("#merchant-product-discount").value);
     const gstPercent = Number(document.querySelector("#merchant-product-gst").value);
     const avlbStk = Number(document.querySelector("#merchant-product-stock").value);
+    const weightInput = document.querySelector("#merchant-product-weight").value.trim();
+    const weightGrams = weightInput ? Number(weightInput) : null;
     const productName = document.querySelector("#merchant-product-name").value.trim();
     if (!productName) {
         showProductStatus("Enter a product name.", "error");
@@ -801,6 +815,10 @@ productForm.addEventListener("submit", async event => {
         discountPercent < 0 || discountPercent > 100 || !Number.isFinite(gstPercent) ||
         gstPercent < 0 || gstPercent > 100 || !Number.isInteger(avlbStk) || avlbStk < 0) {
         showProductStatus("Enter a valid price, discount (0–100), GST percentage (0–100), and non-negative stock.", "error");
+        return;
+    }
+    if (weightGrams !== null && (!Number.isInteger(weightGrams) || weightGrams < 1 || weightGrams > 100000)) {
+        showProductStatus("Shipping weight must be a whole number from 1 to 100000 grams, or left blank.", "error");
         return;
     }
 
@@ -838,6 +856,7 @@ productForm.addEventListener("submit", async event => {
             price,
             discountPercent,
             gstPercent,
+            weightGrams,
             quantity: avlbStk,
             avlbStk,
             area: document.querySelector("#merchant-product-area").value.trim(),

@@ -9,12 +9,23 @@ const cart = document.querySelector("#cart");
 const payButton = document.querySelector("#pay");
 const status = document.querySelector("#status");
 const deliveryState = document.querySelector("#delivery-state");
+const postalAddressFields = document.querySelector("#postal-address-fields");
+const postalAddress = document.querySelector("#postal-address");
+const postalPincode = document.querySelector("#postal-pincode");
+const postalChargeLabel = document.querySelector("#postal-charge");
+const deliveryLocationField = document.querySelector("#delivery-location-field");
+const cartSubtotal = document.querySelector("#cart-subtotal");
+const cartPostalCharge = document.querySelector("#cart-postal-charge");
 const shareLocationButton = document.querySelector("#share-customer-location");
 const customerLocationStatus = document.querySelector("#customer-location-status");
+const deliveryMethodInputs = [...document.querySelectorAll('input[name="delivery-method"]')];
+const paymentMethodInputs = [...document.querySelectorAll('input[name="payment-method"]')];
 let currentCustomer;
 let currentUser;
 let products = [];
 let customerLocation = null;
+let postalQuote = null;
+let quoteRequestId = 0;
 
 const money = value => new Intl.NumberFormat("en-IN", {
     style: "currency",
@@ -22,6 +33,75 @@ const money = value => new Intl.NumberFormat("en-IN", {
     maximumFractionDigits: 2
 }).format(value || 0);
 const effectivePrice = product => Math.round((Number(product.price) || 0) * (1 - Math.min(100, Math.max(0, Number(product.discountPercent) || 0)) / 100) * 100) / 100;
+const selectedDeliveryMethod = () => deliveryMethodInputs.find(input => input.checked)?.value || "delivery_partner";
+const selectedPaymentMethod = () => paymentMethodInputs.find(input => input.checked)?.value || "phonepe";
+const requestedItems = () => Array.from(products.reduce((quantities, product) =>
+    quantities.set(product.id, (quantities.get(product.id) || 0) + 1), new Map()),
+([id, quantity]) => ({ id, quantity }));
+
+function updateTotals(itemSubtotal) {
+    const postalDelivery = selectedDeliveryMethod() === "india_post";
+    cartSubtotal.textContent = money(itemSubtotal);
+    cartPostalCharge.textContent = postalDelivery && postalQuote ? money(postalQuote.postalCharge) : postalDelivery ? "—" : money(0);
+    document.querySelector("#cart-total").textContent = postalDelivery && !postalQuote
+        ? "Calculate postage"
+        : money(itemSubtotal + (postalDelivery ? Number(postalQuote?.postalCharge) || 0 : 0));
+}
+
+async function refreshPostalQuote() {
+    const requestId = ++quoteRequestId;
+    const itemSubtotal = products.reduce((sum, product) => sum + effectivePrice(product), 0);
+    if (selectedDeliveryMethod() !== "india_post") {
+        postalQuote = null;
+        updateTotals(itemSubtotal);
+        return;
+    }
+    postalQuote = null;
+    updateTotals(itemSubtotal);
+    if (!currentUser || !deliveryState.value || !products.length) {
+        postalChargeLabel.textContent = "Sign in and choose your delivery state to calculate postage.";
+        return;
+    }
+    if (!apiBase) {
+        postalChargeLabel.textContent = "Postal postage needs the deployed checkout server.";
+        return;
+    }
+
+    postalChargeLabel.textContent = "Calculating India Post postage…";
+    try {
+        const token = await currentUser.getIdToken();
+        const response = await fetch(`${apiBase}/api/postal/quote`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`
+            },
+            body: JSON.stringify({ items: requestedItems(), deliveryState: deliveryState.value })
+        });
+        const quote = await response.json();
+        if (!response.ok) throw new Error(quote.error || "Postal charges could not be calculated.");
+        if (requestId !== quoteRequestId) return;
+        postalQuote = quote;
+        postalChargeLabel.textContent = `India Post Retail Parcel · ${quote.totalWeightGrams} g packed weight`;
+        cartPostalCharge.textContent = money(quote.postalCharge);
+        updateTotals(Number(quote.itemSubtotal));
+    } catch (error) {
+        if (requestId !== quoteRequestId) return;
+        postalChargeLabel.textContent = error.message;
+        cartPostalCharge.textContent = "Unavailable";
+        document.querySelector("#cart-total").textContent = "Unavailable";
+    }
+}
+
+function updateDeliveryFields() {
+    const postalDelivery = selectedDeliveryMethod() === "india_post";
+    postalAddressFields.hidden = !postalDelivery;
+    postalAddress.required = postalDelivery;
+    postalPincode.required = postalDelivery;
+    deliveryLocationField.hidden = postalDelivery;
+    shareLocationButton.disabled = postalDelivery;
+    refreshPostalQuote();
+}
 
 const escapeHtml = value => String(value ?? "").replace(/[&<>'"]/g, char => ({
     "&": "&amp;",
@@ -38,11 +118,12 @@ async function loadCart() {
         products = ids.map(id => productMap.get(id)).filter(Boolean);
         const total = products.reduce((sum, product) => sum + effectivePrice(product), 0);
         document.querySelector("#cart-count").textContent = `${products.length} item${products.length === 1 ? "" : "s"}`;
-        document.querySelector("#cart-total").textContent = money(total);
+        updateTotals(total);
         cart.innerHTML = products.length
             ? products.map(product => {const discount=Math.min(100,Math.max(0,Number(product.discountPercent)||0));return `<article class="cart-item"><div class="cart-image"><img src="${escapeHtml(product.imageUrl || "https://via.placeholder.com/200x200?text=Janjeevan.store")}" alt="${escapeHtml(product.name)}"></div><div><h2>${escapeHtml(product.name || "Product")}</h2><p>${escapeHtml(product.uom || "Unit")} · ${product.avlbStk ?? 0} available</p></div><strong>${money(effectivePrice(product))}${discount?`<small class="cart-original-price"><s>${money(product.price)}</s> · ${discount}% off</small>`:""}</strong></article>`}).join("")
             : "<div class=\"cart-empty\"><h2>Your cart is empty</h2><p>Explore the collection to find something you love.</p><a class=\"hero-button\" href=\"index.html\">Browse products <span>→</span></a></div>";
         payButton.disabled = !products.length;
+        if (selectedDeliveryMethod() === "india_post") refreshPostalQuote();
     } catch (error) {
         const permissionDenied = error?.code === "permission-denied";
         cart.innerHTML = `<div class="cart-empty"><h2>Cart unavailable</h2><p>${permissionDenied ? "Firestore rules are blocking product reads. Publish the project rules, then reload this page." : "We could not load your products. Please try again."}</p></div>`;
@@ -50,6 +131,9 @@ async function loadCart() {
         console.error(error);
     }
 }
+
+deliveryMethodInputs.forEach(input => input.addEventListener("change", updateDeliveryFields));
+deliveryState.addEventListener("change", refreshPostalQuote);
 
 shareLocationButton.addEventListener("click", () => {
     if (!navigator.geolocation) {
@@ -88,10 +172,21 @@ payButton.addEventListener("click", async () => {
         deliveryState.reportValidity();
         return;
     }
-    if (!customerLocation) {
+    const deliveryMethod = selectedDeliveryMethod();
+    if (deliveryMethod === "delivery_partner" && !customerLocation) {
         customerLocationStatus.textContent = "Share your delivery location before placing this order.";
         shareLocationButton.focus();
         return;
+    }
+    if (deliveryMethod === "india_post") {
+        if (!postalAddress.reportValidity() || !postalPincode.reportValidity()) return;
+        if (!postalQuote) {
+            await refreshPostalQuote();
+            if (!postalQuote) {
+                status.textContent = postalChargeLabel.textContent || "Postal charges could not be calculated.";
+                return;
+            }
+        }
     }
 
     payButton.disabled = true;
@@ -102,6 +197,7 @@ payButton.addEventListener("click", async () => {
     }
 
     try {
+        const paymentMethod = selectedPaymentMethod();
         const response = await fetch(`${apiBase}/api/orders`, {
             method: "POST",
             headers: {
@@ -109,11 +205,13 @@ payButton.addEventListener("click", async () => {
                 "Authorization": `Bearer ${await currentUser.getIdToken()}`
             },
             body: JSON.stringify({
-                items: Array.from(products.reduce((quantities, product) =>
-                    quantities.set(product.id, (quantities.get(product.id) || 0) + 1), new Map()),
-                ([id, quantity]) => ({ id, quantity })),
+                items: requestedItems(),
                 deliveryState: deliveryState.value,
-                customerLocation
+                deliveryMethod,
+                paymentMethod,
+                postalAddress: deliveryMethod === "india_post" ? postalAddress.value.trim() : "",
+                postalPincode: deliveryMethod === "india_post" ? postalPincode.value.trim() : "",
+                customerLocation: deliveryMethod === "delivery_partner" ? customerLocation : null
             })
         });
         const order = await response.json();
@@ -128,18 +226,18 @@ payButton.addEventListener("click", async () => {
             order_id: order.orderId,
             prefill: { name: currentCustomer?.name || "", contact: currentCustomer?.mobile || "" },
             theme: { color: "#ef6b3f" },
-            config: {
+            config: ["phonepe", "googlepay"].includes(paymentMethod) ? {
                 display: {
                     blocks: {
                         upiApps: {
-                            name: "Google Pay / PhonePe",
+                            name: paymentMethod === "phonepe" ? "PhonePe / UPI apps" : "Google Pay / UPI apps",
                             instruments: [{ method: "upi", flows: ["intent"] }]
                         }
                     },
                     sequence: ["block.upiApps"],
-                    preferences: { show_default_blocks: true }
+                    preferences: { show_default_blocks: false }
                 }
-            },
+            } : undefined,
             handler: async payment => {
                 try {
                     status.textContent = "Verifying payment...";
@@ -154,9 +252,11 @@ payButton.addEventListener("click", async () => {
                     const result = await verification.json();
                     if (!verification.ok || !result.verified) throw new Error(result.error || "Payment verification failed");
                     localStorage.removeItem("tribesCart");
-                    status.textContent = result.assignedPartnerId
-                        ? "Payment successful. Your order was assigned to a Delivery Partner."
-                        : "Payment successful. No Delivery Partner is registered in this state yet; your order needs assignment.";
+                    status.textContent = result.deliveryMethod === "india_post"
+                        ? "Payment successful. Your order is awaiting India Post dispatch."
+                        : result.assignedPartnerId
+                            ? "Payment successful. Your order was assigned to a Delivery Partner."
+                            : "Payment successful. No Delivery Partner is registered in this state yet; your order needs assignment.";
                     payButton.textContent = "Order complete";
                 } catch (error) {
                     console.error("Could not finalize the paid order.", error);
@@ -188,6 +288,8 @@ onAuthStateChanged(auth, async user => {
         console.error("Could not load the signed-in customer profile for checkout.", error);
         status.textContent = "Customer profile could not be loaded. Sign in again and retry.";
     }
+    if (selectedDeliveryMethod() === "india_post") refreshPostalQuote();
 });
 
 loadCart();
+updateDeliveryFields();

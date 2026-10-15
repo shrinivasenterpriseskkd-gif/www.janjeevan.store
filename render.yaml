@@ -25,3 +25,5 @@ services:
         sync: false
       - key: RAZORPAY_KEY_SECRET
         sync: false
+      - key: INDIA_POST_RETAIL_RATES_JSON
+        sync: false
