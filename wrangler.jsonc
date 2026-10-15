@@ -1,4 +1,5 @@
 {
-  "name": "janjeevan-cloudflare-migration",
-  "compatibility_date": "2026-10-12"
+  "name": "www-janjeevan-store",
+  "compatibility_date": "2026-10-12",
+  "pages_build_output_dir": "."
 }

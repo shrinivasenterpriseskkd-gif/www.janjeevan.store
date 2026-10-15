@@ -11,13 +11,16 @@
 2. In Cloudflare Dashboard → Workers & Pages → Create → Pages → Upload assets,
    upload the extracted project directory.
 3. Ensure `index.html` is at the project root. Pages recognizes the `functions/`
-   directory when deploying the project through a supported Pages deployment workflow.
-   For reliable Functions deployment, connect the Git repository to Pages or use Wrangler:
-   `npx wrangler pages deploy . --project-name janjeevan-store`
-   (run from this directory; create the Pages project in Cloudflare first).
-4. Add `janjeevan.store` and `www.janjeevan.store` in Pages → Custom domains and follow
+   directory when deploying through Wrangler. From this directory, deploy with
+   `npm run deploy:pages` (or `npx wrangler pages deploy . --project-name www-janjeevan-store`).
+   The Pages project must already exist in Cloudflare.
+4. If using the repository's Cloudflare build settings, set the root directory to `/`,
+   leave the build command empty, and set the deploy command to `npm run deploy:pages`.
+   Do not use `npx wrangler deploy`: that command deploys a Worker, but this repository is
+   configured as a Pages site with Pages Functions.
+5. Add `janjeevan.store` and `www.janjeevan.store` in Pages → Custom domains and follow
    Cloudflare's DNS instructions.
-5. Test customer/merchant/delivery-partner login, product images, orders, payments,
+6. Test customer/merchant/delivery-partner login, product images, orders, payments,
    and admin endpoints after deployment.
 
 ## Important limitation

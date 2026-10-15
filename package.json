@@ -14,7 +14,8 @@
     "razorpay": "^2.9.6"
   },
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "deploy:pages": "npx wrangler pages deploy . --project-name www-janjeevan-store"
   },
   "allowScripts": {
     "@firebase/util@1.15.3": true,
