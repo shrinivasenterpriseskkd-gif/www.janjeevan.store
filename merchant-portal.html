@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Janjeevan.store | Merchant Catalog</title>
+    <meta name="description" content="Manage your Janjeevan.store merchant product photos, prices, and discounts.">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/merchant-portal.css">
+</head>
+
+<body class="merchant-page merchant-portal-page">
+    <header class="store-header">
+        <a class="store-brand" href="index.html"><img src="TribesLogo.jpg"
+                alt="Janjeevan.store logo"><span>Janjeevan.store</span></a>
+        <nav aria-label="Merchant navigation">
+            <a href="index.html">Shop</a>
+            <button class="merchant-portal-signout" id="merchant-sign-out" type="button">Sign out</button>
+        </nav>
+    </header>
+
+    <main class="merchant-portal-wrap">
+        <header class="merchant-portal-heading">
+            <div>
+                <p class="store-kicker">Merchant workspace</p>
+                <h1>Welcome, <span id="merchant-welcome-name">Merchant</span></h1>
+                <p>View your product photos and set prices and discounts for new listings.</p>
+            </div>
+            <span class="merchant-portal-badge">My catalog</span>
+            <div class="merchant-profile-details" aria-label="Merchant details">
+                <p><span>Merchant name:</span> <span id="merchant-proprietor-name">Merchant</span></p>
+                <p><span>Shop name:</span> <span id="merchant-shop-name">Not provided</span></p>
+                <p><span>Phone No:</span> <span id="merchant-phone">Not provided</span></p>
+                <p><span>Shop category:</span> <span id="merchant-shop-category">Not provided</span></p>
+                <p><span>GSTIN:</span> <span id="merchant-gstin">Not provided</span></p>
+                <p><span>Bank account:</span> <span id="merchant-bank-account">Not provided</span></p>
+                <p><span>IFSC code:</span> <span id="merchant-ifsc-code">Not provided</span></p>
+                <p><span>UPI link:</span> <span id="merchant-upi-link">Not provided</span></p>
+            </div>
+        </header>
+
+        <section id="merchant-profile-recovery" class="merchant-portal-section"
+            aria-labelledby="merchant-profile-recovery-heading" hidden>
+            <div class="merchant-portal-section-heading">
+                <div>
+                    <p class="store-kicker">Account recovery</p>
+                    <h2 id="merchant-profile-recovery-heading">Restore your merchant profile</h2>
+                </div>
+            </div>
+            <p>Your merchant profile is missing. Enter the Merchant ID and registration details from your registration
+                PDF. Your account must be signed in with its registered email.</p>
+            <p>Signed-in email: <strong id="merchant-recovery-email">Not signed in</strong></p>
+            <form id="merchant-profile-recovery-form" class="merchant-product-form">
+                <div class="merchant-product-fields">
+                    <label for="recovery-merchant-id">Merchant ID
+                        <input id="recovery-merchant-id" type="text" autocomplete="off"
+                            placeholder="Janjeevan.store-ABC123" required>
+                    </label>
+                    <label for="recovery-full-name">Merchant full name
+                        <input id="recovery-full-name" type="text" maxlength="100" autocomplete="name" required>
+                    </label>
+                    <label for="recovery-shop-name">Shop name (optional for older registrations)
+                        <input id="recovery-shop-name" type="text" maxlength="120" autocomplete="organization">
+                    </label>
+                    <label for="recovery-phone">Registered phone number
+                        <input id="recovery-phone" type="tel" inputmode="numeric" pattern="[0-9]{10}" maxlength="10"
+                            required>
+                    </label>
+                    <label for="recovery-shop-category">Shop category
+                        <select id="recovery-shop-category" required>
+                            <option value="">Choose a category</option>
+                            <option>Beauty / Parlour</option>
+                            <option>Barber Shop</option>
+                            <option>Kirana Store</option>
+                            <option>General Store</option>
+                            <option>Garage</option>
+                            <option>Welding Shop</option>
+                            <option>Cycle Shop</option>
+                            <option>Hotel</option>
+                            <option>Lodge</option>
+                            <option>Mechanic Shop</option>
+                            <option>Driving School</option>
+                            <option>Book Shop</option>
+                            <option>Stationery Shop</option>
+                            <option>Clothing Store</option>
+                            <option>Footwear Shop</option>
+                            <option>Electronics Shop</option>
+                            <option>Mobile Phone Shop</option>
+                            <option>Hardware Store</option>
+                            <option>Electrical Shop</option>
+                            <option>Pharmacy</option>
+                            <option>Restaurant</option>
+                            <option>Bakery</option>
+                            <option>Dairy Shop</option>
+                            <option>Fruit and Vegetable Shop</option>
+                            <option>Tailoring Shop</option>
+                            <option>Agricultural Supplies</option>
+                            <option>Other</option>
+                        </select>
+                    </label>
+                    <label for="recovery-state">Registered state
+                        <input id="recovery-state" type="text" maxlength="100" autocomplete="address-level1" required>
+                    </label>
+                    <label for="recovery-gstin">GSTIN (optional)
+                        <input id="recovery-gstin" type="text" maxlength="15" autocomplete="off">
+                    </label>
+                </div>
+                <div class="merchant-product-form-actions">
+                    <button class="submit-btn" id="merchant-profile-recovery-submit" type="submit">Restore
+                        profile</button>
+                </div>
+                <p id="merchant-profile-recovery-status" class="merchant-portal-status" role="status"
+                    aria-live="polite"></p>
+            </form>
+        </section>
+
+        <section class="merchant-portal-section" aria-labelledby="merchant-orders-heading">
+            <div class="merchant-portal-section-heading">
+                <div>
+                    <p class="store-kicker">Customer purchases</p>
+                    <h2 id="merchant-orders-heading">Orders for your products</h2>
+                </div>
+                <button class="secondary-btn" id="enable-merchant-order-notifications" type="button">Enable browser
+                    alerts</button>
+            </div>
+            <p id="merchant-orders-status" class="merchant-portal-status" role="status" aria-live="polite">Loading your
+                orders…</p>
+            <div id="merchant-order-list" class="merchant-product-list">
+                <p class="merchant-product-empty">Loading your orders…</p>
+            </div>
+        </section>
+
+        <section class="merchant-portal-section" aria-labelledby="merchant-products-heading">
+            <div class="merchant-portal-section-heading">
+                <div>
+                    <p class="store-kicker">Your products</p>
+                    <h2 id="merchant-products-heading">Your product photos and prices</h2>
+                </div>
+                <button class="secondary-btn" id="refresh-merchant-products" type="button">Refresh catalog</button>
+            </div>
+            <p id="merchant-catalog-status" class="merchant-portal-status" role="status" aria-live="polite"></p>
+            <div id="merchant-product-list" class="merchant-product-list">
+                <p class="merchant-product-empty">Loading your catalog…</p>
+            </div>
+        </section>
+
+        <section class="merchant-portal-section" aria-labelledby="merchant-add-product-heading">
+            <div class="merchant-portal-section-heading">
+                <div>
+                    <p class="store-kicker">Add to your catalog</p>
+                    <h2 id="merchant-add-product-heading">Add a product</h2>
+                </div>
+            </div>
+            <form id="merchant-product-form" class="merchant-product-form">
+                <label class="merchant-product-image-field" for="merchant-product-photo">Product photo
+                    <input id="merchant-product-photo" type="file"
+                        accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" required>
+                    <small>Required. Choose a JPG, JPEG, PNG, or WebP image smaller than 5 MB. It will be saved on this
+                        PC under <code>uploads/images/merchants/</code>; the full path appears after saving.</small>
+                </label>
+                <div class="merchant-product-fields">
+                    <label>Product name
+                        <input id="merchant-product-name" type="text" maxlength="120"
+                            placeholder="e.g. Handwoven basket" required>
+                    </label>
+                    <label>Product category
+                        <input id="merchant-product-category" type="text" maxlength="80"
+                            placeholder="e.g. Grocery, Clothing, Books" required>
+                    </label>
+                    <button class="secondary-btn merchant-product-search" id="merchant-search-products" type="button">
+                        Search existing products
+                    </button>
+                    <label>Unit
+                        <select id="merchant-product-unit" required>
+                            <option value="">Choose unit</option>
+                            <option value="piece">Piece</option>
+                            <option value="kg">Kilogram (kg)</option>
+                            <option value="g">Gram (g)</option>
+                            <option value="litre">Litre</option>
+                            <option value="ml">Millilitre (ml)</option>
+                            <option value="box">Box</option>
+                            <option value="pack">Pack</option>
+                            <option value="dozen">Dozen</option>
+                            <option value="meter">Meter</option>
+                        </select>
+                    </label>
+                    <label>Price (₹)
+                        <input id="merchant-product-price" type="number" min="0" step="0.01" placeholder="0.00"
+                            required>
+                    </label>
+                    <label>Discount (%)
+                        <input id="merchant-product-discount" type="number" min="0" max="100" step="1" value="0"
+                            required>
+                        <small>Enter a whole percentage from 0 to 100.</small>
+                    </label>
+                    <label>GST (%)
+                        <input id="merchant-product-gst" type="number" min="0" max="100" step="0.01" value="0" required>
+                        <small>Enter the GST rate for this product. This is shown on the listing and does not change the
+                            price.</small>
+                    </label>
+                    <label>Available stock
+                        <input id="merchant-product-stock" type="number" min="0" step="1" value="0" required>
+                    </label>
+                    <label>Area
+                        <input id="merchant-product-area" type="text" maxlength="100" placeholder="e.g. Araku Valley"
+                            required>
+                    </label>
+                    <label>Village / town
+                        <input id="merchant-product-village" type="text" maxlength="100"
+                            placeholder="Enter village or town" required>
+                    </label>
+                    <label>Shipping weight (g)
+                        <input id="merchant-product-weight" type="number" min="1" max="100000" step="1"
+                            placeholder="Weight per sale unit">
+                        <small>Required for India Post parcel delivery; enter the packed weight of one sale
+                            unit.</small>
+                    </label>
+                </div>
+                <div class="merchant-product-form-actions">
+                    <button class="submit-btn" id="merchant-product-submit" type="submit">Save product</button>
+                    <button class="secondary-btn" id="merchant-product-cancel" type="button" hidden>Cancel edit</button>
+                </div>
+                <p id="merchant-product-status" class="merchant-portal-status" role="status" aria-live="polite"></p>
+            </form>
+        </section>
+
+        <section class="merchant-portal-section" aria-labelledby="merchant-bulk-products-heading">
+            <div class="merchant-portal-section-heading">
+                <div>
+                    <p class="store-kicker">Catalog tools</p>
+                    <h2 id="merchant-bulk-products-heading">Bulk products and Excel files</h2>
+                </div>
+            </div>
+            <p>Download the sample workbook and fill in one product per row. Put each image in the website's
+                images/products/ folder; enter its filename in the Image Filename column. Online image uploads are
+                disabled in the free demo.</p>
+            <div class="merchant-product-form-actions merchant-bulk-actions">
+                <button class="secondary-btn" id="download-product-template" type="button">Download sample Excel
+                    format</button>
+                <button class="secondary-btn" id="export-merchant-products" type="button">Export products by
+                    category</button>
+            </div>
+            <form id="merchant-bulk-product-form" class="merchant-product-form">
+                <label>Products workbook (.xlsx or .xls)
+                    <input id="merchant-bulk-workbook" type="file" accept=".xlsx,.xls" required>
+                </label>
+                <div class="merchant-product-form-actions">
+                    <button class="submit-btn" id="merchant-bulk-submit" type="submit">Import products</button>
+                </div>
+            </form>
+            <p id="merchant-bulk-status" class="merchant-portal-status" role="status" aria-live="polite"></p>
+        </section>
+    </main>
+
+    <footer class="store-footer">
+        <div class="footer-brand">
+            <img src="TribesLogo.jpg" alt="Janjeevan.store logo">
+            <div><span>Janjeevan.store</span><small>Merchant workspace</small></div>
+        </div>
+        <div class="footer-meta">
+            <a href="mailto:comtribes@gmail.com">Contact merchant support</a>
+        </div>
+    </footer>
+
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+    <script src="js/api-config.js?v=20261016-1"></script>
+    <script type="module" src="js/merchant-portal.js?v=20261016-3"></script>
+    <script src="js/chatbot.js"></script>
+</body>
+
+</html>

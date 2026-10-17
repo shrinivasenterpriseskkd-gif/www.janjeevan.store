@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Janjeevan.store | Merchant Sign In</title>
+    <meta name="description" content="Sign in to your Janjeevan.store merchant account.">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body class="merchant-page merchant-login-page">
+    <header class="store-header">
+        <a class="store-brand" href="index.html"><img src="TribesLogo.jpg" alt="Janjeevan.store logo"><span>Janjeevan.store</span></a>
+        <nav aria-label="Main navigation">
+            <a href="index.html">Shop</a>
+            <a href="cart.html">Cart</a>
+            <a class="active" href="merchant-login.html">Merchant Sign In</a>
+        </nav>
+    </header>
+
+    <main class="merchant-wrap">
+        <section class="merchant-card merchant-form-panel merchant-login-card">
+            <div class="merchant-header">
+                <p class="store-kicker">Welcome back, merchant</p>
+                <h1>Sign in to your account</h1>
+                <p class="merchant-login-intro">Use the email address and password you received when you registered.</p>
+            </div>
+
+            <form id="merchant-login-form" novalidate>
+                <div class="field-row">
+                    <label>
+                        Email Address
+                        <input id="email" name="email" type="email" placeholder="Enter your registered email"
+                            autocomplete="username" required>
+                    </label>
+                </div>
+
+                <div class="field-row single">
+                    <label>
+                        Password
+                        <div class="password-field">
+                            <input id="password" name="password" type="password" placeholder="Enter your password"
+                                autocomplete="current-password" required>
+                            <button type="button" class="password-toggle" aria-label="Show password"
+                                data-target="password">👁</button>
+                        </div>
+                    </label>
+                </div>
+
+                <button type="submit" class="submit-btn">Sign In</button>
+            </form>
+
+            <button type="button" class="reset-link" id="show-reset">Forgot password?</button>
+
+            <form id="password-reset-form" class="password-reset-form" hidden novalidate>
+                <div class="merchant-header reset-header">
+                    <p class="store-kicker">Account recovery</p>
+                    <h2>Reset password</h2>
+                </div>
+                <label>
+                    Registered email
+                    <input id="resetEmail" type="email" placeholder="Enter your registered email" required>
+                </label>
+                <div class="reset-actions">
+                    <button type="submit" class="submit-btn">Reset password</button>
+                    <button type="button" class="secondary-btn" id="cancel-reset">Cancel</button>
+                </div>
+            </form>
+
+            <div id="status" class="status-message" aria-live="polite"></div>
+
+            <p class="merchant-helper-text">
+                New merchant? <a href="merchant-registration.html">Create account</a>
+            </p>
+        </section>
+    </main>
+
+    <footer class="store-footer">
+        <div class="footer-brand">
+            <img src="TribesLogo.jpg" alt="Janjeevan.store logo">
+            <div>
+                <span>Janjeevan.store</span>
+                <small>Made for everyday living</small>
+            </div>
+        </div>
+        <div class="social-links" aria-label="Social media links">
+            <a href="https://wa.me/?text=Discover%20Janjeevan.store" target="_blank" rel="noopener" aria-label="WhatsApp"><span
+                    class="social-symbol whatsapp">WA</span><span>WhatsApp</span></a>
+            <a href="https://www.facebook.com/sharer/sharer.php" target="_blank" rel="noopener"
+                aria-label="Facebook"><span class="social-symbol facebook">f</span><span>Facebook</span></a>
+            <a href="https://www.instagram.com/" target="_blank" rel="noopener" aria-label="Instagram"><span
+                    class="social-symbol instagram">◎</span><span>Instagram</span></a>
+            <a href="https://t.me/share/url?url=https%3A%2F%2Fwww.janjeevan.store&amp;text=Discover%20Janjeevan.store"
+                target="_blank" rel="noopener" aria-label="Share Janjeevan.store on Telegram" title="Telegram"><span
+                    class="social-symbol telegram">TG</span><span>Telegram</span></a>
+        </div>
+        <div class="footer-meta">
+            <a href="mailto:comtribes@gmail.com">Contact us: comtribes@gmail.com</a>
+            <small>© 2026 Janjeevan.store. All rights reserved.</small>
+        </div>
+    </footer>
+
+    <script type="module" src="js/merchant-login.js?v=20261015-2"></script>
+    <script src="js/chatbot.js"></script>
+</body>
+
+</html>

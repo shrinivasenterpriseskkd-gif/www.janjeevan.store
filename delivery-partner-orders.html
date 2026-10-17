@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Janjeevan.store | Delivery Partner Orders</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body class="delivery-orders-page">
+    <header class="delivery-orders-header">
+        <a class="store-brand" href="index.html"><img src="TribesLogo.jpg" alt="Janjeevan.store logo"><span>Janjeevan.store</span></a>
+        <button type="button" id="sign-out" class="delivery-sign-out">Sign out</button>
+    </header>
+
+    <main class="delivery-orders-main">
+        <div class="delivery-orders-heading">
+            <div>
+                <p class="store-kicker">Delivery Partner Portal</p>
+                <h1>Orders</h1>
+            </div>
+            <div class="delivery-partner-identity">
+                <div class="partner-avatar">
+                    <img id="partner-photo" alt="Delivery Partner profile photo" hidden>
+                    <span id="partner-photo-initials" aria-hidden="true"></span>
+                </div>
+                <p id="partner-name" class="delivery-partner-greeting"></p>
+                <input id="profile-photo-upload" class="visually-hidden-file" type="file" accept="image/jpeg,image/png">
+                <label class="profile-photo-upload" for="profile-photo-upload">Update photo</label>
+            </div>
+        </div>
+        <div class="delivery-location-control">
+            <p id="partner-location-status">Live GPS is optional; updates sync with authorized order participants while sharing is enabled.</p>
+            <button type="button" id="share-partner-location" class="delivery-sign-out">Share my location</button>
+        </div>
+        <p id="orders-status" class="delivery-orders-status" role="status" aria-live="polite"></p>
+        <section id="orders-list" class="delivery-orders-list" aria-label="Assigned orders"></section>
+    </main>
+
+    <script src="js/api-config.js?v=20261015-8"></script>
+    <script type="module" src="js/delivery-partner-orders.js?v=20261015-2"></script>
+</body>
+
+</html>

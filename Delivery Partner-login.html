@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Janjeevan.store | Delivery Partner Sign In</title>
+    <meta name="description" content="Sign in to your Janjeevan.store Delivery Partner account.">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body class="delivery-partner-page">
+    <header class="store-header">
+        <a class="store-brand" href="index.html"><img src="TribesLogo.jpg" alt="Janjeevan.store logo"><span>Janjeevan.store</span></a>
+        <nav aria-label="Main navigation">
+            <a href="index.html">Shop</a>
+            <a href="cart.html">Cart</a>
+            <a class="active" href="Delivery Partner-login.html">Delivery Partner Sign In</a>
+        </nav>
+    </header>
+
+    <main class="delivery-partner-wrap">
+        <div class="delivery-partner-auth-layout">
+            <aside class="delivery-partner-hero" aria-label="Delivery Partner benefits overview">
+                <div class="delivery-partner-hero-badge">Janjeevan.store Delivery Partner Portal</div>
+                <h2>Deliver local. Grow together.</h2>
+                <p>Sign in to check your assigned orders, update delivery progress, and keep customers informed along
+                    the way.</p>
+
+                <ul class="delivery-partner-benefits">
+                    <li>View your assigned deliveries</li>
+                    <li>Update order progress</li>
+                    <li>Keep customer handoffs clear</li>
+                </ul>
+
+                <div class="delivery-partner-mini-card">
+                    <div>
+                        <span class="mini-label">Your partner dashboard</span>
+                        <strong>Orders · progress · support</strong>
+                    </div>
+                    <span class="mini-icon" aria-hidden="true">↗</span>
+                </div>
+            </aside>
+
+            <section class="delivery-partner-id-card delivery-partner-form-panel">
+                <div class="delivery-partner-id-header">
+                    <p class="store-kicker">Welcome back, partner</p>
+                    <h1>Sign in to your account</h1>
+                    <p class="delivery-partner-signin-intro">Use the email address and password you received when you registered.</p>
+                </div>
+
+                <form id="delivery-partner-login-form" novalidate>
+                    <div class="field-row">
+                        <label>
+                            Email Address
+                            <input id="delivery-partner-email" name="email" type="email"
+                                placeholder="Enter your registered email" autocomplete="username" required>
+                        </label>
+                    </div>
+
+                    <div class="field-row single">
+                        <label>
+                            Password
+                            <div class="password-field">
+                                <input id="password" name="password" type="password" placeholder="Enter your password"
+                                    autocomplete="current-password" required>
+                                <button type="button" class="password-toggle" aria-label="Show password"
+                                    data-target="password">👁</button>
+                            </div>
+                        </label>
+                    </div>
+
+                    <button type="submit" class="submit-btn">Sign In</button>
+                </form>
+
+                <button type="button" class="reset-link" id="show-reset">Forgot password?</button>
+
+                <form id="password-reset-form" class="password-reset-form" hidden novalidate>
+                    <div class="delivery-partner-header reset-header">
+                        <p class="store-kicker">Account recovery</p>
+                        <h2>Reset password</h2>
+                    </div>
+                    <label>
+                        Registered Email
+                        <input id="resetEmail" type="email" placeholder="Enter your registered email" required>
+                    </label>
+                    <div class="reset-actions">
+                        <button type="submit" class="submit-btn">Reset password</button>
+                        <button type="button" class="secondary-btn" id="cancel-reset">Cancel</button>
+                    </div>
+                </form>
+
+                <div id="status" class="status-message" aria-live="polite"></div>
+
+                <p class="delivery-partner-helper-text">
+                    New Delivery Partner? <a href="Delivery Partner-registration.html">Create account</a>
+                </p>
+            </section>
+        </div>
+    </main>
+
+    <footer class="store-footer">
+        <div class="footer-brand">
+            <img src="TribesLogo.jpg" alt="Janjeevan.store logo">
+            <div>
+                <span>Janjeevan.store</span>
+                <small>Made for everyday living</small>
+            </div>
+        </div>
+        <div class="social-links" aria-label="Social media links">
+            <a href="https://wa.me/?text=Discover%20Janjeevan.store" target="_blank" rel="noopener" aria-label="WhatsApp"><span
+                    class="social-symbol whatsapp">WA</span><span>WhatsApp</span></a>
+            <a href="https://www.facebook.com/sharer/sharer.php" target="_blank" rel="noopener"
+                aria-label="Facebook"><span class="social-symbol facebook">f</span><span>Facebook</span></a>
+            <a href="https://www.instagram.com/" target="_blank" rel="noopener" aria-label="Instagram"><span
+                    class="social-symbol instagram">◎</span><span>Instagram</span></a>
+            <a href="https://t.me/share/url?url=https%3A%2F%2Fwww.janjeevan.store&amp;text=Discover%20Janjeevan.store"
+                target="_blank" rel="noopener" aria-label="Share Janjeevan.store on Telegram" title="Telegram"><span
+                    class="social-symbol telegram">TG</span><span>Telegram</span></a>
+        </div>
+        <div class="footer-meta">
+            <a href="mailto:comtribes@gmail.com">Contact us: comtribes@gmail.com</a>
+            <small>© 2026 Janjeevan.store. All rights reserved.</small>
+        </div>
+    </footer>
+
+    <script type="module" src="js/delivery-partner-login.js?v=20261015-2"></script>
+    <script src="js/chatbot.js"></script>
+</body>
+
+</html>

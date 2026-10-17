@@ -1,0 +1,254 @@
+.advertisement-registration-page [hidden] {
+    display: none !important;
+}
+
+.advertisement-registration-page .advertisement-registration-main {
+    width: min(100% - 32px, 980px);
+    max-width: 980px;
+    margin: clamp(28px, 5vw, 64px) auto;
+    padding: 0 0 clamp(28px, 5vw, 56px);
+}
+
+.advertisement-registration-page .advertisement-registration-card {
+    padding: clamp(22px, 4vw, 44px);
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.78);
+}
+
+.advertisement-registration-page .merchant-header {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(250px, 0.9fr);
+    align-items: center;
+    gap: 14px 36px;
+    margin: 0 0 24px;
+    padding: 0 0 22px;
+    background: transparent;
+    color: var(--brand-ink);
+    border-bottom: 1px solid rgba(24, 34, 31, 0.14);
+}
+
+.advertisement-registration-page .merchant-header .store-kicker {
+    grid-column: 1 / -1;
+    margin: 0;
+    color: #56665d;
+}
+
+.advertisement-registration-page .merchant-header h1 {
+    font-size: clamp(2rem, 5vw, 3.4rem);
+    line-height: 1.05;
+    color: #18221f;
+}
+
+.advertisement-registration-page .merchant-header > p:last-child {
+    margin: 0;
+    color: #4b5c53;
+    line-height: 1.65;
+}
+
+.advertisement-registration-page .advertisement-plans {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+    margin: 0 0 22px;
+}
+
+.advertisement-registration-page .advertisement-plan {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-items: start;
+    gap: 8px 10px;
+    min-width: 0;
+    padding: 16px;
+    background: rgba(255, 255, 255, 0.78);
+    border: 1px solid rgba(24, 34, 31, 0.16);
+    border-radius: 16px;
+    cursor: pointer;
+    transition: border-color .2s ease, box-shadow .2s ease, transform .2s ease;
+}
+
+.advertisement-registration-page .advertisement-plan:hover {
+    transform: translateY(-2px);
+    border-color: rgba(239, 107, 63, 0.65);
+}
+
+.advertisement-registration-page .advertisement-plan:has(input:checked) {
+    background: #fffaf6;
+    border-color: var(--brand-accent);
+    box-shadow: 0 0 0 3px rgba(239, 107, 63, 0.12);
+}
+
+.advertisement-registration-page .advertisement-plan input {
+    width: 17px;
+    height: 17px;
+    margin: 3px 0 0;
+    accent-color: var(--brand-accent);
+}
+
+.advertisement-registration-page .advertisement-plan-duration {
+    color: #45554c;
+    font-size: .92rem;
+    font-weight: 700;
+}
+
+.advertisement-registration-page .advertisement-plan strong,
+.advertisement-registration-page .advertisement-plan small {
+    grid-column: 2;
+}
+
+.advertisement-registration-page .advertisement-plan strong {
+    color: #18221f;
+    font: 700 1.65rem/1.1 'Space Grotesk', Arial, sans-serif;
+}
+
+.advertisement-registration-page .advertisement-plan small {
+    color: #637269;
+    line-height: 1.4;
+}
+
+.advertisement-registration-page .advertisement-registration-form {
+    display: grid;
+    gap: 17px;
+    margin: 0;
+    padding: clamp(18px, 3vw, 28px);
+    background: #fff;
+    border: 1px solid rgba(24, 34, 31, 0.1);
+    border-radius: 18px;
+}
+
+.advertisement-registration-page .advertisement-registration-form > label {
+    display: grid;
+    gap: 8px;
+    color: #26342d;
+    font-size: .96rem;
+    font-weight: 700;
+}
+
+.advertisement-registration-page .advertisement-registration-form label small {
+    color: #68776e;
+    font-size: .82rem;
+    font-weight: 400;
+    line-height: 1.5;
+}
+
+.advertisement-registration-page .advertisement-registration-form input:not([type="file"]),
+.advertisement-registration-page .advertisement-registration-form textarea {
+    width: 100%;
+    min-height: 48px;
+    margin: 0;
+    padding: 12px 14px;
+    color: #18221f;
+    background: #fbfcfa;
+    border: 1px solid #ccd5ce;
+    border-radius: 10px;
+    font: 500 1rem 'DM Sans', Arial, sans-serif;
+}
+
+.advertisement-registration-page .advertisement-registration-form textarea {
+    min-height: 100px;
+    resize: vertical;
+}
+
+.advertisement-registration-page .advertisement-registration-form input:focus,
+.advertisement-registration-page .advertisement-registration-form textarea:focus {
+    outline: 0;
+    border-color: var(--brand-accent);
+    box-shadow: 0 0 0 3px rgba(239, 107, 63, 0.14);
+}
+
+.advertisement-registration-page .advertisement-registration-form input[type="file"] {
+    width: 100%;
+    padding: 11px;
+    color: #45554c;
+    background: #fbfcfa;
+    border: 1px dashed #b9c6bd;
+    border-radius: 10px;
+    font: 400 .9rem 'DM Sans', Arial, sans-serif;
+}
+
+.advertisement-registration-page #advertisement-registration-preview {
+    width: min(100%, 360px);
+    max-height: 220px;
+    object-fit: contain;
+    object-position: left center;
+    background: #f3f6f2;
+    border: 1px solid #e0e6e1;
+    border-radius: 12px;
+}
+
+.advertisement-registration-page .advertisement-registration-total {
+    margin: 4px 0 0;
+    color: #18221f;
+    font-size: 1.12rem;
+    font-weight: 700;
+}
+
+.advertisement-registration-page .checkout-payment-note {
+    margin: -8px 0 0;
+    color: #5b6b62;
+    font-size: .9rem;
+    line-height: 1.5;
+}
+
+.advertisement-registration-page #advertisement-registration-submit {
+    justify-self: start;
+    width: min(100%, 320px);
+    min-height: 54px;
+    margin: 0;
+}
+
+.advertisement-registration-page #advertisement-registration-status {
+    margin: 0;
+}
+
+@media (max-width: 640px) {
+    .advertisement-registration-page .advertisement-registration-main {
+        width: min(100% - 24px, 980px);
+        margin-top: 22px;
+    }
+
+    .advertisement-registration-page .advertisement-registration-card {
+        padding: 18px;
+        border-radius: 22px;
+    }
+
+    .advertisement-registration-page .merchant-header {
+        grid-template-columns: 1fr;
+        gap: 10px;
+        padding-bottom: 18px;
+    }
+
+    .advertisement-registration-page .merchant-header .store-kicker {
+        grid-column: auto;
+    }
+
+    .advertisement-registration-page .advertisement-plans {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    .advertisement-registration-page .advertisement-plan {
+        grid-template-columns: auto 1fr auto;
+        align-items: center;
+        padding: 13px 14px;
+    }
+
+    .advertisement-registration-page .advertisement-plan strong {
+        grid-column: 3;
+        grid-row: 1 / span 2;
+        align-self: center;
+        font-size: 1.35rem;
+    }
+
+    .advertisement-registration-page .advertisement-plan small {
+        grid-column: 2;
+    }
+
+    .advertisement-registration-page .advertisement-registration-form {
+        padding: 16px;
+    }
+
+    .advertisement-registration-page #advertisement-registration-submit {
+        justify-self: stretch;
+        width: 100%;
+    }
+}

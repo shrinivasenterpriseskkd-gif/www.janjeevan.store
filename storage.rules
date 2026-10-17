@@ -1,0 +1,36 @@
+<<<<<<< HEAD
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /products/{fileName} {
+      allow read: if true;
+    }
+
+    match /merchants/{uid}/products/{fileName} {
+      allow read: if true;
+      allow create: if request.auth != null
+        && request.auth.uid == uid
+        && request.resource.size < 5 * 1024 * 1024
+        && request.resource.contentType.matches('image/(jpeg|png|webp)');
+    }
+  }
+=======
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /products/{fileName} {
+      allow read: if true;
+    }
+
+    match /merchants/{uid}/products/{fileName} {
+      allow read: if true;
+      allow create: if request.auth != null
+        && request.auth.uid == uid
+        && request.resource.size < 5 * 1024 * 1024
+        && request.resource.contentType.matches('image/(jpeg|png|webp)');
+    }
+  }
+>>>>>>> 5d13eafd5f985e4911dd75a50f73b745606da752
+}
