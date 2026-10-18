@@ -4,121 +4,402 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>Cart | Janjeevan.store</title>
+    <title>Cart &amp; Checkout | Janjeevan.store</title>
+    <meta name="description" content="Review your cart items, confirm your GPS delivery pin, and continue to secure payment with Janjeevan.store.">
     <link rel="stylesheet" href="css/style.css">
+    <!-- Leaflet CSS for live GPS interactive delivery map -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+    <!-- Razorpay Checkout -->
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 </head>
 
 <body class="store-page cart-page">
-    <header class="store-header"><a class="store-brand" href="index.html"><span
-                class="store-brand-mark">J</span>Janjeevan.store</a>
+    <header class="store-header">
+        <a class="store-brand" href="index.html">
+            <span class="store-brand-mark">J</span>
+            <span>Janjeevan.store</span>
+        </a>
         <div class="header-actions">
-            <nav aria-label="Store navigation"><a href="index.html">Shop</a><a class="active" href="cart.html">Cart</a>
+            <nav aria-label="Store navigation">
+                <a href="index.html">Shop</a>
+                <a class="active" href="cart.html">Cart <span id="nav-cart-badge" class="nav-cart-badge">0</span></a>
             </nav>
-            <a class="header-signin" href="customer-login.html">Customer Sign In</a>
+            <div id="header-user-status" class="header-user-status">
+                <a class="header-signin" id="header-auth-link" href="customer-login.html?redirect=cart.html">Customer Sign In</a>
+            </div>
         </div>
     </header>
-    <main class="cart-main"><a class="back-link" href="index.html">← Continue shopping</a>
-        <div class="cart-heading">
-            <div>
-                <p class="store-kicker">Your selection</p>
-                <h1>Shopping cart</h1>
-            </div><span id="cart-count"></span>
-        </div>
-        <div id="cart" class="cart-list"></div>
-        <section class="checkout-panel">
-            <div class="customer-checkout-identity">
-                <p id="checkout-customer-status" role="status" aria-live="polite">Checking customer sign-in…</p>
-                <a id="checkout-customer-sign-in" href="customer-login.html" hidden>Sign in to place your order</a>
+
+    <main class="cart-main">
+        <!-- Breadcrumb & Steps -->
+        <nav class="checkout-breadcrumbs" aria-label="Checkout progress">
+            <a class="back-link" href="index.html">← Back to shop</a>
+            <div class="checkout-steps-indicator" aria-hidden="true">
+                <span class="step-badge active">1. Cart Items</span>
+                <span class="step-divider">/</span>
+                <span class="step-badge active">2. Customer Details</span>
+                <span class="step-divider">/</span>
+                <span class="step-badge active">3. Delivery GPS Pin</span>
+                <span class="step-divider">/</span>
+                <span class="step-badge active">4. Payment</span>
             </div>
-            <fieldset class="checkout-choice-group">
-                <legend>Delivery method</legend>
-                <label><input type="radio" name="delivery-method" value="delivery_partner" checked> Local Delivery
-                    Partner</label>
-                <label><input type="radio" name="delivery-method" value="india_post"> India Post Retail Parcel</label>
-            </fieldset>
-            <label class="delivery-state-field" for="delivery-state">Delivery state
-                <select id="delivery-state" required>
-                    <option value="">Choose delivery state</option>
-                    <option>Andhra Pradesh</option>
-                    <option>Arunachal Pradesh</option>
-                    <option>Assam</option>
-                    <option>Bihar</option>
-                    <option>Chhattisgarh</option>
-                    <option>Goa</option>
-                    <option>Gujarat</option>
-                    <option>Haryana</option>
-                    <option>Himachal Pradesh</option>
-                    <option>Jharkhand</option>
-                    <option>Karnataka</option>
-                    <option>Kerala</option>
-                    <option>Madhya Pradesh</option>
-                    <option>Maharashtra</option>
-                    <option>Manipur</option>
-                    <option>Meghalaya</option>
-                    <option>Mizoram</option>
-                    <option>Nagaland</option>
-                    <option>Odisha</option>
-                    <option>Punjab</option>
-                    <option>Rajasthan</option>
-                    <option>Sikkim</option>
-                    <option>Tamil Nadu</option>
-                    <option>Telangana</option>
-                    <option>Tripura</option>
-                    <option>Uttar Pradesh</option>
-                    <option>Uttarakhand</option>
-                    <option>West Bengal</option>
-                    <option>Andaman and Nicobar Islands</option>
-                    <option>Chandigarh</option>
-                    <option>Dadra and Nagar Haveli and Daman and Diu</option>
-                    <option>Delhi</option>
-                    <option>Jammu and Kashmir</option>
-                    <option>Ladakh</option>
-                    <option>Lakshadweep</option>
-                    <option>Puducherry</option>
-                </select>
-            </label>
-            <div id="postal-address-fields" class="postal-address-fields" hidden>
-                <label for="postal-address">Postal delivery address
-                    <textarea id="postal-address" maxlength="500" rows="3" autocomplete="street-address"
-                        placeholder="House / street, village or town, district" required></textarea>
-                </label>
-                <label for="postal-pincode">PIN code
-                    <input id="postal-pincode" type="text" inputmode="numeric" autocomplete="postal-code" maxlength="6"
-                        pattern="[1-9][0-9]{5}" placeholder="6-digit PIN code" required>
-                </label>
-                <p id="postal-charge" class="postal-charge" aria-live="polite">Postal charge will be calculated from
-                    parcel weight and destination.</p>
-            </div>
-            <div id="delivery-location-field" class="delivery-location-field">
-                <button type="button" id="share-customer-location" class="delivery-location-button">Share my delivery
-                    location</button>
-                <p id="customer-location-status" role="status" aria-live="polite">Share your delivery pin for this
-                    order. It is saved with the order and visible only to you, the assigned Delivery Partner, and Admin.
-                </p>
-            </div>
-            <div><span>Items</span><strong id="cart-subtotal">₹0</strong></div>
-            <div><span>Postal charge</span><strong id="cart-postal-charge">₹0</strong></div>
-            <div><span>Total</span><strong id="cart-total">₹0</strong></div>
-            <p class="checkout-payment-note">Choose from the payment methods available in Razorpay Checkout. Payment is
-                verified securely before the order is saved.</p>
-            <button id="pay" class="hero-button">Continue to payment <span>→</span></button>
-            <p id="status" role="status"></p>
-        </section>
-        <section id="payment-receipt" class="payment-receipt" aria-labelledby="payment-receipt-heading" hidden>
-            <div class="payment-receipt-heading">
-                <div>
-                    <p class="store-kicker">Payment receipt</p>
-                    <h2 id="payment-receipt-heading">Order confirmed</h2>
+        </nav>
+
+        <!-- Main Checkout Layout -->
+        <div class="cart-layout-grid">
+            <!-- Left Column: Items List, Customer Details, Delivery GPS Map, and Inline Payment Methods -->
+            <div class="cart-content-column">
+                <div class="cart-heading">
+                    <div>
+                        <p class="store-kicker">Review &amp; Deliver</p>
+                        <h1>Shopping Cart</h1>
+                    </div>
+                    <span id="cart-count" class="cart-count-pill">0 items</span>
                 </div>
-                <strong class="payment-receipt-paid">PAID</strong>
+
+                <!-- Products list in cart -->
+                <div id="cart" class="cart-list" aria-live="polite"></div>
+
+                <!-- Step 1: Customer Details Card -->
+                <section class="checkout-card customer-details-card" id="customer-details-card" aria-labelledby="customer-details-heading">
+                    <div class="checkout-card-header">
+                        <div class="step-number-pill">Step 1</div>
+                        <div>
+                            <h2 id="customer-details-heading" class="checkout-card-title">Customer Contact Details</h2>
+                            <p class="checkout-card-subtitle">Required for order verification, live Delivery Partner tracking, and digital invoice receipt.</p>
+                        </div>
+                    </div>
+
+                    <!-- Signed-In Indicator Bar (when signed in) -->
+                    <div id="checkout-customer-signed-in-bar" class="customer-signed-in-bar" hidden>
+                        <div class="signed-in-pill">
+                            <span class="signed-in-dot" aria-hidden="true">●</span>
+                            <span>Signed in as <strong id="signed-in-bar-email">customer@example.com</strong></span>
+                            <span class="verified-tag">✓ Account Verified</span>
+                        </div>
+                        <button type="button" id="checkout-switch-account" class="text-button" title="Sign out or switch customer account">Sign out / Switch</button>
+                    </div>
+
+                    <!-- Sign-In Prompt (when not signed in) -->
+                    <div id="checkout-guest-intro" class="customer-guest-intro">
+                        <span>Already registered? <a id="checkout-quick-signin-link" href="customer-login.html?redirect=cart.html">Sign in to your account</a> or checkout as guest below.</span>
+                    </div>
+
+                    <!-- Customer Contact Form -->
+                    <form id="customer-checkout-form" class="customer-checkout-form" novalidate>
+                        <div class="customer-form-grid">
+                            <div class="form-group" id="group-checkout-name">
+                                <label for="checkout-name">Full Name <span class="required">*</span></label>
+                                <input type="text" id="checkout-name" name="name" placeholder="e.g. Ramesh Kumar" autocomplete="name" required>
+                                <span class="input-hint-msg" id="hint-checkout-name"></span>
+                            </div>
+
+                            <div class="form-group" id="group-checkout-mobile">
+                                <label for="checkout-mobile">Phone Number (10 digits) <span class="required">*</span></label>
+                                <div class="phone-input-wrap">
+                                    <span class="phone-prefix">+91</span>
+                                    <input type="tel" id="checkout-mobile" name="mobile" placeholder="9876543210" maxlength="15" autocomplete="tel" required>
+                                </div>
+                                <span class="input-hint-msg" id="hint-checkout-mobile">Delivery Partner calls this number upon arrival.</span>
+                            </div>
+
+                            <div class="form-group full-width" id="group-checkout-email">
+                                <label for="checkout-email">Email Address <span class="required">*</span></label>
+                                <input type="email" id="checkout-email" name="email" placeholder="name@example.com" autocomplete="email" required>
+                                <span class="input-hint-msg" id="hint-checkout-email">Order confirmation and invoice are sent here.</span>
+                            </div>
+                        </div>
+
+                        <div class="customer-form-actions">
+                            <button type="submit" id="btn-proceed-to-payment" class="customer-proceed-btn">
+                                <span>Continue to Payment Options</span>
+                                <span class="btn-arrow" aria-hidden="true">→</span>
+                            </button>
+                            <span class="auto-save-notice">🔒 Details securely saved for this order</span>
+                        </div>
+                    </form>
+                </section>
+
+                <!-- Step 2: Delivery Destination & Live GPS Map -->
+                <section class="checkout-card delivery-location-card" id="delivery-location-card" aria-labelledby="delivery-heading">
+                    <div class="delivery-location-header">
+                        <div class="delivery-location-title-group">
+                            <div class="step-number-pill">Step 2</div>
+                            <div>
+                                <span class="delivery-badge">🛵 Local Delivery Partner</span>
+                                <h2 id="delivery-heading" class="delivery-location-title">Delivery Pin &amp; Live GPS</h2>
+                                <p class="delivery-location-desc">Our local Delivery Partner navigates directly to this GPS pin. Auto-detected live from your device.</p>
+                            </div>
+                        </div>
+                        <button type="button" id="share-customer-location" class="delivery-location-refresh-btn" title="Refresh your GPS delivery pin">
+                            <span class="refresh-icon" aria-hidden="true">↻</span> Auto-Detect GPS
+                        </button>
+                    </div>
+
+                    <div class="delivery-coords-bar">
+                        <span class="coords-label">Live Pin:</span>
+                        <div id="customer-location-coords" class="customer-location-coords">
+                            <strong>Detecting GPS coordinates…</strong>
+                        </div>
+                    </div>
+
+                    <!-- Interactive Leaflet OpenStreetMap Container -->
+                    <div id="customer-location-map-container" class="customer-location-map-container" aria-label="Interactive Delivery Pin Map"></div>
+
+                    <div class="delivery-map-footer">
+                        <p id="customer-location-status" role="status" aria-live="polite">
+                            Auto-capturing your GPS delivery location…
+                        </p>
+                        <span class="delivery-pin-hint">💡 Tap anywhere on the map or drag the pin to adjust your exact doorstep.</span>
+                    </div>
+                </section>
+
+                <!-- Step 3: In-Page Payment Methods Section -->
+                <section class="checkout-card payment-options-section" id="payment-options-section" aria-labelledby="payment-section-heading">
+                    <div class="checkout-card-header">
+                        <div class="step-number-pill">Step 3</div>
+                        <div>
+                            <h2 id="payment-section-heading" class="checkout-card-title">Choose Payment Method</h2>
+                            <p class="checkout-card-subtitle">Select how you would like to complete your order.</p>
+                        </div>
+                    </div>
+
+                    <!-- Payment Selection Grid -->
+                    <div class="payment-methods-grid in-page-methods">
+                        <!-- Method 1: Instant UPI / QR -->
+                        <div class="payment-method-card highlighted">
+                            <div class="method-card-header">
+                                <span class="method-icon">⚡</span>
+                                <div>
+                                    <span class="method-tag">Fastest · 0% Fee</span>
+                                    <h3>Instant UPI (GPay / PhonePe / Paytm / QR)</h3>
+                                    <p>Pay instantly with any UPI app or scan QR upon delivery</p>
+                                </div>
+                            </div>
+                            <div class="upi-details-box">
+                                <div class="upi-id-row">
+                                    <span>Official Merchant UPI ID:</span>
+                                    <code>comtribes@gmail.com</code>
+                                </div>
+                            </div>
+                            <button type="button" id="inpage-pay-with-upi-btn" class="method-action-btn upi">
+                                Pay with UPI (<span class="modal-btn-amount">₹0</span>) ✓
+                            </button>
+                        </div>
+
+                        <!-- Method 2: Razorpay Online Gateway -->
+                        <div class="payment-method-card">
+                            <div class="method-card-header">
+                                <span class="method-icon">💳</span>
+                                <div>
+                                    <h3>Razorpay Online Gateway</h3>
+                                    <p>Credit/Debit Cards, NetBanking, Wallets, UPI</p>
+                                </div>
+                            </div>
+                            <button type="button" id="inpage-pay-with-razorpay-btn" class="method-action-btn primary">
+                                Open Razorpay Gateway →
+                            </button>
+                        </div>
+
+                        <!-- Instant Auto-Pay to Merchant Guarantee Banner -->
+                        <div class="merchant-autopay-notice-box">
+                            <span class="autopay-icon">⚡</span>
+                            <div>
+                                <strong>Automatic Settlement to Merchant Account</strong>
+                                <p>Once your payment is confirmed, the system immediately auto-transfers the payout directly to the supplying merchant's verified bank account or UPI.</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
             </div>
-            <div id="payment-receipt-content"></div>
-            <div class="payment-receipt-actions">
-                <button id="print-payment-receipt" class="hero-button" type="button">Print / Save receipt</button>
+
+            <!-- Right Column: Sticky Summary & Customer Checkout -->
+            <aside class="checkout-sidebar-column">
+                <section class="checkout-panel">
+                    <h2 class="checkout-panel-title">Order Summary</h2>
+
+                    <!-- Order Price Breakdown -->
+                    <div class="checkout-summary-section">
+                        <div class="cart-summary-line">
+                            <span>Items Subtotal (<span id="cart-summary-count">0</span> items)</span>
+                            <strong id="cart-subtotal">₹0</strong>
+                        </div>
+                        <div class="cart-summary-line">
+                            <span>Delivery Partner Fee (Direct GPS)</span>
+                            <strong class="free-badge">FREE</strong>
+                        </div>
+                        <div class="cart-summary-line">
+                            <span>Estimated Delivery</span>
+                            <span class="delivery-eta">Within 2–4 Hours</span>
+                        </div>
+
+                        <div class="cart-summary-total">
+                            <span>Total to Pay</span>
+                            <strong id="cart-total">₹0</strong>
+                        </div>
+                    </div>
+
+                    <!-- Payment Action Section -->
+                    <div class="checkout-action-section">
+                        <button id="pay" class="checkout-pay-button" type="button">
+                            <span id="pay-button-label">Continue to payment</span>
+                            <span class="pay-arrow" aria-hidden="true">→</span>
+                        </button>
+
+                        <div class="checkout-trust-badges">
+                            <div class="trust-badge-item">
+                                <span class="trust-icon" aria-hidden="true">🔒</span>
+                                <span>256-Bit SSL Razorpay Security</span>
+                            </div>
+                            <div class="trust-badge-item">
+                                <span class="trust-icon" aria-hidden="true">💳</span>
+                                <span>UPI (GPay/PhonePe/Paytm), Cards, NetBanking</span>
+                            </div>
+                            <div class="trust-badge-item">
+                                <span class="trust-icon" aria-hidden="true">🛵</span>
+                                <span>Live GPS Delivery Partner Tracking</span>
+                            </div>
+                        </div>
+
+                        <p id="status" class="checkout-status-msg" role="status" aria-live="polite"></p>
+
+                        <!-- Demo / Sandbox Payment fallback trigger if Razorpay credentials are in test sandbox -->
+                        <div id="test-sandbox-payment-container" class="test-sandbox-payment-container" hidden>
+                            <p class="test-payment-note">Running in prototype/test mode. You can proceed with instant demo order verification.</p>
+                            <button type="button" id="simulate-test-payment-btn" class="secondary-btn simulate-btn">
+                                ⚡ Confirm with Demo Payment
+                            </button>
+                        </div>
+                    </div>
+                </section>
+            </aside>
+        </div>
+
+        <!-- Payment Options Modal (Also opens when Continue to payment is triggered) -->
+        <section id="payment-options-modal" class="payment-options-modal" aria-labelledby="payment-modal-heading" hidden>
+            <div class="payment-modal-card">
+                <div class="payment-modal-header">
+                    <div>
+                        <p class="store-kicker">Secure Checkout</p>
+                        <h2 id="payment-modal-heading">Choose Payment Method</h2>
+                    </div>
+                    <button type="button" id="close-payment-modal" class="modal-close-btn" aria-label="Close payment options">&times;</button>
+                </div>
+
+                <div class="payment-modal-recap">
+                    <div class="recap-customer">
+                        <span class="recap-label">Customer Details</span>
+                        <strong id="modal-customer-name">Customer</strong>
+                        <span id="modal-customer-phone">+91 0000000000</span>
+                    </div>
+                    <div class="recap-location">
+                        <span class="recap-label">Delivery GPS Pin</span>
+                        <strong id="modal-gps-pin">18.2969° N, 82.8808° E</strong>
+                        <span class="recap-partner">🛵 Local Delivery Partner Dispatch</span>
+                    </div>
+                    <div class="recap-amount">
+                        <span class="recap-label">Total to Pay</span>
+                        <strong id="modal-total-amount">₹0</strong>
+                    </div>
+                </div>
+
+                <!-- Payment Selection Grid -->
+                <div class="payment-methods-grid">
+                    <!-- Method 1: Instant UPI / QR -->
+                    <div class="payment-method-card highlighted">
+                        <div class="method-card-header">
+                            <span class="method-icon">⚡</span>
+                            <div>
+                                <span class="method-tag">Fastest · 0% Fee</span>
+                                <h3>Instant UPI (GPay / PhonePe / Paytm / QR)</h3>
+                                <p>Pay instantly with any UPI app or scan QR upon delivery</p>
+                            </div>
+                        </div>
+                        <div class="upi-details-box">
+                            <div class="upi-id-row">
+                                <span>Official Merchant UPI ID:</span>
+                                <code>comtribes@gmail.com</code>
+                            </div>
+                        </div>
+                        <button type="button" id="pay-with-upi-btn" class="method-action-btn upi">
+                            Pay with UPI (<span class="modal-btn-amount">₹0</span>) ✓
+                        </button>
+                    </div>
+
+                    <!-- Method 2: Razorpay Online Gateway -->
+                    <div class="payment-method-card">
+                        <div class="method-card-header">
+                            <span class="method-icon">💳</span>
+                            <div>
+                                <h3>Razorpay Online Gateway</h3>
+                                <p>Credit/Debit Cards, NetBanking, Wallets, UPI</p>
+                            </div>
+                        </div>
+                        <button type="button" id="pay-with-razorpay-btn" class="method-action-btn primary">
+                            Open Razorpay Gateway →
+                        </button>
+                    </div>
+
+                    <!-- Automatic Merchant Settlement Assurance Banner -->
+                    <div class="merchant-autopay-notice-box modal-variant">
+                        <span class="autopay-icon">⚡</span>
+                        <div>
+                            <strong>Instant Merchant Auto-Payout Active</strong>
+                            <p>Direct payment to merchant account is triggered immediately upon successful transaction verification.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="payment-modal-footer">
+                    <div class="modal-trust-info">
+                        <span>🔒 256-Bit SSL Encryption</span>
+                        <span>·</span>
+                        <span>🛡️ Razorpay Verified</span>
+                        <span>·</span>
+                        <span>🛵 Live Partner Dispatch</span>
+                    </div>
+                    <p id="modal-status-msg" class="modal-status-msg" role="status" aria-live="polite"></p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Payment Receipt / Order Confirmation (Appears upon successful checkout) -->
+        <section id="payment-receipt" class="payment-receipt-modal" aria-labelledby="payment-receipt-heading" hidden>
+            <div class="payment-receipt-card">
+                <div class="receipt-success-header">
+                    <div class="receipt-success-icon" aria-hidden="true">✓</div>
+                    <div>
+                        <p class="store-kicker">Order Placed Successfully</p>
+                        <h2 id="payment-receipt-heading">Payment Confirmed</h2>
+                    </div>
+                    <span class="payment-receipt-paid-stamp">PAID</span>
+                </div>
+
+                <div id="payment-receipt-content" class="payment-receipt-body"></div>
+
+                <div class="payment-receipt-actions">
+                    <button id="print-payment-receipt" class="secondary-btn print-receipt-btn" type="button" title="Print this receipt or save as PDF">
+                        🖨️ Print Receipt
+                    </button>
+                    <button id="download-payment-receipt" class="secondary-btn download-receipt-btn" type="button" title="Download official invoice file">
+                        💾 Save / Download Invoice
+                    </button>
+                    <button id="copy-receipt-details" class="text-button copy-receipt-btn" type="button" title="Copy receipt text to clipboard">
+                        📋 Copy Details
+                    </button>
+                    <a href="customer-portal.html" class="hero-button track-order-btn">
+                        Track Delivery Partner Live →
+                    </a>
+                    <a href="index.html" class="text-button">
+                        Continue Shopping
+                    </a>
+                </div>
             </div>
         </section>
     </main>
+
     <footer class="store-footer">
         <div class="footer-brand">
             <img src="TribesLogo.jpg" alt="Janjeevan.store logo">
@@ -128,27 +409,31 @@
             </div>
         </div>
         <div class="social-links" aria-label="Social media links">
-            <a href="https://wa.me/?text=Discover%20Janjeevan.store" target="_blank" rel="noopener"
-                aria-label="WhatsApp"><span class="social-symbol whatsapp">WA</span><span>WhatsApp</span></a>
-            <a href="https://www.facebook.com/sharer/sharer.php" target="_blank" rel="noopener"
-                aria-label="Facebook"><span class="social-symbol facebook">f</span><span>Facebook</span></a>
-            <a href="https://www.instagram.com/" target="_blank" rel="noopener" aria-label="Instagram"><span
-                    class="social-symbol instagram">◎</span><span>Instagram</span></a>
-            <a href="https://t.me/share/url?url=https%3A%2F%2Fwww.janjeevan.store&amp;text=Discover%20Janjeevan.store"
-                target="_blank" rel="noopener" aria-label="Share Janjeevan.store on Telegram" title="Telegram"><span
-                    class="social-symbol telegram">TG</span><span>Telegram</span></a>
+            <a href="https://wa.me/?text=Discover%20Janjeevan.store" target="_blank" rel="noopener" aria-label="WhatsApp">
+                <span class="social-symbol whatsapp">WA</span><span>WhatsApp</span>
+            </a>
+            <a href="https://www.facebook.com/sharer/sharer.php" target="_blank" rel="noopener" aria-label="Facebook">
+                <span class="social-symbol facebook">f</span><span>Facebook</span>
+            </a>
+            <a href="https://www.instagram.com/" target="_blank" rel="noopener" aria-label="Instagram">
+                <span class="social-symbol instagram">◎</span><span>Instagram</span>
+            </a>
+            <a href="https://t.me/share/url?url=https%3A%2F%2Fwww.janjeevan.store&amp;text=Discover%20Janjeevan.store" target="_blank" rel="noopener" aria-label="Share on Telegram">
+                <span class="social-symbol telegram">TG</span><span>Telegram</span>
+            </a>
         </div>
         <div class="footer-meta">
             <a href="mailto:comtribes@gmail.com">Contact us: comtribes@gmail.com</a>
             <a href="index.html">Back to shop ↗</a>
-            <div class="viewer-pill"><span class="viewer-label">Viewers</span><strong id="viewer-count">0</strong></div>
+            <div class="viewer-pill"><span class="viewer-label">Live Viewers</span><strong id="viewer-count">0</strong></div>
             <small>© 2026 Janjeevan.store. All rights reserved.</small>
         </div>
     </footer>
-    <script src="js/api-config.js"></script>
-    <script type="module" src="js/cart.js?v=20261017-2"></script>
+
+    <script type="module" src="js/api-config.js"></script>
+    <script type="module" src="js/cart.js?v=20261018-4"></script>
     <script type="module" src="js/viewers.js"></script>
-    <script src="js/chatbot.js"></script>
+    <script type="module" src="js/chatbot.js"></script>
 </body>
 
 </html>

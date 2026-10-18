@@ -187,7 +187,7 @@ function startPartnerSharing() {
         partnerLocationStatus.textContent = error.code === error.PERMISSION_DENIED
             ? 'Location permission was denied. Allow location access and try again.'
             : 'Could not get your location. Check device location settings and try again.';
-        console.error('Could not watch the Delivery Partner GPS location.', error);
+        console.warn('Could not watch the Delivery Partner GPS location.', error);
         shareLocationButton.textContent = 'Share my location';
     }, { enableHighAccuracy: true, maximumAge: 5000, timeout: 15000 });
     shareLocationButton.textContent = 'Stop sharing location';

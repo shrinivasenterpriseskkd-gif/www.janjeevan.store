@@ -47,7 +47,8 @@ form.addEventListener('submit', async event => {
     }
 
     localStorage.removeItem('tribesCurrentCustomer');
-    window.location.href = 'customer-portal.html';
+    const redirectUrl = new URLSearchParams(window.location.search).get('redirect') || 'customer-portal.html';
+    window.location.href = redirectUrl;
 });
 
 resetForm.addEventListener('submit', async event => {

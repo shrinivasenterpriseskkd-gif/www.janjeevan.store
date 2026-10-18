@@ -57,7 +57,7 @@ function renderOrders() {
             <p>Payment: ${escapeHtml(order.paymentMethod === 'phonepe' ? 'PhonePe UPI' : order.paymentMethod === 'googlepay' ? 'Google Pay UPI' : 'Razorpay')}</p>
             <ul>${(Array.isArray(order.items) ? order.items : []).map(item => `<li>${escapeHtml(item.name)} × ${escapeHtml(item.quantity)}</li>`).join('')}</ul>
             <strong>${escapeHtml(new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(order.amount || 0))}</strong>
-            ${isActiveOrder(order) && order.deliveryMethod !== 'india_post' ? `<div class="order-tracking-actions"><button class="button secondary" type="button" data-location-action="${customerWatchId === null ? 'start' : 'stop'}">${customerWatchId === null ? 'Share live location' : 'Stop sharing location'}</button><span>Sharing is optional and ends when you stop it or the order is delivered.</span></div>` : ''}
+            ${isActiveOrder(order) ? `<div class="order-tracking-actions"><button class="button secondary" type="button" data-location-action="${customerWatchId === null ? 'start' : 'stop'}">${customerWatchId === null ? 'Share live location' : 'Stop sharing location'}</button><span>Sharing is optional and ends when you stop it or the order is delivered.</span></div>` : ''}
             ${renderOrderMap(order)}
         </article>
     `).join('');
@@ -132,7 +132,7 @@ function startCustomerSharing() {
             ? 'Location permission was denied. Allow location access and try again.'
             : 'Could not get your location. Check device location settings and try again.';
         orderStatus.className = 'status-message error';
-        console.error('Could not watch the Customer GPS location.', error);
+        console.warn('Could not watch the Customer GPS location.', error);
         renderOrders();
     }, { enableHighAccuracy: true, maximumAge: 5000, timeout: 15000 });
     renderOrders();

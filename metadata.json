@@ -1,0 +1,8 @@
+{
+  "name": "Janjeevan.store",
+  "description": "Discover useful products from Janjeevan.store. Browse the latest collection and order online.",
+  "permissions": [],
+  "capabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

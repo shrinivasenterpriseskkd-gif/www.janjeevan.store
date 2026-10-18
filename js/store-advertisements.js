@@ -68,44 +68,45 @@ const startCarousel = () => {
 };
 
 try {
-    const response = await fetch(`${apiBase}/api/advertisements`, { cache: "no-store" });
-    const result = await response.json();
-    if (!response.ok) throw new Error(result.error || "Featured advertisements are unavailable.");
-    const advertisements = Array.isArray(result.advertisements) ? result.advertisements : [];
-    advertisementCount = advertisements.length;
-    if (advertisements.length) {
-        const cards = advertisements.map(advertisement => {
-            const safeLink = safeAdvertisementLink(advertisement.linkUrl);
-            const contents = `<img src="${escapeHtml(advertisement.imageUrl)}" alt="${escapeHtml(advertisement.title || "Featured advertisement")}">
-                <div class="store-advertisement-copy">
-                    <h3>${escapeHtml(advertisement.title || "Featured offer")}</h3>
-                    ${advertisement.description ? `<p>${escapeHtml(advertisement.description)}</p>` : ""}
-                </div>`;
-            return `<article class="store-advertisement-card">${safeLink
-                ? `<a href="${escapeHtml(safeLink)}" ${safeLink.startsWith("https:") ? 'target="_blank" rel="noopener noreferrer"' : ""}>${contents}</a>`
-                : contents}</article>`;
-        });
-        list.innerHTML = cards.join("");
-        [...list.children].forEach(originalCard => {
-            const clone = originalCard.cloneNode(true);
-            clone.setAttribute("aria-hidden", "true");
-            clone.querySelectorAll("a").forEach(link => link.setAttribute("tabindex", "-1"));
-            list.append(clone);
-        });
-        count.textContent = `${advertisements.length} advertisement${advertisements.length === 1 ? "" : "s"}`;
-        section.hidden = false;
-        previous.addEventListener("click", () => { moveAdvertisementCarousel(-1); startCarousel(); });
-        next.addEventListener("click", () => { moveAdvertisementCarousel(1); startCarousel(); });
-        viewport.addEventListener("mouseenter", stopCarousel);
-        viewport.addEventListener("mouseleave", startCarousel);
-        viewport.addEventListener("focusin", stopCarousel);
-        viewport.addEventListener("focusout", event => {
-            if (!viewport.contains(event.relatedTarget)) startCarousel();
-        });
-        document.addEventListener("visibilitychange", startCarousel);
-        window.matchMedia("(prefers-reduced-motion: reduce)").addEventListener("change", startCarousel);
-        startCarousel();
+    const response = await fetch(`${apiBase}/api/advertisements`, { cache: "no-store" }).catch(() => null);
+    if (response && response.ok) {
+        const result = await response.json().catch(() => ({ advertisements: [] }));
+        const advertisements = Array.isArray(result?.advertisements) ? result.advertisements : [];
+        advertisementCount = advertisements.length;
+        if (advertisements.length) {
+            const cards = advertisements.map(advertisement => {
+                const safeLink = safeAdvertisementLink(advertisement.linkUrl);
+                const contents = `<img src="${escapeHtml(advertisement.imageUrl)}" alt="${escapeHtml(advertisement.title || "Featured advertisement")}">
+                    <div class="store-advertisement-copy">
+                        <h3>${escapeHtml(advertisement.title || "Featured offer")}</h3>
+                        ${advertisement.description ? `<p>${escapeHtml(advertisement.description)}</p>` : ""}
+                    </div>`;
+                return `<article class="store-advertisement-card">${safeLink
+                    ? `<a href="${escapeHtml(safeLink)}" ${safeLink.startsWith("https:") ? 'target="_blank" rel="noopener noreferrer"' : ""}>${contents}</a>`
+                    : contents}</article>`;
+            });
+            list.innerHTML = cards.join("");
+            [...list.children].forEach(originalCard => {
+                const clone = originalCard.cloneNode(true);
+                clone.setAttribute("aria-hidden", "true");
+                clone.querySelectorAll("a").forEach(link => link.setAttribute("tabindex", "-1"));
+                list.append(clone);
+            });
+            count.textContent = `${advertisements.length} advertisement${advertisements.length === 1 ? "" : "s"}`;
+            section.hidden = false;
+            previous.addEventListener("click", () => { moveAdvertisementCarousel(-1); startCarousel(); });
+            next.addEventListener("click", () => { moveAdvertisementCarousel(1); startCarousel(); });
+            viewport.addEventListener("mouseenter", stopCarousel);
+            viewport.addEventListener("mouseleave", startCarousel);
+            viewport.addEventListener("focusin", stopCarousel);
+            viewport.addEventListener("focusout", event => {
+                if (!viewport.contains(event.relatedTarget)) startCarousel();
+            });
+            document.addEventListener("visibilitychange", startCarousel);
+            window.matchMedia("(prefers-reduced-motion: reduce)").addEventListener("change", startCarousel);
+            startCarousel();
+        }
     }
 } catch (error) {
-    console.error("Could not load storefront advertisements.", error);
+    console.warn("Storefront advertisements are currently unavailable.", error);
 }

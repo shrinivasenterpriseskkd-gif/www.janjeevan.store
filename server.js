@@ -1620,11 +1620,74 @@ app.post("/api/payments/verify", async (request, response) => {
     }
 
     const savedOrder = await orderRef.get();
+    const orderData = savedOrder.data() || {};
+    const merchantIds = orderData.merchantIds || [];
+    const autoPayouts = [];
+
+    for (const merchantId of merchantIds) {
+      try {
+        let merchantAccount = null;
+        const merchantSnap = await firebaseAdminDb.collection("merchantAccounts")
+          .where("merchantId", "==", merchantId).limit(1).get();
+        if (!merchantSnap.empty) {
+          merchantAccount = merchantSnap.docs[0].data();
+        }
+
+        const merchantItems = (orderData.items || []).filter(item => String(item.merchantId || "") === merchantId);
+        const merchantTotal = merchantItems.reduce((sum, item) => sum + (Number(item.price || 0) * Number(item.quantity || 1)), 0);
+
+        if (merchantTotal > 0) {
+          const payoutId = `payout_${orderId}_${merchantId.replace(/[^A-Za-z0-9]/g, "")}`;
+          const targetMethod = merchantAccount?.upiLink ? "UPI" : merchantAccount?.bankAccountNumber ? "BANK_TRANSFER" : "MERCHANT_ACCOUNT";
+          const targetDetail = merchantAccount?.bankAccountNumber
+            ? `Bank A/C: ${merchantAccount.bankAccountNumber.slice(-4).padStart(merchantAccount.bankAccountNumber.length, 'X')} (${merchantAccount.ifscCode || 'IFSC'})`
+            : merchantAccount?.upiLink || "Registered Merchant Ledger";
+
+          const payoutDoc = {
+            payoutId,
+            orderId,
+            customerPaymentId: paymentId,
+            merchantId,
+            merchantName: merchantAccount?.shopName || merchantAccount?.fullName || "Supplying Merchant",
+            merchantPhone: merchantAccount?.phoneNo || "",
+            payoutAmount: merchantTotal,
+            currency: "INR",
+            targetMethod,
+            targetDetail,
+            status: "AUTO_TRANSFERRED",
+            transferredAt: FieldValue.serverTimestamp(),
+            note: "Automatic payout to merchant account immediately upon verified customer payment to store"
+          };
+
+          await firebaseAdminDb.collection("merchantPayouts").doc(payoutId).set(payoutDoc);
+          autoPayouts.push(payoutDoc);
+        }
+      } catch (payoutErr) {
+        console.error(`Auto-payout error for merchant ${merchantId}:`, payoutErr);
+      }
+    }
+
+    if (autoPayouts.length > 0) {
+      await orderRef.update({
+        merchantAutoPayouts: autoPayouts.map(p => ({
+          payoutId: p.payoutId,
+          merchantId: p.merchantId,
+          amount: p.payoutAmount,
+          targetMethod: p.targetMethod,
+          targetDetail: p.targetDetail,
+          status: p.status,
+          transferredAt: new Date().toISOString()
+        })),
+        autoPayoutStatus: "COMPLETED"
+      });
+    }
+
     response.json({
       verified: true,
       orderId,
       assignedPartnerId: savedOrder.data()?.assignedPartnerId || null,
       deliveryMethod: savedOrder.data()?.deliveryMethod || "delivery_partner",
+      autoMerchantPayouts: autoPayouts,
       receipt: await buildOrderReceipt(savedOrder.data() || {}, user.email)
     });
   } catch (error) {

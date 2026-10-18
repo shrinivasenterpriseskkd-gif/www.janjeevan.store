@@ -385,7 +385,7 @@ merchantLocationButton.addEventListener("click", async () => {
             ? "Location permission was denied. Allow location access and try again."
             : "Could not get this device's location. Check device location settings and try again.";
         trackingStatus.className = "form-message error";
-        console.error("Could not watch the Merchant GPS location.", error);
+        console.warn("Could not watch the Merchant GPS location.", error);
         merchantLocationButton.textContent = "Share this device's pickup location";
     }, { enableHighAccuracy: true, maximumAge: 5000, timeout: 15000 });
     merchantLocationButton.textContent = "Stop sharing pickup location";

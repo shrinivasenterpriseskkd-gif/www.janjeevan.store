@@ -438,8 +438,9 @@ const renderMerchantOrders = () => {
             <p>${escapeHtml(order.customerName || "Customer")}${order.customerMobile ? ` · ${escapeHtml(order.customerMobile)}` : ""}</p>
             <p>${escapeHtml(order.deliveryState || "Delivery area not provided")} · ${escapeHtml(order.createdAt ? new Date(order.createdAt).toLocaleString("en-IN") : "Date unavailable")}</p>
             <p>Delivery: ${escapeHtml(order.deliveryMethod === "india_post" ? `India Post Retail Parcel · ${order.postalAddress || ""} ${order.postalPincode || ""}` : "Delivery Partner")}</p>
-            <p>Payment: ${escapeHtml(order.paymentMethod === "phonepe" ? "PhonePe UPI" : order.paymentMethod === "googlepay" ? "Google Pay UPI" : "Razorpay")}${order.deliveryMethod === "india_post" ? ` · Postal charge: ${merchantOrderMoney(order.postalCharge || 0)}` : ""}</p>
+            <p>Payment: ${escapeHtml(order.paymentMethod === "upi" ? "Instant UPI" : order.paymentMethod === "phonepe" ? "PhonePe UPI" : order.paymentMethod === "googlepay" ? "Google Pay UPI" : "Razorpay Online")}</p>
             <p class="merchant-product-price-detail">Status: ${escapeHtml(order.status || "Unassigned")}</p>
+            <p style="color: #1a7848; font-weight: 700; margin: 6px 0; display: inline-flex; align-items: center; gap: 4px; background: #eaf6ee; padding: 3px 8px; border-radius: 6px; font-size: 0.85rem;">⚡ Auto-Paid to your Merchant Bank/UPI Account</p>
             <ul>${order.items.map(item => `<li>${escapeHtml(item.name)} × ${escapeHtml(item.quantity)} · ${merchantOrderMoney(item.price * item.quantity)}</li>`).join("")}</ul>
             <p class="merchant-product-sale-price">Your products subtotal: ${merchantOrderMoney(order.amount)}</p>
         </div>

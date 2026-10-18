@@ -213,8 +213,7 @@
                     <label>Shipping weight (g)
                         <input id="merchant-product-weight" type="number" min="1" max="100000" step="1"
                             placeholder="Weight per sale unit">
-                        <small>Required for India Post parcel delivery; enter the packed weight of one sale
-                            unit.</small>
+                        <small>Optional packed weight of one sale unit in grams.</small>
                     </label>
                 </div>
                 <div class="merchant-product-form-actions">
@@ -264,9 +263,9 @@
     </footer>
 
     <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
-    <script src="js/api-config.js?v=20261016-1"></script>
+    <script type="module" src="js/api-config.js?v=20261016-1"></script>
     <script type="module" src="js/merchant-portal.js?v=20261016-3"></script>
-    <script src="js/chatbot.js"></script>
+    <script type="module" src="js/chatbot.js"></script>
 </body>
 
 </html>
