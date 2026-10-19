@@ -13,7 +13,9 @@
     "razorpay": "^2.9.6"
   },
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "export:namecheap": "node scripts/export_namecheap_data.js",
+    "sync:namecheap": "node scripts/sync_to_namecheap.js"
   },
   "allowScripts": {
     "@firebase/util@1.15.3": true,

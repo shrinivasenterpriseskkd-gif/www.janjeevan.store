@@ -188,6 +188,28 @@ const saveLocalProfileDocument = async (dataUrl, directory, name) => {
   return path.relative(localProfileDataDirectory, filePath).split(path.sep).join("/");
 };
 
+const syncToNamecheap = async (action, payload) => {
+  const syncUrl = process.env.NAMECHEAP_SYNC_URL;
+  const apiKey = process.env.NAMECHEAP_SYNC_KEY;
+  if (!syncUrl || !apiKey) return;
+  try {
+    const res = await fetch(syncUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Api-Key": apiKey
+      },
+      body: JSON.stringify({ action, ...payload })
+    });
+    if (!res.ok) {
+      const err = await res.text();
+      console.warn(`Namecheap sync [${action}] failed HTTP ${res.status}:`, err);
+    }
+  } catch (error) {
+    console.warn(`Namecheap sync [${action}] network error:`, error.message);
+  }
+};
+
 const requireFirebaseUser = async request => {
   const authorization = request.get("authorization") || "";
   const token = authorization.startsWith("Bearer ") ? authorization.slice(7) : "";
@@ -281,7 +303,10 @@ const loadCheckoutItems = async requestedItems => {
       error.status = 409;
       throw error;
     }
-    const salePrice = Math.round(price * (1 - discount / 100) * 100) / 100;
+    const rawSellingPrice = Number(product.sellingPrice);
+    const salePrice = Number.isFinite(rawSellingPrice) && rawSellingPrice > 0
+      ? rawSellingPrice
+      : Math.round(price * (1 - discount / 100) * 100) / 100;
     itemSubtotal += Math.round(salePrice * 100) * quantity;
     const weightGrams = Number(product.weightGrams);
     if (Number.isInteger(weightGrams) && weightGrams > 0 && weightGrams <= 100000) {
@@ -299,6 +324,10 @@ const loadCheckoutItems = async requestedItems => {
       merchantName: String(product.merchantName || product.shopName || ""),
       area: String(product.area || ""),
       village: String(product.village || ""),
+      size: String(product.size || ""),
+      color: String(product.color || ""),
+      sku: String(product.sku || ""),
+      brand: String(product.brand || ""),
       merchantLocation: Number.isFinite(Number(product.latitude)) && Number.isFinite(Number(product.longitude))
         ? { latitude: Number(product.latitude), longitude: Number(product.longitude), label: product.village || product.area || "Merchant pickup area" }
         : null
@@ -762,10 +791,22 @@ const validateMerchantProduct = async (submittedProduct, user, merchantAccount) 
   const localFilename = imageUrl.startsWith(localUploadPrefix)
     && /^[0-9a-f-]+\.(?:jpg|png|webp)$/i.test(imageUrl.slice(localUploadPrefix.length));
   const staticProductImage = /^images\/products\/[A-Za-z0-9][A-Za-z0-9._-]*\.(?:jpe?g|png|webp)$/i.test(imageUrl);
+  const sellingPrice = submittedProduct?.sellingPrice == null || submittedProduct?.sellingPrice === "" ? null : Number(submittedProduct.sellingPrice);
+  const description = String(submittedProduct?.description || "").trim();
+  const sku = String(submittedProduct?.sku || "").trim().toUpperCase();
+  const size = String(submittedProduct?.size || "").trim();
+  const brand = String(submittedProduct?.brand || "").trim();
+  const packCount = submittedProduct?.packCount == null || submittedProduct?.packCount === "" ? null : Number(submittedProduct.packCount);
+  const color = String(submittedProduct?.color || "").trim();
+  const careInstructions = String(submittedProduct?.careInstructions || "").trim();
+  const barcode = String(submittedProduct?.barcode || "").trim();
+
   if (!name || name.length > 120 || !category || category.length > 80 || !uom || uom.length > 40 ||
     !Number.isFinite(price) || price < 0 || !Number.isInteger(discountPercent) || discountPercent < 0 || discountPercent > 100 ||
     !Number.isFinite(gstPercent) || gstPercent < 0 || gstPercent > 100 || !Number.isInteger(quantity) || quantity < 0 ||
     (weightGrams !== null && (!Number.isInteger(weightGrams) || weightGrams < 1 || weightGrams > 100000)) ||
+    (sellingPrice !== null && (!Number.isFinite(sellingPrice) || sellingPrice < 0)) ||
+    (packCount !== null && (!Number.isInteger(packCount) || packCount < 1)) ||
     !area || area.length > 100 || !village || village.length > 100 || (!localFilename && !staticProductImage)) {
     const error = new Error("Product details or photo are invalid. Check all required fields and use a JPG, PNG, or WebP image.");
     error.status = 400;
@@ -798,7 +839,16 @@ const validateMerchantProduct = async (submittedProduct, user, merchantAccount) 
     avlbStk: quantity,
     area,
     village,
-    imageUrl
+    imageUrl,
+    description,
+    sku,
+    sellingPrice: sellingPrice ?? (price && !Number.isNaN(price) ? price : null),
+    size,
+    brand,
+    packCount,
+    color,
+    careInstructions,
+    barcode
   };
 };
 
@@ -835,6 +885,7 @@ app.post("/api/merchant/products", async (request, response) => {
       ...product,
       createdAt: FieldValue.serverTimestamp()
     });
+    syncToNamecheap("sync_product", { product: { id: created.id, ...product } });
     response.status(201).json({ id: created.id, product });
   } catch (error) {
     if (error.status) return response.status(error.status).json({ error: error.message });
@@ -1489,6 +1540,14 @@ app.post("/api/payments/verify", async (request, response) => {
           }
           transaction.delete(registrationFeeRef);
         });
+        syncToNamecheap("sync_merchant", {
+          merchant: {
+            ...pendingRegistration.profile,
+            userId: user.uid,
+            registrationOrderId: orderId,
+            registrationPaymentId: paymentId
+          }
+        });
         return response.json({ verified: true, registrationFee: true, alreadyRegistered });
       }
       const accountAfterRegistrationRetry = await firebaseAdminDb.collection("merchantAccounts").doc(user.uid).get();
@@ -1620,6 +1679,27 @@ app.post("/api/payments/verify", async (request, response) => {
     }
 
     const savedOrder = await orderRef.get();
+    syncToNamecheap("sync_order", {
+      order: {
+        orderId,
+        paymentId,
+        userId: user.uid,
+        merchantId: savedOrder.data()?.merchantIds?.[0] || null,
+        customerName: savedOrder.data()?.customerName || "",
+        customerMobile: savedOrder.data()?.customerMobile || "",
+        deliveryState: savedOrder.data()?.deliveryState || "",
+        deliveryMethod: savedOrder.data()?.deliveryMethod || "delivery_partner",
+        postalAddress: savedOrder.data()?.postalAddress || "",
+        postalPincode: savedOrder.data()?.postalPincode || "",
+        itemSubtotal: savedOrder.data()?.itemSubtotal || 0,
+        postalCharge: savedOrder.data()?.postalCharge || 0,
+        totalAmount: savedOrder.data()?.amount || 0,
+        totalWeightGrams: savedOrder.data()?.totalWeightGrams || null,
+        paymentMethod: savedOrder.data()?.paymentMethod || "razorpay",
+        status: savedOrder.data()?.status || "Awaiting pickup",
+        items: savedOrder.data()?.items || []
+      }
+    });
     response.json({
       verified: true,
       orderId,

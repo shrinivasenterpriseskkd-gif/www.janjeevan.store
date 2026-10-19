@@ -208,6 +208,18 @@ const collectRegistrationFee = async (registration, onPaymentSubmitted) => {
             order_id: order.orderId,
             prefill: { name: registration.fullName, email: registration.email, contact: registration.phoneNo },
             theme: { color: '#ef6b3f' },
+            config: {
+                display: {
+                    blocks: {
+                        upiApps: {
+                            name: 'Google Pay / PhonePe / Paytm / UPI',
+                            instruments: [{ method: 'upi', flows: ['intent', 'qr'] }]
+                        }
+                    },
+                    sequence: ['block.upiApps'],
+                    preferences: { show_default_blocks: true }
+                }
+            },
             modal: {
                 ondismiss: () => reject(new Error('Registration-fee payment was cancelled. No registration was completed.'))
             },

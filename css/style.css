@@ -413,10 +413,17 @@ button {
     padding: 14px 16px;
     border: 1px solid rgba(24, 34, 31, 0.4);
     border-radius: 12px;
-    background: rgba(255, 255, 255, 0.12);
+    background: #ffffff;
     color: var(--brand-ink);
-    font: 500 1rem 'DM Sans', Arial, sans-serif;
+    font: 500 1.05rem 'DM Sans', Arial, sans-serif;
     transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+#merchant-form select option {
+    font-size: 1.05rem;
+    padding: 10px 14px;
+    color: #1b231f;
+    background-color: #ffffff;
 }
 
 #merchant-form input:focus,
@@ -686,6 +693,86 @@ button {
     background: #fff7ea;
     color: #a56618;
     border: 1px solid #f2dca1;
+}
+
+.merchant-registration-credentials {
+    margin-top: 24px;
+    padding: 24px 28px;
+    background: #f0fdf4;
+    border: 2px solid #86efac;
+    border-radius: 18px;
+    box-shadow: 0 8px 24px rgba(22, 101, 52, 0.08);
+}
+
+.merchant-registration-credentials h2 {
+    margin: 0 0 10px;
+    color: #14532d;
+    font-size: 1.4rem;
+}
+
+.merchant-registration-credentials p {
+    color: #166534;
+    margin: 0 0 16px;
+    font-size: 1rem;
+    line-height: 1.5;
+}
+
+.merchant-registration-credentials dl {
+    margin: 0 0 16px;
+    display: grid;
+    gap: 12px;
+}
+
+.merchant-registration-credentials dt {
+    font-size: 0.88rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #15803d;
+    font-weight: 700;
+}
+
+.merchant-registration-credentials dd {
+    margin: 4px 0 0;
+}
+
+.merchant-registration-credentials code {
+    display: inline-block;
+    padding: 8px 14px;
+    background: #ffffff;
+    border: 1px solid #bbf7d0;
+    border-radius: 8px;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #166534;
+    letter-spacing: 0.04em;
+    user-select: all;
+}
+
+.merchant-registration-credentials .credentials-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 18px;
+}
+
+.merchant-registration-credentials .login-redirect-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 24px;
+    background: #15803d;
+    color: #ffffff;
+    text-decoration: none;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 1rem;
+    box-shadow: 0 4px 12px rgba(21, 128, 61, 0.25);
+    transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.merchant-registration-credentials .login-redirect-btn:hover {
+    background: #166534;
+    transform: translateY(-1px);
 }
 
 .store-footer {

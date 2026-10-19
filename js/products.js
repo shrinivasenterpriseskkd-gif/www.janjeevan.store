@@ -110,6 +110,13 @@ try {
             const category = String(product.category || "Uncategorized").trim() || "Uncategorized";
             const stock = Number(product.avlbStk);
             const inStock = Number.isFinite(stock) && stock > 0;
+            const displayPrice = product.sellingPrice != null && Number(product.sellingPrice) > 0 ? Number(product.sellingPrice) : effectivePrice(product);
+            const clothingBadges = [
+                product.brand ? `<span>Brand: ${escapeHtml(product.brand)}</span>` : "",
+                product.size ? `<span>Size: ${escapeHtml(product.size)}</span>` : "",
+                product.color ? `<span>Color: ${escapeHtml(product.color)}</span>` : "",
+                product.packCount ? `<span>Pack: ${escapeHtml(product.packCount)}</span>` : ""
+            ].filter(Boolean).join(" · ");
             return `<article class="card">
             <div class="card-image">
                 <img src="${escapeHtml(product.imageUrl || "")}" alt="${escapeHtml(product.name)}" loading="lazy">
@@ -117,9 +124,16 @@ try {
                 ${discount ? `<span class="discount-tag">${discount}% off</span>` : ""}
             </div>
             <div class="card-body">
-                <div><h3>${escapeHtml(product.name)}</h3><p class="product-category">${escapeHtml(category)}</p><p>${escapeHtml(product.uom || "Unit")}</p><p class="product-stock-status ${inStock ? "in-stock" : "out-of-stock"}">${inStock ? `${stock} available` : "Out of stock"}</p></div>
-                <div class="price-line"><strong class="price">${money(effectivePrice(product))}</strong>
-                    ${discount ? `<s>${money(product.price)}</s>` : ""}
+                <div>
+                    <h3>${escapeHtml(product.name)}</h3>
+                    <p class="product-category">${escapeHtml(category)}</p>
+                    ${clothingBadges ? `<p class="product-attributes" style="font-size: 0.8rem; color: #5a6b61; margin: 3px 0;">${clothingBadges}</p>` : ""}
+                    ${product.description ? `<p class="product-description" style="font-size: 0.78rem; color: #718079; margin: 3px 0; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden;">${escapeHtml(product.description)}</p>` : ""}
+                    <p>${escapeHtml(product.uom || "Unit")}</p>
+                    <p class="product-stock-status ${inStock ? "in-stock" : "out-of-stock"}">${inStock ? `${stock} available` : "Out of stock"}</p>
+                </div>
+                <div class="price-line"><strong class="price">${money(displayPrice)}</strong>
+                    ${discount || (product.sellingPrice != null && product.sellingPrice < product.price) ? `<s>${money(product.price)}</s>` : ""}
                 </div>
             </div>
             <button type="button" data-add-product="${escapeHtml(product.id)}" ${inStock ? "" : "disabled"}>${inStock ? "Add to cart" : "Out of stock"}<span>→</span></button>

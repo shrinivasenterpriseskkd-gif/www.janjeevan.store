@@ -62,7 +62,16 @@ const workbookColumns = [
     "Shipping Weight (g)",
     "Area",
     "Village / Town",
-    "Image Filename"
+    "Image Filename",
+    "Selling Price",
+    "SKU",
+    "Size",
+    "Brand",
+    "Pack Count",
+    "Color",
+    "Care Instructions",
+    "Barcode",
+    "Description"
 ];
 const excel = () => {
     if (!window.XLSX) throw new Error("Excel support could not load. Refresh the page and try again.");
@@ -145,7 +154,16 @@ document.querySelector("#export-merchant-products").addEventListener("click", ()
                 "Shipping Weight (g)": Number(product.weightGrams) || "",
                 Area: product.area || "",
                 "Village / Town": product.village || "",
-                "Image Filename": String(product.imageUrl || "").split(/[\\/]/).pop()
+                "Image Filename": String(product.imageUrl || "").split(/[\\/]/).pop(),
+                "Selling Price": product.sellingPrice != null ? Number(product.sellingPrice) : "",
+                SKU: product.sku || "",
+                Size: product.size || "",
+                Brand: product.brand || "",
+                "Pack Count": product.packCount != null ? Number(product.packCount) : "",
+                Color: product.color || "",
+                "Care Instructions": product.careInstructions || "",
+                Barcode: product.barcode || "",
+                Description: product.description || ""
             });
         });
         const usedSheetNames = new Set();
@@ -241,6 +259,21 @@ const parseProductWorkbook = async workbookFile => {
         if (!village || village.length > 100) rowErrors.push("Village / Town is required (max 100 characters)");
         if (!isStaticProductImagePath(imageUrl)) rowErrors.push(`Use a JPG, PNG, or WebP filename (without folders) for "${imageFilename || "(empty)"}"`);
 
+        const sellingPriceVal = value("Selling Price");
+        const sellingPrice = sellingPriceVal != null && sellingPriceVal !== "" ? Number(sellingPriceVal) : null;
+        const sku = String(value("SKU") ?? "").trim().toUpperCase();
+        const size = String(value("Size") ?? "").trim();
+        const brand = String(value("Brand") ?? "").trim();
+        const packCountVal = value("Pack Count");
+        const packCount = packCountVal != null && packCountVal !== "" ? Number(packCountVal) : null;
+        const color = String(value("Color") ?? "").trim();
+        const careInstructions = String(value("Care Instructions") ?? "").trim();
+        const barcode = String(value("Barcode") ?? "").trim();
+        const description = String(value("Description") ?? "").trim();
+
+        if (sellingPrice !== null && (!Number.isFinite(sellingPrice) || sellingPrice < 0)) rowErrors.push("Selling Price must be a non-negative number");
+        if (packCount !== null && (!Number.isInteger(packCount) || packCount < 1)) rowErrors.push("Pack Count must be a whole number of at least 1");
+
         if (rowErrors.length) {
             errors.push(`Row ${rowNumber}: ${rowErrors.join("; ")}`);
             continue;
@@ -259,7 +292,16 @@ const parseProductWorkbook = async workbookFile => {
                 avlbStk,
                 area,
                 village,
-                imageUrl
+                imageUrl,
+                sellingPrice,
+                sku,
+                size,
+                brand,
+                packCount,
+                color,
+                careInstructions,
+                barcode,
+                description
             }
         });
     }
@@ -582,8 +624,13 @@ const renderProducts = () => {
                 <p>Category: ${escapeHtml(product.category || "Uncategorized")}</p>
                 <p>${escapeHtml(product.area || "Area not set")} · ${escapeHtml(product.village || "Village not set")}</p>
                 <p class="merchant-product-stock-status ${inStock ? "in-stock" : "out-of-stock"}">${inStock ? `Stock: ${stock} available` : "Out of stock"}</p>
-                <p class="merchant-product-sale-price">${money(effectivePrice(product.price, discount))}<span> / ${escapeHtml(product.uom || "unit")}</span></p>
-                <p class="merchant-product-price-detail">Price: ${money(product.price)} · Discount: ${discount}% · GST: ${formatPercent(gstPercent)}%</p>
+                <p class="merchant-product-sale-price">${money(product.sellingPrice != null && Number(product.sellingPrice) > 0 ? Number(product.sellingPrice) : effectivePrice(product.price, discount))}<span> / ${escapeHtml(product.uom || "unit")}</span></p>
+                <p class="merchant-product-price-detail">Price: ${money(product.price)}${product.sellingPrice != null ? ` · Selling Price: ${money(product.sellingPrice)}` : ""} · Discount: ${discount}% · GST: ${formatPercent(gstPercent)}%</p>
+                ${product.brand || product.sku ? `<p class="merchant-product-price-detail">${product.brand ? `Brand: ${escapeHtml(product.brand)}` : ""}${product.brand && product.sku ? " · " : ""}${product.sku ? `SKU: ${escapeHtml(product.sku)}` : ""}</p>` : ""}
+                ${product.size || product.color || product.packCount ? `<p class="merchant-product-price-detail">${product.size ? `Size: ${escapeHtml(product.size)}` : ""}${product.size && (product.color || product.packCount) ? " · " : ""}${product.color ? `Color: ${escapeHtml(product.color)}` : ""}${product.color && product.packCount ? " · " : ""}${product.packCount ? `Pack: ${escapeHtml(product.packCount)}` : ""}</p>` : ""}
+                ${product.barcode ? `<p class="merchant-product-price-detail">Barcode: ${escapeHtml(product.barcode)}</p>` : ""}
+                ${product.careInstructions ? `<p class="merchant-product-price-detail">Care: ${escapeHtml(product.careInstructions)}</p>` : ""}
+                ${product.description ? `<p class="merchant-product-price-detail">Description: ${escapeHtml(product.description)}</p>` : ""}
                 <p class="merchant-product-price-detail">Packed weight: ${product.weightGrams ? `${escapeHtml(product.weightGrams)} g` : "Not set"}</p>
                 <button class="secondary-btn merchant-product-save" type="button" data-product-id="${escapeHtml(id)}">Edit product</button>
             </div>
@@ -626,6 +673,15 @@ const editProduct = ({ id, product }) => {
     document.querySelector("#merchant-product-gst").value = product.gstPercent ?? 0;
     document.querySelector("#merchant-product-stock").value = product.avlbStk ?? 0;
     document.querySelector("#merchant-product-weight").value = product.weightGrams ?? "";
+    document.querySelector("#merchant-product-selling-price").value = product.sellingPrice ?? "";
+    document.querySelector("#merchant-product-sku").value = product.sku || "";
+    document.querySelector("#merchant-product-size").value = product.size || "";
+    document.querySelector("#merchant-product-brand").value = product.brand || "";
+    document.querySelector("#merchant-product-pack-count").value = product.packCount ?? "";
+    document.querySelector("#merchant-product-color").value = product.color || "";
+    document.querySelector("#merchant-product-care").value = product.careInstructions || "";
+    document.querySelector("#merchant-product-barcode").value = product.barcode || "";
+    document.querySelector("#merchant-product-description").value = product.description || "";
     document.querySelector("#merchant-product-area").value = product.area || "";
     document.querySelector("#merchant-product-village").value = product.village || "";
     productPhotoInput.value = "";
@@ -742,6 +798,8 @@ productForm.addEventListener("submit", async event => {
             }
             imageUrl = result.imageUrl;
         }
+        const sellingPriceInput = document.querySelector("#merchant-product-selling-price").value.trim();
+        const packCountInput = document.querySelector("#merchant-product-pack-count").value.trim();
         const productFields = {
             name: productName,
             category: productCategoryInput.value.trim().toUpperCase(),
@@ -754,7 +812,16 @@ productForm.addEventListener("submit", async event => {
             avlbStk,
             area: document.querySelector("#merchant-product-area").value.trim().toLowerCase(),
             village: document.querySelector("#merchant-product-village").value.trim().toLowerCase(),
-            imageUrl
+            imageUrl,
+            description: document.querySelector("#merchant-product-description").value.trim(),
+            sku: document.querySelector("#merchant-product-sku").value.trim().toUpperCase(),
+            sellingPrice: sellingPriceInput ? Number(sellingPriceInput) : null,
+            size: document.querySelector("#merchant-product-size").value.trim(),
+            brand: document.querySelector("#merchant-product-brand").value.trim(),
+            packCount: packCountInput ? Number(packCountInput) : null,
+            color: document.querySelector("#merchant-product-color").value.trim(),
+            careInstructions: document.querySelector("#merchant-product-care").value.trim(),
+            barcode: document.querySelector("#merchant-product-barcode").value.trim()
         };
         await saveMerchantProduct(productFields, editingProductId);
         const wasEditing = Boolean(editingProductId);

@@ -35,7 +35,11 @@ const money = value => new Intl.NumberFormat("en-IN", {
     currency: "INR",
     maximumFractionDigits: 2
 }).format(value || 0);
-const effectivePrice = product => Math.round((Number(product.price) || 0) * (1 - Math.min(100, Math.max(0, Number(product.discountPercent) || 0)) / 100) * 100) / 100;
+const effectivePrice = product => {
+    const sellingPrice = Number(product.sellingPrice);
+    if (Number.isFinite(sellingPrice) && sellingPrice > 0) return sellingPrice;
+    return Math.round((Number(product.price) || 0) * (1 - Math.min(100, Math.max(0, Number(product.discountPercent) || 0)) / 100) * 100) / 100;
+};
 const selectedDeliveryMethod = () => deliveryMethodInputs.find(input => input.checked)?.value || "delivery_partner";
 const requestedItems = () => Array.from(products.reduce((quantities, product) =>
     quantities.set(product.id, (quantities.get(product.id) || 0) + 1), new Map()),
@@ -179,9 +183,16 @@ async function loadCart() {
         cart.innerHTML = products.length
             ? products.map(product => {
                 const discount = Math.min(100, Math.max(0, Number(product.discountPercent) || 0));
+                const clothingDetails = [
+                    product.size ? `Size: ${escapeHtml(product.size)}` : "",
+                    product.color ? `Color: ${escapeHtml(product.color)}` : ""
+                ].filter(Boolean).join(" · ");
                 return `<article class="cart-item">
                     <div class="cart-image"><img src="${escapeHtml(product.imageUrl || "https://via.placeholder.com/200x200?text=Janjeevan.store")}" alt="${escapeHtml(product.name)}"></div>
-                    <div><h2>${escapeHtml(product.name || "Product")}</h2><p>${escapeHtml(product.uom || "Unit")} · ${product.avlbStk ?? 0} available</p></div>
+                    <div>
+                        <h2>${escapeHtml(product.name || "Product")}</h2>
+                        <p>${escapeHtml(product.uom || "Unit")}${clothingDetails ? ` · ${clothingDetails}` : ""} · ${product.avlbStk ?? 0} available</p>
+                    </div>
                     <strong>${money(effectivePrice(product))}${discount ? `<small class="cart-original-price"><s>${money(product.price)}</s> · ${discount}% off</small>` : ""}</strong>
                     <button class="cart-remove" type="button" data-remove-product="${escapeHtml(product.id)}" aria-label="Remove ${escapeHtml(product.name || "product")} from cart">Remove</button>
                 </article>`;

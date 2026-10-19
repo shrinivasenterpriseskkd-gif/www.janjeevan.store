@@ -6,8 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Janjeevan.store | Merchant Catalog</title>
     <meta name="description" content="Manage your Janjeevan.store merchant product photos, prices, and discounts.">
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/merchant-portal.css">
+    <link rel="stylesheet" href="css/style.css?v=20261019-3">
+    <link rel="stylesheet" href="css/merchant-portal.css?v=20261019-1">
 </head>
 
 <body class="merchant-page merchant-portal-page">
@@ -216,6 +216,35 @@
                         <small>Required for India Post parcel delivery; enter the packed weight of one sale
                             unit.</small>
                     </label>
+                    <label>Selling Price (₹)
+                        <input id="merchant-product-selling-price" type="number" min="0" step="0.01"
+                            placeholder="Selling price if different from MRP">
+                    </label>
+                    <label>SKU
+                        <input id="merchant-product-sku" type="text" maxlength="60" placeholder="e.g. SHT-COT-BLU-M">
+                    </label>
+                    <label>Size
+                        <input id="merchant-product-size" type="text" maxlength="40" placeholder="e.g. S, M, L, XL, XXL, Free Size">
+                    </label>
+                    <label>Brand
+                        <input id="merchant-product-brand" type="text" maxlength="80" placeholder="e.g. CottonFab">
+                    </label>
+                    <label>Pack Count
+                        <input id="merchant-product-pack-count" type="number" min="1" step="1" placeholder="e.g. 1, 2, 5">
+                    </label>
+                    <label>Color
+                        <input id="merchant-product-color" type="text" maxlength="50" placeholder="e.g. Navy Blue, Red">
+                    </label>
+                    <label>Barcode
+                        <input id="merchant-product-barcode" type="text" maxlength="60" placeholder="e.g. 8901234567890">
+                    </label>
+                    <label class="merchant-product-field-full">Care Instructions
+                        <input id="merchant-product-care" type="text" maxlength="200" placeholder="e.g. Hand wash cold, dry in shade">
+                    </label>
+                    <label class="merchant-product-field-full">Product Description
+                        <textarea id="merchant-product-description" rows="3" maxlength="1000"
+                            placeholder="Describe the fabric, design, style, fit, and details"></textarea>
+                    </label>
                 </div>
                 <div class="merchant-product-form-actions">
                     <button class="submit-btn" id="merchant-product-submit" type="submit">Save product</button>
@@ -265,7 +294,7 @@
 
     <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
     <script src="js/api-config.js?v=20261016-1"></script>
-    <script type="module" src="js/merchant-portal.js?v=20261016-3"></script>
+    <script type="module" src="js/merchant-portal.js?v=20261019-1"></script>
     <script src="js/chatbot.js"></script>
 </body>
 

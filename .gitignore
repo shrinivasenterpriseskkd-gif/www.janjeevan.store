@@ -5,3 +5,7 @@ uploads/images/
 *-firebase-adminsdk-*.json
 service-account*.json
 adminsdk-fbsvc.json
+.vscode/
+*.zip
+
+

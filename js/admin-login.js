@@ -21,7 +21,11 @@ const checkSession = async () => {
         if (session.authenticated) window.location.replace("index.html");
     } catch (error) {
         console.error("Could not check the Admin session.", error);
-        setStatus("Could not connect to the Admin sign-in service. Please try again later.", true);
+        if (error instanceof TypeError && /fetch/i.test(error.message)) {
+            setStatus("Could not connect to the backend server. Start the server with 'npm start' in your terminal and open http://localhost:5500/admin/login.html.", true);
+        } else {
+            setStatus("Could not connect to the Admin sign-in service. Please try again later.", true);
+        }
     }
 };
 
@@ -53,7 +57,11 @@ form.addEventListener("submit", async event => {
         window.location.replace("index.html");
     } catch (error) {
         console.error("Admin sign-in failed.", error);
-        setStatus(error.message, true);
+        if (error instanceof TypeError && /fetch/i.test(error.message)) {
+            setStatus("Could not connect to the server (Failed to fetch). Make sure 'npm start' is running in the terminal on port 5500.", true);
+        } else {
+            setStatus(error.message, true);
+        }
         submitButton.disabled = false;
     }
 });
