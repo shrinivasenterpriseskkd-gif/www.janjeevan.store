@@ -200,7 +200,7 @@ orderList.addEventListener('click', async event => {
     try {
         const orderId = button.closest('.delivery-order-card')?.dataset.orderId;
         const status = button.dataset.orderAction === 'delivered' ? 'Delivered' : 'Out for delivery';
-        const response = await fetch(`${apiBase}/api/orders/${encodeURIComponent(orderId)}/status`, {
+        const response = await fetch(`${apiBase}/orders/${encodeURIComponent(orderId)}/status`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

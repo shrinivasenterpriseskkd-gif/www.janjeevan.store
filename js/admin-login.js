@@ -15,7 +15,7 @@ const checkSession = async () => {
     }
 
     try {
-        const response = await fetch(`${apiBase}/api/admin/session`, { credentials: "include" });
+        const response = await fetch(`${apiBase}/admin/session`, { credentials: "include" });
         if (!response.ok) throw new Error("Admin sign-in service is unavailable.");
         const session = await response.json();
         if (session.authenticated) window.location.replace("index.html");
@@ -39,7 +39,7 @@ form.addEventListener("submit", async event => {
     submitButton.disabled = true;
     setStatus("Signing in...");
     try {
-        const response = await fetch(`${apiBase}/api/admin/login`, {
+        const response = await fetch(`${apiBase}/admin/login`, {
             method: "POST",
             credentials: "include",
             headers: { "Content-Type": "application/json" },

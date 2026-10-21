@@ -1096,7 +1096,7 @@ async function submitPaymentOrder(paymentMethod = "upi") {
         }
 
         // Call orders endpoint
-        const orderUrl = apiBase ? `${apiBase}/api/orders` : "/api/orders";
+        const orderUrl = apiBase ? `${apiBase}/orders` : "/api/orders";
         const orderRes = await fetch(orderUrl, {
             method: "POST",
             headers,
@@ -1276,7 +1276,7 @@ async function completePaymentVerification(payload) {
             }
         }
 
-        const verifyUrl = apiBase ? `${apiBase}/api/payments/verify` : "/api/payments/verify";
+        const verifyUrl = apiBase ? `${apiBase}/payments/verify` : "/api/payments/verify";
         let result = {};
         try {
             const verifyRes = await fetch(verifyUrl, {
@@ -1369,7 +1369,7 @@ onAuthStateChanged(auth, async user => {
                 state: "Andhra Pradesh",
                 createdAt: serverTimestamp()
             };
-            setDoc(doc(db, "customerAccounts", user.uid), fallbackProfile).catch(() => {});
+            setDoc(doc(db, "customerAccounts", user.uid), fallbackProfile).catch(() => { });
             currentCustomer = fallbackProfile;
         }
     } catch (error) {
