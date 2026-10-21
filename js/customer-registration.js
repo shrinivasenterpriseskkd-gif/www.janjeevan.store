@@ -82,7 +82,7 @@ form.addEventListener('submit', async event => {
 
     let archiveNotice;
     try {
-        const response = await fetch(`${apiBase}/api/local-archive/customer`, {
+        const response = await fetch(`${apiBase}/local-archive/customer`, {
             method: 'POST',
             headers: { Authorization: `Bearer ${await user.getIdToken()}` }
         });

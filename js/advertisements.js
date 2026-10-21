@@ -18,7 +18,7 @@ const safeLink = value => {
 
 try {
     const apiBase = (window.TRIBES_API_BASE_URL || window.location.origin).replace(/\/$/, "");
-    const response = await fetch(`${apiBase}/api/advertisements`);
+    const response = await fetch(`${apiBase}/advertisements`);
     const result = await response.json();
     if (!response.ok) throw new Error(result.error || "Advertisements could not be loaded.");
     const advertisements = Array.isArray(result.advertisements) ? result.advertisements : [];

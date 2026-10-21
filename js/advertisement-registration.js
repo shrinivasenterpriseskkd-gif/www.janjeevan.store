@@ -98,7 +98,7 @@ form.addEventListener("submit", async event => {
     try {
         const idToken = await auth.currentUser?.getIdToken();
         if (!idToken) throw new Error("Your sign-in has expired. Sign in again and retry.");
-        const orderResponse = await fetch(`${apiBase}/api/merchant/advertisements/order`, {
+        const orderResponse = await fetch(`${apiBase}/merchant/advertisements/order`, {
             method: "POST",
             headers: { "Content-Type": "application/json", Authorization: `Bearer ${idToken}` },
             body: JSON.stringify({ advertisement })
@@ -134,7 +134,7 @@ form.addEventListener("submit", async event => {
                 handler: async payment => {
                     try {
                         showStatus("Payment received. Submitting your advertisement for Admin review…");
-                        const paymentResponse = await fetch(`${apiBase}/api/payments/verify`, {
+                        const paymentResponse = await fetch(`${apiBase}/payments/verify`, {
                             method: "POST",
                             headers: { "Content-Type": "application/json", Authorization: `Bearer ${idToken}` },
                             body: JSON.stringify({

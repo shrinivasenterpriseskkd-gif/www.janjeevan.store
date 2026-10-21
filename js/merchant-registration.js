@@ -169,7 +169,7 @@ const collectRegistrationFee = async (registration, onPaymentSubmitted) => {
         throw new Error('Secure registration-fee checkout is unavailable. Start the local server and try again.');
     }
 
-    const order = await requestRegistrationApi(`${apiBase}/api/merchant-registration-order`, {
+    const order = await requestRegistrationApi(`${apiBase}/merchant-registration-order`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -214,7 +214,7 @@ const collectRegistrationFee = async (registration, onPaymentSubmitted) => {
             handler: async payment => {
                 onPaymentSubmitted();
                 try {
-                    const verification = await requestRegistrationApi(`${apiBase}/api/payments/verify`, {
+                    const verification = await requestRegistrationApi(`${apiBase}/payments/verify`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -380,7 +380,7 @@ form.addEventListener('submit', async (event) => {
                 compressShopPhoto(aadharPhoto),
                 compressShopPhoto(panPhoto)
             ]);
-            const archive = await requestRegistrationApi(`${apiBase}/api/local-archive/merchant`, {
+            const archive = await requestRegistrationApi(`${apiBase}/local-archive/merchant`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

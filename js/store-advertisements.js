@@ -68,7 +68,7 @@ const startCarousel = () => {
 };
 
 try {
-    const response = await fetch(`${apiBase}/api/advertisements`, { cache: "no-store" }).catch(() => null);
+    const response = await fetch(`${apiBase}/advertisements`, { cache: "no-store" }).catch(() => null);
     if (response && response.ok) {
         const result = await response.json().catch(() => ({ advertisements: [] }));
         const advertisements = Array.isArray(result?.advertisements) ? result.advertisements : [];

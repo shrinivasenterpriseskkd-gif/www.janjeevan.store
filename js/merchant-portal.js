@@ -358,7 +358,7 @@ const findSavedMerchantProfile = user => {
 const recoverMerchantProfile = async (user, savedMerchant) => {
     if (!savedMerchant || !user.email) return false;
     const idToken = await user.getIdToken();
-    const response = await fetch(`${apiBase}/api/merchant/profile/recover`, {
+    const response = await fetch(`${apiBase}/merchant/profile/recover`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -387,7 +387,7 @@ const recoverMerchantProfile = async (user, savedMerchant) => {
 
 const submitMerchantProfileRecovery = async (user, profile) => {
     const idToken = await user.getIdToken();
-    const response = await fetch(`${apiBase}/api/merchant/profile/recover`, {
+    const response = await fetch(`${apiBase}/merchant/profile/recover`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -412,8 +412,8 @@ const saveMerchantProduct = async (product, productId = "") => {
     const idToken = await auth.currentUser?.getIdToken();
     if (!idToken) throw new Error("Your sign-in has expired. Sign in again and retry.");
     const url = productId
-        ? `${apiBase}/api/merchant/products/${encodeURIComponent(productId)}`
-        : `${apiBase}/api/merchant/products`;
+        ? `${apiBase}/merchant/products/${encodeURIComponent(productId)}`
+        : `${apiBase}/merchant/products`;
     const response = await fetch(url, {
         method: productId ? "PATCH" : "POST",
         headers: {
@@ -454,7 +454,7 @@ const loadMerchantOrders = async () => {
         const idToken = await auth.currentUser?.getIdToken();
         if (!idToken) throw new Error("Your sign-in has expired. Sign in again to receive order alerts.");
         const includeLegacy = knownMerchantOrderIds === null ? "?includeLegacy=1" : "";
-        const response = await fetch(`${apiBase}/api/merchant/orders${includeLegacy}`, {
+        const response = await fetch(`${apiBase}/merchant/orders${includeLegacy}`, {
             headers: { Authorization: `Bearer ${idToken}` }
         });
         const result = await response.json();
@@ -647,7 +647,7 @@ const loadProducts = async () => {
     try {
         const idToken = await auth.currentUser?.getIdToken();
         if (!idToken) throw new Error("Your sign-in has expired. Sign in again and retry.");
-        const response = await fetch(`${apiBase}/api/merchant/products`, {
+        const response = await fetch(`${apiBase}/merchant/products`, {
             headers: { Authorization: `Bearer ${idToken}` }
         });
         const result = await readMerchantApiResponse(response);
@@ -729,7 +729,7 @@ productForm.addEventListener("submit", async event => {
             });
             const idToken = await auth.currentUser?.getIdToken();
             if (!idToken) throw new Error("Your sign-in has expired. Sign in again and retry.");
-            const response = await fetch(`${apiBase}/api/merchant/product-images`, {
+            const response = await fetch(`${apiBase}/merchant/product-images`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

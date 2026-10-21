@@ -280,7 +280,7 @@ form.addEventListener('submit', async (event) => {
             readFileAsDataUrl(cvFile)
         ]);
         const idToken = await user.getIdToken();
-        const response = await fetch(`${apiBase}/api/local-archive/delivery-partner`, {
+        const response = await fetch(`${apiBase}/local-archive/delivery-partner`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
